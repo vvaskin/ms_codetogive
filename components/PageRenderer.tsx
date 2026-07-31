@@ -42,6 +42,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
   const programmes = zh
     ? [
         {
+          id: "sport",
           title: "體育",
           image: images.sports,
           paragraphs: [
@@ -50,6 +51,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "nutrition",
           title: "飲食與營養",
           image: images.nutrition,
           paragraphs: [
@@ -58,6 +60,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "family",
           title: "家庭",
           image: images.family,
           paragraphs: [
@@ -65,6 +68,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "csr",
           title: "企業社會責任",
           image: images.csr,
           paragraphs: [
@@ -74,6 +78,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
       ]
     : [
         {
+          id: "sport",
           title: "Sports",
           image: images.sports,
           paragraphs: [
@@ -82,6 +87,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "nutrition",
           title: "Nutrition",
           image: images.nutrition,
           paragraphs: [
@@ -90,6 +96,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "family",
           title: "Family",
           image: images.family,
           paragraphs: [
@@ -97,6 +104,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "csr",
           title: "CSR",
           image: images.csr,
           paragraphs: [
@@ -110,7 +118,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
     <article className="content-page programmes-page">
       <PageHeading>{zh ? "我們的計劃" : "OUR PROGRAMMES"}</PageHeading>
       {programmes.map((programme, index) => (
-        <section className="programme-row" key={programme.title}>
+        <section className="programme-row" id={programme.id} key={programme.title}>
           <div className="programme-photo">
             <Image
               src={programme.image}
@@ -403,13 +411,25 @@ export function PageRenderer({ path }: { path: string }) {
         <article className="content-page calendar-page">
           <PageHeading>{page.title}</PageHeading>
           <p>
-            If you’d like to commit to teaching your own weekly class for our
-            beneficiaries or support an existing class, please contact our Programme
-            Manager at{" "}
-            <a href="mailto:maggie@love21foundation.com">
-              maggie@love21foundation.com
-            </a>
-            .
+            {page.locale === "zh" ? (
+              <>
+                如你希望義務為我們的會員每星期教授一堂課，或支援現有的課堂，歡迎聯絡我們的計劃經理：
+                <a href="mailto:maggie@love21foundation.com">
+                  maggie@love21foundation.com
+                </a>
+                。
+              </>
+            ) : (
+              <>
+                If you’d like to commit to teaching your own weekly class for our
+                beneficiaries or support an existing class, please contact our
+                Programme Manager at{" "}
+                <a href="mailto:maggie@love21foundation.com">
+                  maggie@love21foundation.com
+                </a>
+                .
+              </>
+            )}
           </p>
         </article>
       );

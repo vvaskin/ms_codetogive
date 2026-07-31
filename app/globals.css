@@ -2,11 +2,13 @@
 
 :root {
   --love-red: #cb3547;
+  --love-red-dark: #a82534;
   --love-dark: #292929;
   --love-muted: #666;
   --love-line: #d7d7d7;
   --love-blue: #9aa9ce;
-  --love-green: #7fb48d;
+  --love-green: #57a568;
+  --love-green-dark: #438554;
   --header-height: 115px;
 }
 
@@ -106,21 +108,89 @@ a {
   height: 53px;
   display: flex;
   align-items: center;
-  gap: 44px;
+  gap: 18px;
   font-size: 16px;
 }
 
-.header-utility a {
-  transition: color 160ms ease;
+.header-ctas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-utility a,
+.simple-view-toggle {
+  transition:
+    color 160ms ease,
+    background 160ms ease;
 }
 
 .header-utility a:hover,
-.header-utility a:focus-visible {
+.header-utility a:focus-visible,
+.simple-view-toggle:hover,
+.simple-view-toggle:focus-visible {
   color: var(--love-red);
 }
 
+.header-utility .utility-donate,
+.header-utility .utility-volunteer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 26px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .header-utility .utility-donate {
-  color: var(--love-red);
+  background: var(--love-red);
+}
+
+.header-utility .utility-donate:hover,
+.header-utility .utility-donate:focus-visible {
+  background: var(--love-red-dark);
+  color: #fff;
+}
+
+.header-utility .utility-volunteer {
+  background: var(--love-green);
+}
+
+.header-utility .utility-volunteer:hover,
+.header-utility .utility-volunteer:focus-visible {
+  background: var(--love-green-dark);
+  color: #fff;
+}
+
+.header-utility .utility-donate img,
+.header-utility .utility-volunteer img {
+  display: block;
+  object-fit: contain;
+}
+
+.simple-view-toggle {
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #000;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.simple-view-toggle img {
+  display: block;
+  object-fit: contain;
+}
+
+.simple-view-toggle:hover,
+.simple-view-toggle:focus-visible {
+  color: #000;
 }
 
 .language-links {
@@ -139,8 +209,10 @@ a {
   height: 62px;
   display: flex;
   align-items: center;
-  gap: 62px;
-  color: #595959;
+  gap: 24px;
+  color: #222;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .main-nav > a,
@@ -149,7 +221,7 @@ a {
   border: 0;
   background: transparent;
   color: inherit;
-  font-weight: 400;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -205,7 +277,8 @@ a {
 
 .nav-dropdown a {
   display: block;
-  padding: 7px 20px;
+  padding: 9px 22px;
+  font-weight: 600;
 }
 
 .nav-dropdown a:hover,
@@ -1406,11 +1479,16 @@ textarea {
 
 @media (max-width: 1000px) {
   .main-nav {
-    gap: 30px;
+    gap: 18px;
   }
 
   .header-utility {
-    gap: 28px;
+    gap: 14px;
+  }
+
+  .header-utility .utility-donate,
+  .header-utility .utility-volunteer {
+    padding: 8px 18px;
   }
 
   .programme-collage {
@@ -1506,7 +1584,8 @@ textarea {
 
   .main-nav > a,
   .nav-group-trigger,
-  .mobile-utility > a {
+  .mobile-utility > a,
+  .mobile-utility .simple-view-toggle {
     width: 100%;
     min-height: 48px;
     display: flex;
@@ -1563,6 +1642,10 @@ textarea {
   .mobile-utility {
     display: block;
     margin-top: 12px;
+  }
+
+  .mobile-utility .simple-view-toggle {
+    font-size: 16px;
   }
 
   .floating-donate {
@@ -1831,4 +1914,56 @@ textarea {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+.programme-row {
+  scroll-margin-top: 140px;
+}
+
+html.simple-view body {
+  color: #111;
+  font-size: 20px;
+  line-height: 1.75;
+}
+
+html.simple-view .site-header {
+  border-bottom: 2px solid #111;
+  box-shadow: none;
+}
+
+html.simple-view .nav-group-trigger,
+html.simple-view .main-nav > a,
+html.simple-view .site-footer a,
+html.simple-view .site-footer strong {
+  font-weight: 600;
+}
+
+html.simple-view .nav-dropdown {
+  border: 2px solid #111;
+  box-shadow: none;
+}
+
+html.simple-view .development-ribbon {
+  position: static;
+  z-index: auto;
+  max-width: none;
+  padding: 9px 16px;
+  border-radius: 0;
+  background: #111;
+  font-size: 15px;
+  text-align: center;
+}
+
+html.simple-view .floating-donate {
+  position: static;
+  z-index: auto;
+  width: 100%;
+  padding: 14px;
+  border-radius: 0;
+  text-align: center;
+}
+
+html.simple-view .site-footer {
+  border-top: 2px solid #111;
+  box-shadow: none;
 }
