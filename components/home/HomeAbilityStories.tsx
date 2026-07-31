@@ -97,6 +97,9 @@ export function HomeAbilityStories({
             <h3 className={styles.homeStoryAchievement}>
               {t(story.achievement, locale)}
             </h3>
+            <p className={styles.homeStorySummary}>
+              {t(story.summary, locale)}
+            </p>
 
             <ol
               className={styles.homeMilestoneLine}

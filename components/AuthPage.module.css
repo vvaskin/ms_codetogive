@@ -1,0 +1,101 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: calc(100vh - var(--layout-header-height));
+  background: var(--color-canvas);
+}
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(244, 7, 112, 0.14), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(24, 120, 242, 0.16), transparent 46%),
+    var(--color-blush);
+  color: var(--color-ink);
+}
+
+.panelSignup {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(32, 184, 143, 0.18), transparent 42%),
+    radial-gradient(circle at 80% 80%, rgba(114, 87, 244, 0.14), transparent 46%),
+    var(--color-sky);
+}
+
+.panelInner {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 28rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-pink);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panelInner h2 {
+  margin: 0;
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.5vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.panelInner p:last-child {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--color-text-muted);
+  font-size: 1.08rem;
+  line-height: 1.55;
+}
+
+.formColumn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+  background: var(--color-canvas);
+}
+
+.formColumn > * {
+  width: min(100%, 28rem);
+}
+
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .panel {
+    min-height: auto;
+    padding: clamp(2rem, 6vw, 3rem) var(--layout-gutter);
+  }
+
+  .panelInner {
+    max-width: none;
+  }
+
+  .panelInner h2 {
+    max-width: 18ch;
+  }
+
+  .formColumn {
+    padding: 0 var(--layout-gutter) clamp(3rem, 8vw, 5rem);
+  }
+
+  .formColumn > * {
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
+  }
+}

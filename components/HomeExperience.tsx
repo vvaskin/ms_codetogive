@@ -40,6 +40,47 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               <span aria-hidden="true"> ↓</span>
             </Link>
           </div>
+        </div>
+
+        <div
+          className={styles.homeHeroVisual}
+          aria-label={t(content.hero.imageAlt, locale)}
+        >
+          <figure className={styles.homeHeroPolaroid}>
+            <Image
+              src={content.hero.image}
+              alt={t(content.hero.imageAlt, locale)}
+              fill
+              priority
+              sizes="(max-width: 760px) 90vw, 47vw"
+            />
+            <figcaption>{t(content.hero.caption, locale)}</figcaption>
+          </figure>
+          <figure className={styles.homeHeroMiniPolaroid}>
+            <Image
+              src={content.model.pillars[0].image}
+              alt={t(content.model.pillars[0].imageAlt, locale)}
+              fill
+              sizes="180px"
+            />
+          </figure>
+          <figure className={styles.homeHeroMiniPolaroidAlt}>
+            <Image
+              src={content.model.pillars[1].image}
+              alt={t(content.model.pillars[1].imageAlt, locale)}
+              fill
+              sizes="160px"
+            />
+          </figure>
+          <div className={styles.homeHeroSticker} aria-hidden="true">
+            <span>{t(content.hero.stickers[0], locale)}</span>
+            <span>✦</span>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.homeProofBand} aria-label="Love 21 by the numbers">
+        <div className={styles.homeSectionInner}>
           <ul className={styles.homeProofList}>
             {content.hero.metrics.map((metric) => (
               <li key={metric.value}>
@@ -49,64 +90,7 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
             ))}
           </ul>
         </div>
-
-        <div
-          className={styles.homeHeroVisual}
-          aria-label={t(content.hero.imageAlt, locale)}
-        >
-          <Image
-            src={content.hero.image}
-            alt={t(content.hero.imageAlt, locale)}
-            fill
-            priority
-            sizes="(max-width: 760px) 100vw, 55vw"
-          />
-          <div className={styles.homeHeroCaption}>
-            <span className={styles.homePulse} aria-hidden="true" />
-            {t(content.hero.caption, locale)}
-          </div>
-          <div className={styles.homeHeroSticker} aria-hidden="true">
-            {content.hero.stickers.map((sticker) => (
-              <span key={sticker.en}>{t(sticker, locale)}</span>
-            ))}
-          </div>
-        </div>
       </section>
-
-      <section
-        className={styles.homeJourney}
-        aria-label={t(content.journey.label, locale)}
-      >
-        {content.journey.steps.map((step, index) => (
-          <div key={step.en}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <strong>{t(step, locale)}</strong>
-          </div>
-        ))}
-      </section>
-
-      <nav
-        className={styles.homePaths}
-        aria-label={t(content.stakeholderPaths.label, locale)}
-      >
-        <div className={styles.homeSectionInner}>
-          <p className={styles.homePathsLabel}>
-            {t(content.stakeholderPaths.label, locale)}
-          </p>
-          <ul className={styles.homePathsList}>
-            {content.stakeholderPaths.items.map((item) => (
-              <li key={item.label.en}>
-                <Link href={hrefFor(item, locale)}>
-                  {t(item.label, locale)}
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
-
-      <HomeAbilityStories locale={locale} content={content.stories} />
 
       <section
         id={content.model.id}
@@ -168,276 +152,106 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section
-        id={content.opportunities.id}
-        className={styles.homeOpportunities}
-        aria-labelledby="home-opportunities-heading"
-      >
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeSectionHeadingSolo}>
-            <div>
-              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowTeal}`}>
-                {t(content.opportunities.eyebrow, locale)}
-              </p>
-              <h2
-                id="home-opportunities-heading"
-                className={styles.homeSectionTitle}
-              >
-                {t(content.opportunities.title, locale)}
-              </h2>
-            </div>
-          </div>
-
-          {content.opportunities.activities.length > 0 ? (
-            <>
-              <div className={styles.homeEventToolbar}>
-                <span>{t(content.opportunities.filterLabel, locale)}</span>
-                <p className={styles.homeDemoNote}>
-                  {t(content.opportunities.demoNote, locale)}
-                </p>
-              </div>
-              <div className={styles.homeEventGrid}>
-                {content.opportunities.activities.map((activity) => (
-                  <article key={activity.id} className={styles.homeEventCard}>
-                    <div className={styles.homeEventImage}>
-                      <Image
-                        src={activity.image}
-                        alt={t(activity.imageAlt, locale)}
-                        fill
-                        sizes="(max-width: 760px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                      {activity.badge && (
-                        <span>{t(activity.badge, locale)}</span>
-                      )}
-                    </div>
-                    <div className={styles.homeEventContent}>
-                      <div className={styles.homeEventDate}>
-                        <strong>{activity.day}</strong>
-                        <span>{t(activity.month, locale)}</span>
-                      </div>
-                      <div>
-                        <h3>{t(activity.title, locale)}</h3>
-                        <p>
-                          {t(activity.time, locale)} ·{" "}
-                          {t(activity.location, locale)}
-                        </p>
-                        <p className={styles.homeEventRole}>
-                          {t(activity.role, locale)}
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      className={`${styles.homeButtonDark} ${styles.homeButtonFull}`}
-                      href={hrefFor(activity.action, locale)}
-                    >
-                      {t(activity.action.label, locale)}
-                      <span aria-hidden="true">↗</span>
-                    </Link>
-                  </article>
-                ))}
-              </div>
-              <div className={styles.homeEventFooter}>
-                <Link
-                  className={styles.homeButtonGhostSoft}
-                  href={hrefFor(content.opportunities.volunteerCta, locale)}
-                >
-                  {t(content.opportunities.volunteerCta.label, locale)}
-                </Link>
-                <Link
-                  className={styles.homeChipLink}
-                  href={hrefFor(content.opportunities.contactCta, locale)}
-                >
-                  {t(content.opportunities.contactCta.label, locale)}
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </div>
-            </>
-          ) : (
-            <div className={styles.homeEmptyState}>
-              <span className={styles.homeEmptyBadge}>
-                {t(content.opportunities.emptyBadge, locale)}
-              </span>
-              <h3>{t(content.opportunities.emptyTitle, locale)}</h3>
-              <p>{t(content.opportunities.emptyDescription, locale)}</p>
-              <div className={styles.homeHeroActions}>
-                <Link
-                  className={styles.homeButtonDark}
-                  href={hrefFor(content.opportunities.volunteerCta, locale)}
-                >
-                  {t(content.opportunities.volunteerCta.label, locale)}
-                  <span aria-hidden="true">↗</span>
-                </Link>
-                <Link
-                  className={styles.homeButtonGhostSoft}
-                  href={hrefFor(content.opportunities.contactCta, locale)}
-                >
-                  {t(content.opportunities.contactCta.label, locale)}
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <HomeDonatePreview locale={locale} content={content.donatePreview} />
-
-      <section
-        id={content.help.id}
-        className={styles.homeHelp}
-        aria-labelledby="home-help-heading"
-      >
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeSectionHeadingSolo}>
-            <div>
-              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowCoral}`}>
-                {t(content.help.eyebrow, locale)}
-              </p>
-              <h2 id="home-help-heading" className={styles.homeSectionTitle}>
-                {t(content.help.title, locale)}
-              </h2>
-            </div>
-          </div>
-          <div className={styles.homeHelpRows}>
-            {content.help.actions.map((action, index) => (
-              <article key={action.id} className={styles.homeHelpRow}>
-                <span className={styles.homeHelpIndex} aria-hidden="true">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <div className={styles.homeHelpHeading}>
-                    <h3>{t(action.title, locale)}</h3>
-                    {action.status === "planned" && (
-                      <span className={styles.homePlannedBadge}>
-                        {t(content.help.plannedLabel, locale)}
-                      </span>
-                    )}
-                  </div>
-                  <p>{t(action.description, locale)}</p>
-                </div>
-                <Link
-                  className={
-                    action.status === "live"
-                      ? styles.homeButtonPrimary
-                      : styles.homeButtonGhostSoft
-                  }
-                  href={hrefFor(action.action, locale)}
-                >
-                  {t(action.action.label, locale)}
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </article>
+          <div className={styles.homeProgrammeChips} aria-label={t(content.model.title, locale)}>
+            {content.model.programmeChips.map((chip) => (
+              <Link key={chip.label.en} href={t(chip.href, locale)}>
+                {t(chip.label, locale)}
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
+      <HomeAbilityStories locale={locale} content={content.stories} />
+
       <section
         id={content.trust.id}
-        className={styles.homeTrust}
-        aria-labelledby="home-trust-heading"
+        className={styles.homeImpact}
+        aria-labelledby="home-impact-heading"
       >
         <div className={styles.homeSectionInner}>
-          <div className={styles.homeSectionHeadingSolo}>
+          <div className={styles.homeImpactLayout}>
             <div>
-              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowCobalt}`}>
+              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowPurple}`}>
                 {t(content.trust.eyebrow, locale)}
               </p>
-              <h2 id="home-trust-heading" className={styles.homeSectionTitle}>
+              <h2
+                id="home-impact-heading"
+                className={styles.homeSectionTitle}
+              >
                 {t(content.trust.title, locale)}
               </h2>
-            </div>
-          </div>
-
-          <div className={styles.homeTrustLayout}>
-            <div className={styles.homeTrustCopy}>
-              <div className={styles.homeTrustCard}>
-                <p>{t(content.trust.section88, locale)}</p>
-                <ul className={styles.homeProofList}>
-                  {content.trust.metrics.map((metric) => (
-                    <li key={`trust-${metric.value}`}>
-                      <strong>{metric.value}</strong>
-                      <span>{t(metric.label, locale)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <ul className={styles.homeTrustLinks}>
-                  {content.trust.links.map((link) => (
-                    <li key={link.label.en}>
-                      <Link
-                        className={styles.homeChipLink}
-                        href={hrefFor(link, locale)}
-                      >
-                        {t(link.label, locale)}
-                        <span aria-hidden="true">↗</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <p className={styles.homeDignity}>
-                <span className={styles.homePlannedBadge}>
-                  {t(content.trust.dignityBadge, locale)}
-                </span>
-                {t(content.trust.dignityStatement, locale)}
+              <p className={styles.homeImpactLead}>
+                {t(content.trust.section88, locale)}
               </p>
-            </div>
-
-            <div>
-              <h3 className={styles.homeSubheading}>
-                {t(content.trust.communityLabel, locale)}
-              </h3>
-              <ul className={styles.homeUpdates}>
-                {content.trust.updates.map((update) => (
-                  <li key={update.slug}>
-                    <Link
-                      href={`/${update.slug}/`}
-                      className={styles.homeUpdateLink}
-                    >
-                      {update.image && (
-                        <span className={styles.homeUpdateMedia}>
-                          <Image
-                            src={update.image}
-                            alt=""
-                            fill
-                            sizes="120px"
-                          />
-                        </span>
-                      )}
-                      <span>
-                        <span className={styles.homeUpdateDate}>
-                          {update.date}
-                        </span>
-                        <strong>{update.title}</strong>
-                        <span className={styles.homeUpdateSummary}>
-                          {t(update.summary, locale)}
-                        </span>
-                      </span>
+              <ul className={styles.homeTrustLinks}>
+                {content.trust.links.map((link) => (
+                  <li key={link.label.en}>
+                    <Link className={styles.homeChipLink} href={hrefFor(link, locale)}>
+                      {t(link.label, locale)} <span aria-hidden="true">↗</span>
                     </Link>
                   </li>
                 ))}
               </ul>
+            </div>
+            <ul className={styles.homeImpactMetrics}>
+              {content.trust.metrics.map((metric) => (
+                <li key={`impact-${metric.value}`}>
+                  <strong>{metric.value}</strong>
+                  <span>{t(metric.label, locale)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
-              <h3 className={styles.homeSubheading}>
-                {t(content.trust.partnersLabel, locale)}
-              </h3>
-              <div className={styles.homePartners}>
-                {content.trust.partners.map((partner) => (
-                  <Image
-                    key={partner.src}
-                    src={partner.src}
-                    alt={t(partner.alt, locale)}
-                    width={partner.width}
-                    height={partner.height}
-                  />
-                ))}
-              </div>
+      <section id={content.opportunities.id} className={styles.homeVolunteer} aria-labelledby="home-volunteer-heading">
+        <div className={styles.homeSectionInner}>
+          <div className={styles.homeVolunteerCard}>
+            <div>
+              <p className={styles.homeEyebrow}>{t(content.opportunities.eyebrow, locale)}</p>
+              <h2 id="home-volunteer-heading">{t(content.opportunities.title, locale)}</h2>
+              <p>{t(content.opportunities.emptyDescription, locale)}</p>
+            </div>
+            <div className={styles.homeVolunteerActions}>
+              <Link className={styles.homeButtonPrimary} href={hrefFor(content.opportunities.volunteerCta, locale)}>
+                {t(content.opportunities.volunteerCta.label, locale)} <span aria-hidden="true">↗</span>
+              </Link>
+              <Link className={styles.homeButtonSecondary} href={hrefFor(content.opportunities.contactCta, locale)}>
+                {t(content.opportunities.contactCta.label, locale)}
+              </Link>
             </div>
           </div>
         </div>
       </section>
+
+      <section className={styles.homeCommunity} aria-labelledby="home-community-heading">
+        <div className={styles.homeSectionInner}>
+          <div className={styles.homeSectionHeadingSolo}>
+            <p className={styles.homeEyebrow}>{t(content.trust.communityLabel, locale)}</p>
+            <h2 id="home-community-heading" className={styles.homeSectionTitle}>
+              {t(content.trust.communityLabel, locale)}
+            </h2>
+          </div>
+          <div className={styles.homeCommunityGrid}>
+            {content.trust.updates.map((update) => (
+              <Link key={update.slug} href={`/${update.slug}/`} className={styles.homeCommunityCard}>
+                {update.image && (
+                  <span className={styles.homeCommunityImage}>
+                    <Image src={update.image} alt="" fill sizes="(max-width: 760px) 100vw, 33vw" />
+                  </span>
+                )}
+                <span className={styles.homeUpdateDate}>{update.date}</span>
+                <strong>{update.title}</strong>
+                <span>{t(update.summary, locale)}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <HomeDonatePreview locale={locale} content={content.donatePreview} />
 
       <section
         className={styles.homeFinalCta}
@@ -454,7 +268,7 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
             {content.finalCta.actions.map((action) => (
               <Link
                 key={action.label.en}
-                className={styles.homeButtonPrimary}
+                className={styles.homeButtonGhost}
                 href={hrefFor(action, locale)}
               >
                 {t(action.label, locale)}

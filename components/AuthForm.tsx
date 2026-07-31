@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { USER_ROLES, type UserRole } from "@/lib/db/schema";
+import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
 type Locale = "en" | "zh";
@@ -173,9 +174,9 @@ export function AuthForm({
         : "/signup";
 
   return (
-    <form className="auth-form" method="post" onSubmit={onSubmit}>
-      <div className="auth-form-heading">
-        <p className="eyebrow">{lang.eyebrow}</p>
+    <form className={styles.authForm} method="post" onSubmit={onSubmit}>
+      <div className={styles.authFormHeading}>
+        <p className={styles.eyebrow}>{lang.eyebrow}</p>
         <h1>{isSignup ? lang.createYourAccount : lang.welcomeBack}</h1>
         <p>{isSignup ? lang.signupIntro : lang.loginIntro}</p>
       </div>
@@ -220,15 +221,15 @@ export function AuthForm({
 
       {isSignup && (
         <>
-          <p className="field-help" id="password-help">
+          <p className={styles.fieldHelp} id="password-help">
             {lang.passwordHelp}
           </p>
-          <fieldset className="role-picker">
+          <fieldset className={styles.rolePicker}>
             <legend>{lang.accountType}</legend>
-            <div className="role-options">
+            <div className={styles.roleOptions}>
               {USER_ROLES.map((value) => (
                 <label
-                  className={`role-option ${role === value ? "selected" : ""}`}
+                  className={`${styles.roleOption} ${role === value ? styles.selected : ""}`}
                   key={value}
                 >
                   <input
@@ -251,12 +252,12 @@ export function AuthForm({
       )}
 
       {error && (
-        <div className="auth-error" role="alert">
+        <div className={styles.authError} role="alert">
           {error}
         </div>
       )}
 
-      <button className="auth-submit" type="submit" disabled={isSubmitting}>
+      <button className={styles.authSubmit} type="submit" disabled={isSubmitting}>
         {isSubmitting
           ? isSignup
             ? lang.creatingAccount
@@ -267,7 +268,7 @@ export function AuthForm({
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
 
-      <p className="auth-switch">
+      <p className={styles.authSwitch}>
         {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
         <Link href={switchHref}>
           {isSignup ? lang.logIn : lang.createAccount}

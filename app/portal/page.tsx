@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { auth } from "@/lib/auth";
 import type { UserRole } from "@/lib/db/schema";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Your portal",
@@ -40,20 +41,20 @@ export default async function PortalPage() {
   const content = roleContent[role] ?? roleContent.member;
 
   return (
-    <section className="portal-page">
-      <div className="portal-shell">
-        <div className="portal-topline">
-          <span className={`role-badge role-${role}`}>{content.label}</span>
+    <section className={styles.page}>
+      <div className={styles.shell}>
+        <div className={styles.topline}>
+          <span className={`${styles.roleBadge} ${styles[role] ?? styles.member}`}>{content.label}</span>
           <SignOutButton />
         </div>
 
-        <div className="portal-welcome">
-          <p className="eyebrow">YOUR LOVE 21 PORTAL</p>
+        <div className={styles.welcome}>
+          <p className={styles.eyebrow}>YOUR LOVE 21 PORTAL</p>
           <h1>Welcome, {session.user.name}</h1>
           <p>{content.intro}</p>
         </div>
 
-        <div className="portal-placeholder">
+        <div className={styles.placeholder}>
           <span aria-hidden="true">♡</span>
           <div>
             <h2>Your portal is ready</h2>
@@ -61,7 +62,7 @@ export default async function PortalPage() {
           </div>
         </div>
 
-        <dl className="account-summary">
+        <dl className={styles.summary}>
           <div>
             <dt>Email</dt>
             <dd>{session.user.email}</dd>

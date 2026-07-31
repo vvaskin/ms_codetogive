@@ -1,0 +1,68 @@
+.contentPage { width: min(100%, var(--layout-container-standard)); margin: 0 auto; padding: var(--space-section) var(--layout-gutter); }
+.narrowPage { max-width: calc(var(--layout-container-narrow) + 2 * var(--layout-gutter)); }
+.pageHeading { margin-bottom: var(--space-7); text-align: center; }
+.pageHeading h1 { font-size: clamp(2.5rem, 6vw, 4.75rem); color: var(--color-ink); }
+.prose { max-width: 760px; margin: var(--space-6) auto 0; color: var(--color-text-muted); }
+.prose > * + * { margin-top: var(--space-5); }
+.prose h2 { color: var(--color-ink); font-size: clamp(1.8rem, 3vw, 2.6rem); }
+.prose a, .calendarPage a { color: var(--color-brand-primary); text-decoration: underline; text-underline-offset: 3px; }
+.centered { text-align: center; }
+.featureImage { position: relative; min-height: min(54vw, 520px); overflow: hidden; border-radius: var(--radius-xl); box-shadow: var(--shadow-card); }
+.featureImage img, .programmePhoto img, .mediaCardImage img, .personCard > div img, .profileImage img { object-fit: cover; }
+.programmesPage { max-width: calc(var(--layout-container-wide) + 2 * var(--layout-gutter)); }
+.programmeRow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; position: relative; padding: var(--space-7) 0; }
+.programmeRow:nth-of-type(even) .programmePhoto { order: 2; }
+.programmePhoto { position: relative; min-height: 320px; border-radius: var(--radius-lg); overflow: hidden; }
+.programmeCopy h2 { font-size: clamp(2rem, 4vw, 3.4rem); margin-bottom: var(--space-4); }
+.programmeCopy p { color: var(--color-text-muted); }
+.programmeCopy p + p { margin-top: var(--space-4); }
+.wideRule { grid-column: 1 / -1; height: 1px; background: var(--color-border); margin-top: var(--space-6); }
+.reportLinks { display: grid; gap: var(--space-3); max-width: 680px; margin: var(--space-7) auto 0; }
+.reportLinks a { display: flex; justify-content: space-between; padding: var(--space-5); border-radius: var(--radius-md); background: var(--color-white); box-shadow: var(--shadow-soft); font-family: var(--font-display); }
+.mediaGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+.mediaCard { border-radius: var(--radius-md); overflow: hidden; background: var(--color-white); box-shadow: var(--shadow-soft); }
+.mediaCardImage { position: relative; display: block; min-height: 220px; }
+.mediaCard > div { padding: var(--space-5); }
+.mediaCard span { color: var(--color-text-muted); font-size: var(--font-size-small); }
+.mediaCard h2 { margin-top: var(--space-2); font-size: 1.5rem; }
+.peopleGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); margin-top: var(--space-7); }
+.personCard { text-align: center; }
+.personCard > div { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-lg); }
+.personCard h2 { margin-top: var(--space-3); font-size: 1.25rem; }
+.profileLayout { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); gap: clamp(2rem, 7vw, 6rem); align-items: start; }
+.profileImage { position: relative; aspect-ratio: .85; overflow: hidden; border-radius: var(--radius-lg); }
+.profileCopy h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
+.profileCopy p { margin-top: var(--space-4); color: var(--color-text-muted); }
+.handsonBlock { display: grid; grid-template-columns: auto 1fr; gap: var(--space-5); align-items: center; max-width: 760px; padding: var(--space-6); margin: var(--space-7) auto 0; border-radius: var(--radius-lg); background: var(--color-sky); }
+.handsonBlock a { color: var(--color-brand-secondary); font-family: var(--font-display); }
+.calendarPage > p { max-width: 720px; margin: 0 auto; color: var(--color-text-muted); }
+.donatePage { width: 100%; padding: 0; }
+.donationModes { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-7); }
+.modeCard { min-height: 180px; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-white); text-align: left; }
+.modeCard h2 { margin: var(--space-3) 0; font-size: 1.7rem; }
+.modeCard p { color: var(--color-text-muted); }
+.donationGrid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: var(--space-6); align-items: start; }
+.configurator h2, .impactPanel h2, .wishlist h2 { font-size: clamp(2rem, 4vw, 3.2rem); }
+.configurator label, .configurator legend { display: block; margin-top: var(--space-5); color: var(--color-ink); font-family: var(--font-display); }
+.choiceRow, .amountRow, .walletRow { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.choiceRow button, .amountRow button, .walletRow button { padding: .65rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-white); }
+.configurator select, .configurator input { width: 100%; height: var(--control-height); padding: 0 var(--space-3); margin-top: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-canvas); }
+.configurator input + input { margin-top: var(--space-3); }
+.impactPanel { padding: clamp(1.5rem, 4vw, 3rem); border-radius: var(--radius-xl); background: var(--color-blue); color: var(--color-text-on-dark); }
+.impactPanel p { margin-top: var(--space-4); }
+.impactPoints { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-6); }
+.impactPoints div { padding-top: var(--space-4); border-top: 1px solid rgba(255,255,255,.35); }
+.impactPoints strong { display: block; font: 600 clamp(2rem, 4vw, 3.2rem)/1 var(--font-display); }
+.livePayments { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); align-items: center; margin-top: var(--space-7); padding: var(--space-6); border-radius: var(--radius-xl); background: var(--color-mint); }
+.payme { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-4); }
+.payme img { width: 144px; height: auto; }
+.moonclerk { display: grid; justify-items: start; gap: var(--space-4); }
+.moonclerk img { width: 180px; height: auto; }
+.wishlistItems { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-6); }
+.wishlistItems li { padding: var(--space-5); border-radius: var(--radius-md); background: var(--color-white); box-shadow: var(--shadow-soft); }
+.fundraiser { padding: clamp(2rem, 5vw, 4rem); background: var(--color-blue); color: var(--color-text-on-dark); }
+.fundraiserInner { display: flex; justify-content: space-between; gap: var(--space-6); align-items: center; }
+.fundraiser h2 { font-size: clamp(2rem, 4vw, 3.25rem); }
+.fundraiser p { margin-top: var(--space-3); max-width: 620px; }
+.accountPage { max-width: calc(520px + 2 * var(--layout-gutter)); }
+@media (max-width: 760px) { .mediaGrid, .peopleGrid, .donationModes, .wishlistItems { grid-template-columns: 1fr; } .programmeRow, .profileLayout, .donationGrid, .livePayments { grid-template-columns: 1fr; } .programmeRow:nth-of-type(even) .programmePhoto { order: 0; } .programmePhoto { min-height: 240px; } .handsonBlock { grid-template-columns: 1fr; } .fundraiserInner { display: block; } .fundraiserInner :global(a) { margin-top: var(--space-5); } }

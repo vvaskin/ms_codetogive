@@ -13,10 +13,17 @@ import {
   ContactForm,
   VolunteerForm,
 } from "./DemoForms";
+import { donationContent } from "../content/donation";
+import { ButtonLink } from "./ui/ButtonLink";
+import { PageIntro } from "./ui/PageIntro";
+import { PreviewPanel } from "./ui/PreviewPanel";
+import { SectionShell } from "./ui/SectionShell";
+import { StatusPill } from "./ui/StatusPill";
+import styles from "./PageRenderer.module.css";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="page-heading">
+    <div className={styles.pageHeading}>
       <h1>{children}</h1>
     </div>
   );
@@ -24,14 +31,14 @@ function PageHeading({ children }: { children: React.ReactNode }) {
 
 function StandardPage({ page }: { page: SitePage }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
       {page.image && (
-        <div className="feature-image">
+        <div className={styles.featureImage}>
           <Image src={page.image} alt={page.title} fill unoptimized sizes="(max-width: 900px) 100vw, 800px" />
         </div>
       )}
-      <div className="prose">
+      <div className={styles.prose}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
     </article>
@@ -115,11 +122,11 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
       ];
 
   return (
-    <article className="content-page programmes-page">
+    <article className={`${styles.contentPage} ${styles.programmesPage}`}>
       <PageHeading>{zh ? "我們的計劃" : "OUR PROGRAMMES"}</PageHeading>
       {programmes.map((programme, index) => (
-        <section className="programme-row" id={programme.id} key={programme.title}>
-          <div className="programme-photo">
+        <section className={styles.programmeRow} id={programme.id} key={programme.title}>
+          <div className={styles.programmePhoto}>
             <Image
               src={programme.image}
               alt=""
@@ -128,13 +135,13 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
               sizes="(max-width: 800px) 100vw, 45vw"
             />
           </div>
-          <div className="programme-copy">
+          <div className={styles.programmeCopy}>
             <h2>{programme.title}</h2>
             {programme.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          {index < programmes.length - 1 && <div className="wide-rule" />}
+          {index < programmes.length - 1 && <div className={styles.wideRule} />}
         </section>
       ))}
     </article>
@@ -148,12 +155,12 @@ function ReportsPage({ page }: { page: SitePage }) {
     ["2022-2023 Annual Report", "/assets/reports/annual-report-2022-2023.pdf"],
   ];
   return (
-    <article className="content-page reports-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
-      <div className="report-links">
+      <div className={styles.reportLinks}>
         {reports.map(([label, href]) => (
           <a href={href} target="_blank" rel="noreferrer" key={href}>
             {label} <span>➜</span>
@@ -166,12 +173,12 @@ function ReportsPage({ page }: { page: SitePage }) {
 
 function MediaIndex({ zh }: { zh: boolean }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{zh ? "媒體報導" : "MEDIA"}</PageHeading>
-      <div className="media-grid">
+      <div className={styles.mediaGrid}>
         {mediaArticles.map((article) => (
-          <article className="media-card" key={article.slug}>
-            <Link href={`/${article.slug}/`} className="media-card-image">
+          <article className={styles.mediaCard} key={article.slug}>
+            <Link href={`/${article.slug}/`} className={styles.mediaCardImage}>
               {article.image && (
                 <Image
                   src={article.image}
@@ -198,17 +205,17 @@ function MediaIndex({ zh }: { zh: boolean }) {
 function PeopleIndex({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
-      <div className="people-grid">
+      <div className={styles.peopleGrid}>
         {boardMembers.map((person) => (
           <Link
             key={person.slug}
             href={zh ? "/zh/board-of-directors-hk/" : `/board-of-directors/${person.slug}/`}
-            className="person-card"
+            className={styles.personCard}
           >
             <div>
               <Image
@@ -229,15 +236,15 @@ function PeopleIndex({ page }: { page: SitePage }) {
 
 function PersonPage({ page }: { page: SitePage }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>BOARD OF DIRECTORS</PageHeading>
-      <div className="profile-layout">
+      <div className={styles.profileLayout}>
         {page.image && (
-          <div className="profile-image">
+          <div className={styles.profileImage}>
             <Image src={page.image} alt={page.title} fill unoptimized sizes="(max-width: 700px) 80vw, 35vw" />
           </div>
         )}
-        <div className="profile-copy">
+        <div className={styles.profileCopy}>
           <h2>{page.title}</h2>
           {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
@@ -249,18 +256,18 @@ function PersonPage({ page }: { page: SitePage }) {
 function VolunteerPage({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
       {page.image && (
-        <div className="feature-image">
+        <div className={styles.featureImage}>
           <Image src={page.image} alt="" fill unoptimized sizes="(max-width: 900px) 100vw, 800px" />
         </div>
       )}
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
       <VolunteerForm zh={zh} />
-      <div className="handson-block">
+      <div className={styles.handsonBlock}>
         <Image src="/assets/images/handson.png" width={180} height={180} unoptimized alt="HandsOn Hong Kong" />
         <p>
           {zh
@@ -282,9 +289,9 @@ function VolunteerPage({ page }: { page: SitePage }) {
 function ContactPage({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page narrow-page">
+    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose">
+      <div className={styles.prose}>
         <p>
           {zh
             ? "如果你想加入計劃、捐款、做義工或了解更多，歡迎聯絡我們。"
@@ -312,41 +319,72 @@ function ContactPage({ page }: { page: SitePage }) {
 }
 
 function DonatePage({ page }: { page: SitePage }) {
-  const zh = page.locale === "zh";
+  const locale = page.locale === "zh" ? "zh" : "en";
+  const c = donationContent;
+  const text = (value: Record<"en" | "zh", string>) => value[locale];
   return (
-    <article className="content-page donate-page">
-      <PageHeading>{page.title}</PageHeading>
-      <h2>{zh ? "非常感謝你支持Love 21！" : "Thank you so much for supporting Love 21!"}</h2>
-      <p>
-        {zh
-          ? "你的捐款將為唐氏綜合症、自閉症及神經多樣性社群帶來更多機會。"
-          : "Your kind donation will help us provide even more opportunities for our Down syndrome and autistic community through sports, nutrition and holistic programmes."}
-      </p>
-      <div className="donation-options">
-        <div>
-          <Image src="/assets/images/payme.png" width={240} height={240} unoptimized alt="Love 21 PayMe" />
-          <span>PayMe</span>
+    <article className={styles.donatePage}>
+      <SectionShell width="standard">
+        <PageIntro
+          handEyebrow
+          eyebrow={text(c.intro.eyebrow)}
+          title={text(c.intro.title)}
+          description={text(c.intro.description)}
+          scriptNote={text(c.intro.scriptNote)}
+        />
+        <div className={styles.donationModes}>
+          {c.modes.map((mode, index) => (
+            <button className={styles.modeCard} type="button" key={text(mode.title)} aria-pressed={index === 0}>
+              <StatusPill tone={index === 0 ? "pink" : index === 1 ? "blue" : "teal"}>{index + 1}</StatusPill>
+              <h2>{text(mode.title)}</h2>
+              <p>{text(mode.description)}</p>
+            </button>
+          ))}
         </div>
-        <a href="https://app.moonclerk.com/pay/2805gcehxjca" target="_blank" rel="noreferrer">
-          <Image src="/assets/images/moonclerk.png" width={240} height={120} unoptimized alt="MoonClerk" />
-          <strong>{zh ? "網上捐贈 ➜" : "DONATE ONLINE ➜"}</strong>
-        </a>
-      </div>
-      <h3>{zh ? "每一分支持都十分重要！" : "Every dollar counts!"}</h3>
-      <p className="privacy-note">
-        {zh
-          ? "這是開發版本；網上捐贈會前往Love 21目前使用的外部付款平台。"
-          : "Development copy: online donations continue to Love 21’s existing external payment provider."}
-      </p>
+      </SectionShell>
+      <SectionShell tone="blush" width="wide">
+        <div className={styles.donationGrid}>
+          <PreviewPanel notice={text(c.preview)}>
+            <div className={styles.configurator}>
+              <StatusPill tone="pink">{text(c.configurator.eyebrow)}</StatusPill>
+              <h2>{text(c.configurator.title)}</h2>
+              <div className={styles.choiceRow}>{c.configurator.frequency.map((item) => <button key={text(item)} type="button" disabled>{text(item)}</button>)}</div>
+              <fieldset disabled>
+                <legend>{text(c.configurator.amountLabel)}</legend>
+                <div className={styles.amountRow}>{c.configurator.amounts.map((item) => <button key={text(item)} type="button">{text(item)}</button>)}</div>
+                <label>{text(c.configurator.programmeLabel)}<select defaultValue=""><option value="" disabled>{text(c.configurator.programmeLabel)}</option>{c.configurator.programmes.map((item) => <option key={text(item)}>{text(item)}</option>)}</select></label>
+                <label>{text(c.configurator.detailsTitle)}<input aria-label={text(c.configurator.fields[0])} placeholder={text(c.configurator.fields[0])} /><input aria-label={text(c.configurator.fields[1])} placeholder={text(c.configurator.fields[1])} /></label>
+                <label>{text(c.configurator.walletsTitle)}</label>
+                <div className={styles.walletRow}>{c.configurator.wallets.map((item) => <button key={text(item)} type="button">{text(item)}</button>)}</div>
+                <input aria-label={text(c.configurator.cardLabel)} placeholder={text(c.configurator.cardLabel)} />
+              </fieldset>
+            </div>
+          </PreviewPanel>
+          <aside className={styles.impactPanel}>
+            <StatusPill tone="yellow">{text(c.impact.eyebrow)}</StatusPill>
+            <h2>{text(c.impact.title)}</h2><p>{text(c.impact.description)}</p>
+            <div className={styles.impactPoints}>{c.impact.points.map((point) => <div key={point.value}><strong>{point.value}</strong><span>{text(point.label)}</span></div>)}</div>
+          </aside>
+        </div>
+        <section className={styles.livePayments}>
+          <div><h2>{text(c.payment.heading)}</h2><p>{text(c.payment.description)}</p></div>
+          <div className={styles.payme}><Image src="/assets/images/payme.png" width={240} height={240} unoptimized alt="Love 21 PayMe" /><span>{text(c.payment.payme)}</span></div>
+          <div className={styles.moonclerk}><Image src="/assets/images/moonclerk.png" width={240} height={120} unoptimized alt="MoonClerk" /><ButtonLink href="https://app.moonclerk.com/pay/2805gcehxjca" external variant="pink">{text(c.payment.moonclerk)} ➜</ButtonLink></div>
+        </section>
+      </SectionShell>
+      <SectionShell width="wide">
+        <PreviewPanel notice={text(c.preview)}><section className={styles.wishlist}><StatusPill tone="teal">{text(c.wishlist.eyebrow)}</StatusPill><h2>{text(c.wishlist.title)}</h2><p>{text(c.wishlist.description)}</p><ul className={styles.wishlistItems}>{c.wishlist.items.map((item) => <li key={text(item)}>{text(item)}</li>)}</ul></section></PreviewPanel>
+      </SectionShell>
+      <section className={styles.fundraiser}><div className={styles.fundraiserInner}><div><h2>{text(c.fundraiser.title)}</h2><p>{text(c.fundraiser.description)}</p></div><PreviewPanel notice={text(c.preview)}><button type="button" disabled>{text(c.fundraiser.action)}</button></PreviewPanel></div></section>
     </article>
   );
 }
 
 function JoinPage({ zh }: { zh: boolean }) {
   return (
-    <article className="content-page narrow-page">
+    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
       <PageHeading>{zh ? "實習機會" : "INTERNSHIP OPPORTUNITIES"}</PageHeading>
-      <div className="prose">
+      <div className={styles.prose}>
         <p>
           {zh
             ? "我們歡迎相關學科的學生申請Love 21實習。"
@@ -401,14 +439,14 @@ export function PageRenderer({ path }: { path: string }) {
       return <DonatePage page={page} />;
     case "account":
       return (
-        <article className="content-page account-page">
+        <article className={`${styles.contentPage} ${styles.accountPage}`}>
           <PageHeading>{page.title}</PageHeading>
           <AccountForm title={page.title} zh={page.locale === "zh"} />
         </article>
       );
     case "calendar":
       return (
-        <article className="content-page calendar-page">
+        <article className={`${styles.contentPage} ${styles.calendarPage}`}>
           <PageHeading>{page.title}</PageHeading>
           <p>
             {page.locale === "zh" ? (

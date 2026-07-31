@@ -246,19 +246,18 @@ ask the team to review the migration history together.
 
 ## Styling
 
-CSS Modules are the official component-styling approach.
+CSS Modules are the official component-styling approach. See `AGENTS.md` for the
+full Love 21 visual system (palette, typography, shared UI, Calm mode).
 
 | Location | Role |
 | --- | --- |
 | `styles/tokens.css` | Design tokens and `--love-*` compatibility aliases |
-| `styles/base.css` | Document resets, body defaults, focus, form inheritance |
-| `app/globals.css` | Global entrypoint (Tailwind → tokens → base → legacy rules) |
+| `styles/base.css` | Document resets, body defaults, focus, Calm mode, reduced motion |
+| `app/globals.css` | Global entrypoint (tokens → base) plus quiet development ribbon |
+| `components/ui/*` | Shared presentational primitives |
 | `*.module.css` | Colocated component styles (camelCase selectors) |
 
-- Prefer semantic tokens such as `--color-brand-primary` and `--color-focus`.
+- Prefer semantic tokens such as `--color-pink`, `--color-brand-primary`, and `--color-focus`.
 - Do not add new globally named component classes; put new styles in a CSS
   Module next to the component.
-- Tailwind stays installed for now so its preflight does not shift layouts. Do
-  not introduce new Tailwind utility classes.
-- See `AGENTS.md` for the full styling standardisation convention and migration
-  guidance.
+- Tailwind is not used.

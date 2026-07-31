@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AuthForm } from "@/components/AuthForm";
+import { AuthPage } from "@/components/AuthPage";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -26,15 +27,12 @@ export default async function LoginHkPage({
   if (session) redirect(redirectTo);
 
   return (
-    <section className="auth-page">
-      <div className="auth-side-panel" aria-hidden="true">
-        <div>
-          <p className="eyebrow">同一社群</p>
-          <h2>為每一段 Love 21 旅程而設。</h2>
-          <p>會員、捐贈者及義工，均經由同一個安全入口到達這裡。</p>
-        </div>
-      </div>
+    <AuthPage
+      eyebrow="同一社群"
+      title="為每一段 Love 21 旅程而設。"
+      description="會員、捐贈者及義工，均經由同一個安全入口到達這裡。"
+    >
       <AuthForm mode="login" redirectTo={redirectTo} locale="zh" />
-    </section>
+    </AuthPage>
   );
 }
