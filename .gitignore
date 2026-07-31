@@ -37,6 +37,9 @@ yarn-error.log*
 /data/*.sqlite
 /data/*.sqlite-*
 
+# local social media uploads
+/public/uploads/
+
 # vercel
 .vercel
 
