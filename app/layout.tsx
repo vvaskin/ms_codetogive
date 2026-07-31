@@ -10,6 +10,9 @@ const titillium = Titillium_Web({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  ),
   title: {
     default: "LOVE 21 Foundation",
     template: "%s - LOVE 21 Foundation",
@@ -38,10 +41,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className={titillium.variable}>
         <div className="development-ribbon">
-          Development copy — forms do not transmit personal information
+          Development copy — account data is stored in local SQLite
         </div>
         <SiteChrome>{children}</SiteChrome>
       </body>

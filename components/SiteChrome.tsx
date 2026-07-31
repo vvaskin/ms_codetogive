@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { alternatePaths, normalizePath } from "../content/site-data";
+import { authClient } from "../lib/auth-client";
 
 const enLove = [
   ["Our Story", "/our-story/"],
@@ -68,6 +69,7 @@ function MenuGroup({
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
   const zh = pathname.startsWith("/zh/");
+  const { data: session } = authClient.useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
@@ -82,7 +84,14 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const programmePath = zh ? "/zh/our-programmes-hk/" : "/our-programmes/";
   const calendarPath = zh ? "/events" : "/events";
   const contactPath = zh ? "/zh/contact-us-hk/" : "/contact-us/";
-  const loginPath = zh ? "/zh/login-hk/" : "/login/";
+  const loginPath = session ? "/portal" : "/login/";
+  const accountLabel = session
+    ? zh
+      ? "個人頁面"
+      : "My portal"
+    : zh
+      ? "登入 / 註冊"
+      : "Login / Sign up";
   const donatePath = zh ? "/zh/donate-hk/" : "/donate/";
 
   return (
@@ -102,7 +111,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
           <div className="header-content">
             <div className="header-utility">
-              <Link href={loginPath}>{zh ? "登入 / 註冊" : "Login / Sign up"}</Link>
+              <Link href={loginPath}>{accountLabel}</Link>
               <Link href={donatePath} className="utility-donate">
                 {zh ? "捐贈" : "Donate"}
               </Link>
@@ -178,7 +187,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <Link href={calendarPath}>{zh ? "行事曆" : "Our Calendar"}</Link>
               <Link href={contactPath}>{zh ? "聯絡我們" : "Contact Us"}</Link>
               <div className="mobile-utility">
-                <Link href={loginPath}>{zh ? "登入 / 註冊" : "Login / Sign up"}</Link>
+                <Link href={loginPath}>{accountLabel}</Link>
                 <Link href={donatePath}>{zh ? "捐贈" : "Donate"}</Link>
                 <Link href={alternate}>{zh ? "EN" : "繁"}</Link>
               </div>

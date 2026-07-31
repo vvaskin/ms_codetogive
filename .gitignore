@@ -27,11 +27,19 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep the documented template)
 .env*
+!.env.example
+
+# local sqlite database files
+/data/*.db
+/data/*.db-*
+/data/*.sqlite
+/data/*.sqlite-*
 
 # vercel
 .vercel
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
