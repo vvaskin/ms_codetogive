@@ -1,0 +1,30 @@
+/*
+ * Design tokens — shared styling contract for the app.
+ * Prefer semantic names in new work. Legacy --love-* names remain as aliases.
+ */
+
+:root {
+  /* Semantic tokens */
+  --color-brand-primary: #cb3547;
+  --color-brand-primary-dark: #a82534;
+  --color-brand-secondary: #9aa9ce;
+  --color-brand-accent: #57a568;
+  --color-brand-accent-dark: #438554;
+  --color-text-primary: #292929;
+  --color-text-muted: #666;
+  --color-background: #fff;
+  --color-border: #d7d7d7;
+  --color-focus: #1769aa;
+  --layout-header-height: 115px;
+
+  /* Compatibility aliases — keep existing selectors working */
+  --love-red: var(--color-brand-primary);
+  --love-red-dark: var(--color-brand-primary-dark);
+  --love-dark: var(--color-text-primary);
+  --love-muted: var(--color-text-muted);
+  --love-line: var(--color-border);
+  --love-blue: var(--color-brand-secondary);
+  --love-green: var(--color-brand-accent);
+  --love-green-dark: var(--color-brand-accent-dark);
+  --header-height: var(--layout-header-height);
+}

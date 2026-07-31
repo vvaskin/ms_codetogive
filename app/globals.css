@@ -1,55 +1,12 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
+@import "../styles/base.css";
 
-:root {
-  --love-red: #cb3547;
-  --love-red-dark: #a82534;
-  --love-dark: #292929;
-  --love-muted: #666;
-  --love-line: #d7d7d7;
-  --love-blue: #9aa9ce;
-  --love-green: #57a568;
-  --love-green-dark: #438554;
-  --header-height: 115px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: #fff;
-  color: var(--love-dark);
-  font-family: var(--font-titillium), "Titillium Web", Arial, sans-serif;
-  font-size: 17px;
-  line-height: 1.65;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-:focus-visible {
-  outline: 3px solid #1769aa;
-  outline-offset: 3px;
-}
+/*
+ * Legacy global component and page rules.
+ * Kept unchanged for visual continuity until migrated into CSS Modules during
+ * the rebrand. Do not add new globally named component classes here.
+ */
 
 .development-ribbon {
   position: fixed;

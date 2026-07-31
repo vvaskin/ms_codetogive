@@ -237,6 +237,28 @@ ask the team to review the migration history together.
 - `app/` — App Router pages and layout
 - `components/` — UI (chrome, home experience, page renderer, demo forms)
 - `content/site-data.ts` — bilingual page content
+- `styles/` — design tokens and foundational global CSS
 - `lib/` — Better Auth and Drizzle database configuration
 - `drizzle/` — generated, versioned SQL migrations
 - `public/assets/` — images and reports
+- `AGENTS.md` — permanent guidance for agents and contributors; update it when
+  architecture, conventions, commands, or workflows change
+
+## Styling
+
+CSS Modules are the official component-styling approach.
+
+| Location | Role |
+| --- | --- |
+| `styles/tokens.css` | Design tokens and `--love-*` compatibility aliases |
+| `styles/base.css` | Document resets, body defaults, focus, form inheritance |
+| `app/globals.css` | Global entrypoint (Tailwind → tokens → base → legacy rules) |
+| `*.module.css` | Colocated component styles (camelCase selectors) |
+
+- Prefer semantic tokens such as `--color-brand-primary` and `--color-focus`.
+- Do not add new globally named component classes; put new styles in a CSS
+  Module next to the component.
+- Tailwind stays installed for now so its preflight does not shift layouts. Do
+  not introduce new Tailwind utility classes.
+- See `AGENTS.md` for the full styling standardisation convention and migration
+  guidance.
