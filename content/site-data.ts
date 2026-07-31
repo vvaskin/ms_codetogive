@@ -350,6 +350,13 @@ const enPages: SitePage[] = [
     title: "LOGIN / SIGN UP",
   },
   {
+    path: "/signup/",
+    locale: "en",
+    alternatePath: "/zh/signup-hk/",
+    template: "account",
+    title: "CREATE ACCOUNT",
+  },
+  {
     path: "/password-reset/",
     locale: "en",
     alternatePath: "/zh/login-hk/",
@@ -499,6 +506,13 @@ const zhPages: SitePage[] = [
     alternatePath: "/login/",
     template: "account",
     title: "登入 / 註冊",
+  },
+  {
+    path: "/zh/signup-hk/",
+    locale: "zh",
+    alternatePath: "/signup/",
+    template: "account",
+    title: "建立帳戶",
   },
   {
     path: "/zh/events-hk/",
