@@ -4,33 +4,92 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import {
-  USER_ROLES,
-  type UserRole,
-} from "@/lib/db/schema";
+import { USER_ROLES, type UserRole } from "@/lib/db/schema";
 
 type AuthMode = "login" | "signup";
+type Locale = "en" | "zh";
 
-const roleDetails: Record<
-  UserRole,
-  { label: string; description: string }
-> = {
-  member: {
-    label: "Member",
-    description: "Join Love 21 as a person with Down syndrome.",
+const copy = {
+  en: {
+    eyebrow: "LOVE 21 PORTAL",
+    welcomeBack: "Welcome back",
+    createYourAccount: "Create your account",
+    loginIntro: "Log in to continue to your personal portal.",
+    signupIntro:
+      "Choose the account type that best describes how you connect with Love 21.",
+    fullName: "Full name",
+    emailAddress: "Email address",
+    password: "Password",
+    passwordHelp: "Use at least 8 characters.",
+    accountType: "Account type",
+    roles: {
+      member: {
+        label: "Member",
+        description: "Join Love 21 as a person with Down syndrome.",
+      },
+      donor: {
+        label: "Donor",
+        description: "Support Love 21 and its community through donations.",
+      },
+      volunteer: {
+        label: "Volunteer",
+        description: "Help with classes, activities, and events.",
+      },
+    },
+    genericError: "Something went wrong. Please try again.",
+    invalidCredentials: "The email or password is incorrect.",
+    emailExists: "An account with this email already exists.",
+    networkError:
+      "We could not reach the authentication service. Please try again.",
+    loggingIn: "Logging in…",
+    creatingAccount: "Creating account…",
+    logIn: "Log in",
+    createAccount: "Create account",
+    alreadyHaveAccount: "Already have an account?",
+    newToPortal: "New to the portal?",
   },
-  donor: {
-    label: "Donor",
-    description: "Support Love 21 and its community through donations.",
-  },
-  volunteer: {
-    label: "Volunteer",
-    description: "Help with classes, activities, and events.",
+  zh: {
+    eyebrow: "LOVE 21 會員平台",
+    welcomeBack: "歡迎回來",
+    createYourAccount: "建立帳戶",
+    loginIntro: "登入以繼續前往您的個人頁面。",
+    signupIntro: "請選擇最能描述您與 Love 21 關係的帳戶類型。",
+    fullName: "姓名",
+    emailAddress: "電郵地址",
+    password: "密碼",
+    passwordHelp: "請使用至少 8 個字元。",
+    accountType: "帳戶類型",
+    roles: {
+      member: {
+        label: "會員",
+        description: "以唐氏綜合症人士身份加入 Love 21。",
+      },
+      donor: {
+        label: "捐贈者",
+        description: "透過捐贈支持 Love 21 及其社群。",
+      },
+      volunteer: {
+        label: "義工",
+        description: "協助課堂、活動及項目。",
+      },
+    },
+    genericError: "發生錯誤，請再試一次。",
+    invalidCredentials: "電郵或密碼不正確。",
+    emailExists: "此電郵已註冊帳戶。",
+    networkError: "無法連接驗證服務，請再試一次。",
+    loggingIn: "登入中…",
+    creatingAccount: "建立帳戶中…",
+    logIn: "登入",
+    createAccount: "建立帳戶",
+    alreadyHaveAccount: "已有帳戶？",
+    newToPortal: "新用戶？",
   },
 };
 
-function readableError(message: string | undefined) {
-  if (!message) return "Something went wrong. Please try again.";
+type Copy = (typeof copy)["en"];
+
+function readableError(message: string | undefined, lang: Copy) {
+  if (!message) return lang.genericError;
 
   const normalized = message.toLowerCase();
 
@@ -38,14 +97,14 @@ function readableError(message: string | undefined) {
     normalized.includes("invalid email or password") ||
     normalized.includes("invalid credentials")
   ) {
-    return "The email or password is incorrect.";
+    return lang.invalidCredentials;
   }
 
   if (
     normalized.includes("already exists") ||
     normalized.includes("already registered")
   ) {
-    return "An account with this email already exists.";
+    return lang.emailExists;
   }
 
   return message;
@@ -54,11 +113,14 @@ function readableError(message: string | undefined) {
 export function AuthForm({
   mode,
   redirectTo = "/portal",
+  locale = "en",
 }: {
   mode: AuthMode;
   redirectTo?: string;
+  locale?: Locale;
 }) {
   const router = useRouter();
+  const lang: Copy = locale === "zh" ? copy.zh : copy.en;
   const [role, setRole] = useState<UserRole>("member");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,34 +150,39 @@ export function AuthForm({
           });
 
       if (result.error) {
-        setError(readableError(result.error.message));
+        setError(readableError(result.error.message, lang));
         return;
       }
 
       router.replace(redirectTo);
       router.refresh();
     } catch {
-      setError("We could not reach the authentication service. Please try again.");
+      setError(lang.networkError);
     } finally {
       setIsSubmitting(false);
     }
   }
 
+  const switchHref =
+    locale === "zh"
+      ? isSignup
+        ? "/zh/login-hk/"
+        : "/zh/signup-hk/"
+      : isSignup
+        ? "/login"
+        : "/signup";
+
   return (
     <form className="auth-form" method="post" onSubmit={onSubmit}>
       <div className="auth-form-heading">
-        <p className="eyebrow">LOVE 21 PORTAL</p>
-        <h1>{isSignup ? "Create your account" : "Welcome back"}</h1>
-        <p>
-          {isSignup
-            ? "Choose the account type that best describes how you connect with Love 21."
-            : "Log in to continue to your personal portal."}
-        </p>
+        <p className="eyebrow">{lang.eyebrow}</p>
+        <h1>{isSignup ? lang.createYourAccount : lang.welcomeBack}</h1>
+        <p>{isSignup ? lang.signupIntro : lang.loginIntro}</p>
       </div>
 
       {isSignup && (
         <label>
-          Full name
+          {lang.fullName}
           <input
             name="name"
             type="text"
@@ -127,7 +194,7 @@ export function AuthForm({
       )}
 
       <label>
-        Email address
+        {lang.emailAddress}
         <input
           name="email"
           type="email"
@@ -139,7 +206,7 @@ export function AuthForm({
       </label>
 
       <label>
-        Password
+        {lang.password}
         <input
           name="password"
           type="password"
@@ -154,10 +221,10 @@ export function AuthForm({
       {isSignup && (
         <>
           <p className="field-help" id="password-help">
-            Use at least 8 characters.
+            {lang.passwordHelp}
           </p>
           <fieldset className="role-picker">
-            <legend>Account type</legend>
+            <legend>{lang.accountType}</legend>
             <div className="role-options">
               {USER_ROLES.map((value) => (
                 <label
@@ -173,8 +240,8 @@ export function AuthForm({
                     disabled={isSubmitting}
                   />
                   <span>
-                    <strong>{roleDetails[value].label}</strong>
-                    <small>{roleDetails[value].description}</small>
+                    <strong>{lang.roles[value].label}</strong>
+                    <small>{lang.roles[value].description}</small>
                   </span>
                 </label>
               ))}
@@ -192,18 +259,18 @@ export function AuthForm({
       <button className="auth-submit" type="submit" disabled={isSubmitting}>
         {isSubmitting
           ? isSignup
-            ? "Creating account…"
-            : "Logging in…"
+            ? lang.creatingAccount
+            : lang.loggingIn
           : isSignup
-            ? "Create account"
-            : "Log in"}
+            ? lang.createAccount
+            : lang.logIn}
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
 
       <p className="auth-switch">
-        {isSignup ? "Already have an account?" : "New to the portal?"}{" "}
-        <Link href={isSignup ? "/login" : "/signup"}>
-          {isSignup ? "Log in" : "Create an account"}
+        {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
+        <Link href={switchHref}>
+          {isSignup ? lang.logIn : lang.createAccount}
         </Link>
       </p>
     </form>
