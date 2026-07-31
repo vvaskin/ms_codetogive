@@ -22,6 +22,7 @@ export function HomeAbilityStories({
   const labelId = useId();
   const story = content.items[index];
   const total = content.items.length;
+  const lead = t(content.lead, locale);
 
   function goTo(next: number) {
     setIndex((next + total) % total);
@@ -45,10 +46,23 @@ export function HomeAbilityStories({
       aria-labelledby={labelId}
     >
       <div className={styles.homeSectionInner}>
-        <p className={styles.homeEyebrow}>{t(content.eyebrow, locale)}</p>
-        <h2 id={labelId} className={styles.homeSectionTitle}>
-          {t(content.title, locale)}
-        </h2>
+        <div
+          className={
+            lead
+              ? styles.homeSectionHeading
+              : styles.homeSectionHeadingSolo
+          }
+        >
+          <div>
+            <p className={`${styles.homeEyebrow} ${styles.homeEyebrowCoral}`}>
+              {t(content.eyebrow, locale)}
+            </p>
+            <h2 id={labelId} className={styles.homeSectionTitle}>
+              {t(content.title, locale)}
+            </h2>
+          </div>
+          {lead ? <p className={styles.homeSectionLead}>{lead}</p> : null}
+        </div>
 
         <div
           className={styles.homeStoryStage}
@@ -63,79 +77,77 @@ export function HomeAbilityStories({
               src={story.image}
               alt={t(story.imageAlt, locale)}
               fill
-              sizes="(max-width: 760px) 100vw, (max-width: 1024px) 90vw, 54vw"
+              sizes="(max-width: 760px) 100vw, (max-width: 1024px) 90vw, 56vw"
             />
+            {story.status === "placeholder" && story.placeholderBadge && (
+              <span className={styles.homeSampleBadge} role="note">
+                {t(story.placeholderBadge, locale)}
+              </span>
+            )}
+            <span className={styles.homeStoryCount} aria-live="polite">
+              {String(index + 1).padStart(2, "0")} /{" "}
+              {String(total).padStart(2, "0")}
+            </span>
           </div>
 
           <div className={styles.homeStoryCopy}>
-            <p className={styles.homeStoryStatus} aria-live="polite">
-              {index + 1} / {total}
+            <p className={styles.homeStoryCategory}>
+              {t(story.category, locale)}
             </p>
             <h3 className={styles.homeStoryAchievement}>
               {t(story.achievement, locale)}
             </h3>
 
-            {story.status === "placeholder" && story.placeholderBadge && (
-              <p className={styles.homePlaceholderBadge} role="note">
-                {t(story.placeholderBadge, locale)}
-              </p>
-            )}
-
-            <ol className={styles.homeMilestoneList}>
-              {story.milestones.map((milestone) => (
-                <li key={milestone.en}>{t(milestone, locale)}</li>
+            <ol
+              className={styles.homeMilestoneLine}
+              aria-label={t(story.achievement, locale)}
+            >
+              {story.shortMilestones.map((milestone, milestoneIndex) => (
+                <li key={milestone.en}>
+                  <span>{milestoneIndex + 1}</span>
+                  {t(milestone, locale)}
+                </li>
               ))}
             </ol>
 
-            <p className={styles.homeStoryProgramme}>
-              {t(story.supportingProgramme, locale)}
-            </p>
-
-            {story.source && (
-              <p className={styles.homeStorySource}>
-                {t(story.source.label, locale)}
-              </p>
-            )}
-
-            <Link
-              className={styles.homeButtonSecondary}
-              href={hrefFor(story.action, locale)}
-            >
-              {t(story.action.label, locale)}
-            </Link>
-          </div>
-        </div>
-
-        <div className={styles.homeStoryControls}>
-          <button
-            type="button"
-            className={styles.homeIconButton}
-            aria-label={t(content.previousLabel, locale)}
-            onClick={() => goTo(index - 1)}
-          >
-            ←
-          </button>
-          <div className={styles.homeStoryTabs} role="tablist">
-            {content.items.map((item, itemIndex) => (
+            <div className={styles.homeStoryControls}>
               <button
-                key={item.id}
                 type="button"
-                role="tab"
-                aria-selected={itemIndex === index}
-                aria-label={`${t(content.tabLabel, locale)} ${itemIndex + 1}: ${t(item.achievement, locale)}`}
-                className={styles.homeStoryTab}
-                onClick={() => goTo(itemIndex)}
-              />
-            ))}
+                className={styles.homeIconButton}
+                aria-label={t(content.previousLabel, locale)}
+                onClick={() => goTo(index - 1)}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                className={styles.homeIconButton}
+                aria-label={t(content.nextLabel, locale)}
+                onClick={() => goTo(index + 1)}
+              >
+                →
+              </button>
+              <div className={styles.homeStoryTabs} role="tablist">
+                {content.items.map((item, itemIndex) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={itemIndex === index}
+                    aria-label={`${t(content.tabLabel, locale)} ${itemIndex + 1}: ${t(item.achievement, locale)}`}
+                    className={styles.homeStoryTab}
+                    onClick={() => goTo(itemIndex)}
+                  />
+                ))}
+              </div>
+              <Link
+                className={styles.homeStoryAction}
+                href={hrefFor(story.action, locale)}
+              >
+                {t(story.action.label, locale)} ↗
+              </Link>
+            </div>
           </div>
-          <button
-            type="button"
-            className={styles.homeIconButton}
-            aria-label={t(content.nextLabel, locale)}
-            onClick={() => goTo(index + 1)}
-          >
-            →
-          </button>
         </div>
       </div>
     </section>

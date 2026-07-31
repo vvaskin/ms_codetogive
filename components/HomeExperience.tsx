@@ -16,17 +16,8 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
   return (
     <div className={styles.homePage}>
       <section className={styles.homeHero} aria-labelledby="home-hero-heading">
-        <div className={styles.homeHeroMedia}>
-          <Image
-            src={content.hero.image}
-            alt={t(content.hero.imageAlt, locale)}
-            fill
-            priority
-            sizes="100vw"
-          />
-          <div className={styles.homeHeroGradient} aria-hidden="true" />
-        </div>
-        <div className={styles.homeHeroContent}>
+        <div className={styles.homeHeroCopy}>
+          <p className={styles.homeEyebrow}>{t(content.hero.eyebrow, locale)}</p>
           <h1 id="home-hero-heading" className={styles.homeHeroHeadline}>
             {t(content.hero.headline, locale)}
           </h1>
@@ -39,12 +30,14 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               href={hrefFor(content.hero.primaryCta, locale)}
             >
               {t(content.hero.primaryCta.label, locale)}
+              <span aria-hidden="true">↗</span>
             </Link>
             <Link
-              className={styles.homeButtonGhost}
+              className={styles.homeTextLink}
               href={hrefFor(content.hero.secondaryCta, locale)}
             >
               {t(content.hero.secondaryCta.label, locale)}
+              <span aria-hidden="true"> ↓</span>
             </Link>
           </div>
           <ul className={styles.homeProofList}>
@@ -56,6 +49,40 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
             ))}
           </ul>
         </div>
+
+        <div
+          className={styles.homeHeroVisual}
+          aria-label={t(content.hero.imageAlt, locale)}
+        >
+          <Image
+            src={content.hero.image}
+            alt={t(content.hero.imageAlt, locale)}
+            fill
+            priority
+            sizes="(max-width: 760px) 100vw, 55vw"
+          />
+          <div className={styles.homeHeroCaption}>
+            <span className={styles.homePulse} aria-hidden="true" />
+            {t(content.hero.caption, locale)}
+          </div>
+          <div className={styles.homeHeroSticker} aria-hidden="true">
+            {content.hero.stickers.map((sticker) => (
+              <span key={sticker.en}>{t(sticker, locale)}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        className={styles.homeJourney}
+        aria-label={t(content.journey.label, locale)}
+      >
+        {content.journey.steps.map((step, index) => (
+          <div key={step.en}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{t(step, locale)}</strong>
+          </div>
+        ))}
       </section>
 
       <nav
@@ -71,6 +98,7 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               <li key={item.label.en}>
                 <Link href={hrefFor(item, locale)}>
                   {t(item.label, locale)}
+                  <span aria-hidden="true">↗</span>
                 </Link>
               </li>
             ))}
@@ -86,18 +114,23 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         aria-labelledby="home-model-heading"
       >
         <div className={styles.homeSectionInner}>
-          <p className={styles.homeEyebrow}>
-            {t(content.model.eyebrow, locale)}
-          </p>
-          <h2 id="home-model-heading" className={styles.homeSectionTitle}>
-            {t(content.model.title, locale)}
-          </h2>
+          <div className={styles.homeSectionHeadingSolo}>
+            <div>
+              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowTeal}`}>
+                {t(content.model.eyebrow, locale)}
+              </p>
+              <h2 id="home-model-heading" className={styles.homeSectionTitle}>
+                {t(content.model.title, locale)}
+              </h2>
+            </div>
+            <p className={styles.homeModelCentreLine}>
+              <strong>{t(content.model.centre.title, locale)}</strong>
+              {" — "}
+              {t(content.model.centre.description, locale)}
+            </p>
+          </div>
 
           <div className={styles.homeModelGrid}>
-            <div className={styles.homeModelCentre}>
-              <h3>{t(content.model.centre.title, locale)}</h3>
-              <p>{t(content.model.centre.description, locale)}</p>
-            </div>
             {content.model.pillars.map((pillar) => (
               <article
                 key={pillar.key}
@@ -125,10 +158,11 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
                     {t(pillar.example, locale)}
                   </p>
                   <Link
-                    className={styles.homeTextLink}
+                    className={styles.homeChipLink}
                     href={t(pillar.href, locale)}
                   >
                     {t(content.model.detailsLabel, locale)}
+                    <span aria-hidden="true">↗</span>
                   </Link>
                 </div>
               </article>
@@ -143,33 +177,108 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         aria-labelledby="home-opportunities-heading"
       >
         <div className={styles.homeSectionInner}>
-          <p className={styles.homeEyebrow}>
-            {t(content.opportunities.eyebrow, locale)}
-          </p>
-          <h2
-            id="home-opportunities-heading"
-            className={styles.homeSectionTitle}
-          >
-            {t(content.opportunities.title, locale)}
-          </h2>
-          <div className={styles.homeEmptyState}>
-            <h3>{t(content.opportunities.emptyTitle, locale)}</h3>
-            <p>{t(content.opportunities.emptyDescription, locale)}</p>
-            <div className={styles.homeHeroActions}>
-              <Link
-                className={styles.homeButtonPrimary}
-                href={hrefFor(content.opportunities.volunteerCta, locale)}
+          <div className={styles.homeSectionHeadingSolo}>
+            <div>
+              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowTeal}`}>
+                {t(content.opportunities.eyebrow, locale)}
+              </p>
+              <h2
+                id="home-opportunities-heading"
+                className={styles.homeSectionTitle}
               >
-                {t(content.opportunities.volunteerCta.label, locale)}
-              </Link>
-              <Link
-                className={styles.homeButtonSecondary}
-                href={hrefFor(content.opportunities.contactCta, locale)}
-              >
-                {t(content.opportunities.contactCta.label, locale)}
-              </Link>
+                {t(content.opportunities.title, locale)}
+              </h2>
             </div>
           </div>
+
+          {content.opportunities.activities.length > 0 ? (
+            <>
+              <div className={styles.homeEventToolbar}>
+                <span>{t(content.opportunities.filterLabel, locale)}</span>
+                <p className={styles.homeDemoNote}>
+                  {t(content.opportunities.demoNote, locale)}
+                </p>
+              </div>
+              <div className={styles.homeEventGrid}>
+                {content.opportunities.activities.map((activity) => (
+                  <article key={activity.id} className={styles.homeEventCard}>
+                    <div className={styles.homeEventImage}>
+                      <Image
+                        src={activity.image}
+                        alt={t(activity.imageAlt, locale)}
+                        fill
+                        sizes="(max-width: 760px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                      {activity.badge && (
+                        <span>{t(activity.badge, locale)}</span>
+                      )}
+                    </div>
+                    <div className={styles.homeEventContent}>
+                      <div className={styles.homeEventDate}>
+                        <strong>{activity.day}</strong>
+                        <span>{t(activity.month, locale)}</span>
+                      </div>
+                      <div>
+                        <h3>{t(activity.title, locale)}</h3>
+                        <p>
+                          {t(activity.time, locale)} ·{" "}
+                          {t(activity.location, locale)}
+                        </p>
+                        <p className={styles.homeEventRole}>
+                          {t(activity.role, locale)}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      className={`${styles.homeButtonDark} ${styles.homeButtonFull}`}
+                      href={hrefFor(activity.action, locale)}
+                    >
+                      {t(activity.action.label, locale)}
+                      <span aria-hidden="true">↗</span>
+                    </Link>
+                  </article>
+                ))}
+              </div>
+              <div className={styles.homeEventFooter}>
+                <Link
+                  className={styles.homeButtonGhostSoft}
+                  href={hrefFor(content.opportunities.volunteerCta, locale)}
+                >
+                  {t(content.opportunities.volunteerCta.label, locale)}
+                </Link>
+                <Link
+                  className={styles.homeChipLink}
+                  href={hrefFor(content.opportunities.contactCta, locale)}
+                >
+                  {t(content.opportunities.contactCta.label, locale)}
+                  <span aria-hidden="true">↗</span>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className={styles.homeEmptyState}>
+              <span className={styles.homeEmptyBadge}>
+                {t(content.opportunities.emptyBadge, locale)}
+              </span>
+              <h3>{t(content.opportunities.emptyTitle, locale)}</h3>
+              <p>{t(content.opportunities.emptyDescription, locale)}</p>
+              <div className={styles.homeHeroActions}>
+                <Link
+                  className={styles.homeButtonDark}
+                  href={hrefFor(content.opportunities.volunteerCta, locale)}
+                >
+                  {t(content.opportunities.volunteerCta.label, locale)}
+                  <span aria-hidden="true">↗</span>
+                </Link>
+                <Link
+                  className={styles.homeButtonGhostSoft}
+                  href={hrefFor(content.opportunities.contactCta, locale)}
+                >
+                  {t(content.opportunities.contactCta.label, locale)}
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -181,16 +290,22 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         aria-labelledby="home-help-heading"
       >
         <div className={styles.homeSectionInner}>
-          <p className={styles.homeEyebrow}>{t(content.help.eyebrow, locale)}</p>
-          <h2 id="home-help-heading" className={styles.homeSectionTitle}>
-            {t(content.help.title, locale)}
-          </h2>
-          <p className={styles.homeSectionLead}>
-            {t(content.help.description, locale)}
-          </p>
+          <div className={styles.homeSectionHeadingSolo}>
+            <div>
+              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowCoral}`}>
+                {t(content.help.eyebrow, locale)}
+              </p>
+              <h2 id="home-help-heading" className={styles.homeSectionTitle}>
+                {t(content.help.title, locale)}
+              </h2>
+            </div>
+          </div>
           <div className={styles.homeHelpRows}>
-            {content.help.actions.map((action) => (
+            {content.help.actions.map((action, index) => (
               <article key={action.id} className={styles.homeHelpRow}>
+                <span className={styles.homeHelpIndex} aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
                 <div>
                   <div className={styles.homeHelpHeading}>
                     <h3>{t(action.title, locale)}</h3>
@@ -206,11 +321,12 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
                   className={
                     action.status === "live"
                       ? styles.homeButtonPrimary
-                      : styles.homeButtonSecondary
+                      : styles.homeButtonGhostSoft
                   }
                   href={hrefFor(action.action, locale)}
                 >
                   {t(action.action.label, locale)}
+                  <span aria-hidden="true">↗</span>
                 </Link>
               </article>
             ))}
@@ -224,42 +340,49 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         aria-labelledby="home-trust-heading"
       >
         <div className={styles.homeSectionInner}>
-          <p className={styles.homeEyebrow}>
-            {t(content.trust.eyebrow, locale)}
-          </p>
-          <h2 id="home-trust-heading" className={styles.homeSectionTitle}>
-            {t(content.trust.title, locale)}
-          </h2>
+          <div className={styles.homeSectionHeadingSolo}>
+            <div>
+              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowCobalt}`}>
+                {t(content.trust.eyebrow, locale)}
+              </p>
+              <h2 id="home-trust-heading" className={styles.homeSectionTitle}>
+                {t(content.trust.title, locale)}
+              </h2>
+            </div>
+          </div>
 
           <div className={styles.homeTrustLayout}>
             <div className={styles.homeTrustCopy}>
-              <p>{t(content.trust.section88, locale)}</p>
+              <div className={styles.homeTrustCard}>
+                <p>{t(content.trust.section88, locale)}</p>
+                <ul className={styles.homeProofList}>
+                  {content.trust.metrics.map((metric) => (
+                    <li key={`trust-${metric.value}`}>
+                      <strong>{metric.value}</strong>
+                      <span>{t(metric.label, locale)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <ul className={styles.homeTrustLinks}>
+                  {content.trust.links.map((link) => (
+                    <li key={link.label.en}>
+                      <Link
+                        className={styles.homeChipLink}
+                        href={hrefFor(link, locale)}
+                      >
+                        {t(link.label, locale)}
+                        <span aria-hidden="true">↗</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <p className={styles.homeDignity}>
                 <span className={styles.homePlannedBadge}>
                   {t(content.trust.dignityBadge, locale)}
                 </span>
                 {t(content.trust.dignityStatement, locale)}
               </p>
-              <ul className={styles.homeProofList}>
-                {content.trust.metrics.map((metric) => (
-                  <li key={`trust-${metric.value}`}>
-                    <strong>{metric.value}</strong>
-                    <span>{t(metric.label, locale)}</span>
-                  </li>
-                ))}
-              </ul>
-              <ul className={styles.homeTrustLinks}>
-                {content.trust.links.map((link) => (
-                  <li key={link.label.en}>
-                    <Link
-                      className={styles.homeTextLink}
-                      href={hrefFor(link, locale)}
-                    >
-                      {t(link.label, locale)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </div>
 
             <div>
@@ -321,6 +444,9 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         aria-labelledby="home-final-heading"
       >
         <div className={styles.homeSectionInner}>
+          <p className={styles.homeFinalEyebrow}>
+            {t(content.finalCta.eyebrow, locale)}
+          </p>
           <h2 id="home-final-heading" className={styles.homeFinalTitle}>
             {t(content.finalCta.title, locale)}
           </h2>
@@ -332,6 +458,7 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
                 href={hrefFor(action, locale)}
               >
                 {t(action.label, locale)}
+                <span aria-hidden="true">↗</span>
               </Link>
             ))}
           </div>

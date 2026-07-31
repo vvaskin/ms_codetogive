@@ -44,43 +44,38 @@ export function HomeDonatePreview({
   const showCustomError =
     amountMode === "custom" && customTouched && !customValid;
 
+  const programmeLabel =
+    content.programmeOptions.find((option) => option.value === programme)
+      ?.label ?? content.programmeOptions[0].label;
+
   const impactMessage = useMemo(() => {
     const match = content.impactMessages.find(
       (item) =>
         item.frequency === frequency && item.programme === programme,
     );
-    const base = match
+    return match
       ? t(match.message, locale)
       : t(content.defaultImpact, locale);
-
-    if (selectedAmount == null) {
-      return base;
-    }
-
-    const amountLabel =
-      locale === "zh"
-        ? `港幣 ${selectedAmount.toLocaleString("en-HK")} 元`
-        : `HK$${selectedAmount.toLocaleString("en-HK")}`;
-    const frequencyLabel =
-      frequency === "monthly"
-        ? locale === "zh"
-          ? "每月"
-          : "monthly"
-        : locale === "zh"
-          ? "一次性"
-          : "one-time";
-
-    return locale === "zh"
-      ? `${frequencyLabel}${amountLabel}：${base}`
-      : `Your ${frequencyLabel} gift of ${amountLabel}: ${base}`;
   }, [
     content.defaultImpact,
     content.impactMessages,
     frequency,
     locale,
     programme,
-    selectedAmount,
   ]);
+
+  const filledTiles = selectedAmount
+    ? Math.min(9, Math.max(1, Math.round(selectedAmount / 250)))
+    : 0;
+
+  const amountDisplay =
+    selectedAmount == null
+      ? locale === "zh"
+        ? "—"
+        : "—"
+      : locale === "zh"
+        ? `港幣 ${selectedAmount.toLocaleString("en-HK")} 元`
+        : `HK$${selectedAmount.toLocaleString("en-HK")}`;
 
   return (
     <section
@@ -89,119 +84,172 @@ export function HomeDonatePreview({
       aria-labelledby={headingId}
     >
       <div className={styles.homeSectionInner}>
-        <p className={styles.homeEyebrow}>{t(content.eyebrow, locale)}</p>
-        <h2 id={headingId} className={styles.homeSectionTitle}>
-          {t(content.title, locale)}
-        </h2>
-        <p className={styles.homeSectionLead}>
-          {t(content.description, locale)}
-        </p>
+        <div className={styles.homeSectionHeading}>
+          <div>
+            <p className={styles.homeEyebrow}>{t(content.eyebrow, locale)}</p>
+            <h2 id={headingId} className={styles.homeSectionTitle}>
+              {t(content.title, locale)}
+            </h2>
+          </div>
+          {t(content.description, locale) ? (
+            <p className={styles.homeSectionLead}>
+              {t(content.description, locale)}
+            </p>
+          ) : null}
+        </div>
 
-        <div className={styles.homeDonatePanel}>
-          <fieldset className={styles.homeFieldset}>
-            <legend>{t(content.frequencyLabel, locale)}</legend>
-            <div className={styles.homeChoiceRow}>
-              <label className={styles.homeChoice}>
-                <input
-                  type="radio"
-                  name="donation-frequency"
-                  checked={frequency === "one-time"}
-                  onChange={() => setFrequency("one-time")}
-                />
-                <span>{t(content.oneTimeLabel, locale)}</span>
-              </label>
-              <label className={styles.homeChoice}>
-                <input
-                  type="radio"
-                  name="donation-frequency"
-                  checked={frequency === "monthly"}
-                  onChange={() => setFrequency("monthly")}
-                />
-                <span>{t(content.monthlyLabel, locale)}</span>
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset className={styles.homeFieldset}>
-            <legend>{t(content.amountLabel, locale)}</legend>
-            <div className={styles.homeChoiceRow}>
-              {content.amounts.map((amount) => (
-                <label key={amount.value} className={styles.homeChoice}>
-                  <input
-                    type="radio"
-                    name="donation-amount"
-                    checked={amountMode === amount.value}
-                    onChange={() => setAmountMode(amount.value)}
-                  />
-                  <span>{t(amount.label, locale)}</span>
-                </label>
-              ))}
-              <label className={styles.homeChoice}>
-                <input
-                  type="radio"
-                  name="donation-amount"
-                  checked={amountMode === "custom"}
-                  onChange={() => setAmountMode("custom")}
-                />
-                <span>{t(content.customAmountLabel, locale)}</span>
-              </label>
-            </div>
-            {amountMode === "custom" && (
-              <div className={styles.homeCustomAmount}>
-                <label htmlFor={customId}>
-                  {t(content.customAmountLabel, locale)}
-                </label>
-                <input
-                  id={customId}
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder={t(content.customAmountPlaceholder, locale)}
-                  value={customAmount}
-                  aria-invalid={showCustomError}
-                  aria-describedby={showCustomError ? errorId : undefined}
-                  onChange={(event) => {
-                    setCustomAmount(event.target.value);
-                    setCustomTouched(true);
-                  }}
-                  onBlur={() => setCustomTouched(true)}
-                />
-                {showCustomError && (
-                  <p id={errorId} className={styles.homeFieldError} role="alert">
-                    {t(content.customAmountError, locale)}
-                  </p>
-                )}
-              </div>
-            )}
-          </fieldset>
-
-          <label className={styles.homeSelectLabel}>
-            {t(content.programmeLabel, locale)}
-            <select
-              value={programme}
-              onChange={(event) =>
-                setProgramme(event.target.value as DonationProgramme)
-              }
+        <div className={styles.homeDonateStudio}>
+          <div className={styles.homeDonateControls}>
+            <div
+              className={styles.homeToggle}
+              role="group"
+              aria-label={t(content.frequencyLabel, locale)}
             >
-              {content.programmeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {t(option.label, locale)}
-                </option>
+              <button
+                type="button"
+                className={
+                  frequency === "one-time" ? styles.homeToggleSelected : undefined
+                }
+                aria-pressed={frequency === "one-time"}
+                onClick={() => setFrequency("one-time")}
+              >
+                {t(content.oneTimeLabel, locale)}
+              </button>
+              <button
+                type="button"
+                className={
+                  frequency === "monthly" ? styles.homeToggleSelected : undefined
+                }
+                aria-pressed={frequency === "monthly"}
+                onClick={() => setFrequency("monthly")}
+              >
+                {t(content.monthlyLabel, locale)}
+              </button>
+            </div>
+
+            <fieldset className={styles.homeFieldset}>
+              <legend>{t(content.amountLabel, locale)}</legend>
+              <div className={styles.homeAmountRow}>
+                {content.amounts.map((amount) => (
+                  <button
+                    key={amount.value}
+                    type="button"
+                    className={
+                      amountMode === amount.value
+                        ? styles.homeAmountSelected
+                        : undefined
+                    }
+                    aria-pressed={amountMode === amount.value}
+                    onClick={() => setAmountMode(amount.value)}
+                  >
+                    {t(amount.label, locale)}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={
+                    amountMode === "custom"
+                      ? styles.homeAmountSelected
+                      : undefined
+                  }
+                  aria-pressed={amountMode === "custom"}
+                  onClick={() => setAmountMode("custom")}
+                >
+                  {t(content.customAmountLabel, locale)}
+                </button>
+              </div>
+              {amountMode === "custom" && (
+                <div className={styles.homeCustomAmount}>
+                  <label htmlFor={customId}>
+                    {t(content.customAmountLabel, locale)}
+                  </label>
+                  <div className={styles.homeCustomInput}>
+                    <span aria-hidden="true">HK$</span>
+                    <input
+                      id={customId}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder={t(content.customAmountPlaceholder, locale)}
+                      value={customAmount}
+                      aria-invalid={showCustomError}
+                      aria-describedby={
+                        showCustomError ? errorId : undefined
+                      }
+                      onChange={(event) => {
+                        setCustomAmount(event.target.value);
+                        setCustomTouched(true);
+                      }}
+                      onBlur={() => setCustomTouched(true)}
+                    />
+                  </div>
+                  {showCustomError && (
+                    <p
+                      id={errorId}
+                      className={styles.homeFieldError}
+                      role="alert"
+                    >
+                      {t(content.customAmountError, locale)}
+                    </p>
+                  )}
+                </div>
+              )}
+            </fieldset>
+
+            <fieldset className={styles.homeFieldset}>
+              <legend>{t(content.programmeLabel, locale)}</legend>
+              <div className={styles.homeImpactOptions}>
+                {content.programmeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={
+                      programme === option.value
+                        ? styles.homeAmountSelected
+                        : undefined
+                    }
+                    aria-pressed={programme === option.value}
+                    onClick={() => setProgramme(option.value)}
+                  >
+                    {t(option.label, locale)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+
+          <aside className={styles.homeImpactPreview}>
+            <p>
+              {t(content.supportLabel, locale)}
+              {" · "}
+              {frequency === "monthly"
+                ? t(content.monthlyLabel, locale)
+                : t(content.oneTimeLabel, locale)}
+            </p>
+            <strong>{amountDisplay}</strong>
+            <h3>{t(programmeLabel, locale)}</h3>
+            <p className={styles.homeImpactMessage} aria-live="polite">
+              {impactMessage}
+            </p>
+            <div className={styles.homeImpactTiles} aria-hidden="true">
+              {Array.from({ length: 9 }, (_, tileIndex) => (
+                <span
+                  key={tileIndex}
+                  className={
+                    tileIndex < filledTiles ? styles.homeImpactTileFilled : undefined
+                  }
+                />
               ))}
-            </select>
-          </label>
-
-          <p className={styles.homeImpactMessage} aria-live="polite">
-            {impactMessage}
-          </p>
-
-          <Link
-            className={styles.homeButtonPrimary}
-            href={hrefFor(content.cta, locale)}
-          >
-            {t(content.cta.label, locale)}
-          </Link>
-          <p className={styles.homeDonateNote}>{t(content.note, locale)}</p>
+            </div>
+            <p className={styles.homeDonateNote}>{t(content.note, locale)}</p>
+            <Link
+              className={`${styles.homeButtonPrimary} ${styles.homeButtonFull}`}
+              href={hrefFor(content.cta, locale)}
+            >
+              {t(content.cta.label, locale)}
+              <span aria-hidden="true">↗</span>
+            </Link>
+          </aside>
         </div>
       </div>
     </section>
