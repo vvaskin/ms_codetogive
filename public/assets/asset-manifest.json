@@ -1,0 +1,67 @@
+{
+  "source": "https://love21foundation.com/",
+  "captured": "2026-07-31",
+  "permissionAssumption": "Love 21 authorised development reuse",
+  "assets": [
+    {
+      "local": "/assets/images/logo.png",
+      "source": "https://love21foundation.com/wp-content/themes/love21foundation-theme/assets/img/love21_logo.png",
+      "usage": "Header, footer and metadata",
+      "alt": "Love 21 Foundation Logo"
+    },
+    {
+      "local": "/assets/images/hero.jpg",
+      "source": "https://love21foundation.com/wp-content/uploads/2021/08/IMG_1641-scaled.jpg",
+      "usage": "Homepage hero",
+      "alt": "Love 21 community activity"
+    },
+    {
+      "local": "/assets/images/story.jpg",
+      "source": "https://love21foundation.com/wp-content/uploads/2019/12/Love21Foundation-ourstory-01.jpg",
+      "usage": "Our Story and volunteer pages",
+      "alt": "Love 21 community"
+    },
+    {
+      "local": "/assets/images/home-sports.jpg",
+      "source": "https://love21foundation.com/wp-content/uploads/2021/08/44548051-c7d1-4248-a0b5-a6243deb3644.jpg",
+      "usage": "Homepage sports tile",
+      "alt": "Sports"
+    },
+    {
+      "local": "/assets/images/home-nutrition.jpg",
+      "source": "https://love21foundation.com/wp-content/uploads/2021/08/a19c3f56-b90d-4a19-b5b6-1f90b68bb103.jpg",
+      "usage": "Homepage nutrition tile",
+      "alt": "Nutrition"
+    },
+    {
+      "local": "/assets/images/home-family.jpeg",
+      "source": "https://love21foundation.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-22-at-11.11.56-AM.jpeg",
+      "usage": "Homepage family tile",
+      "alt": "Family"
+    },
+    {
+      "local": "/assets/images/home-csr.jpg",
+      "source": "https://love21foundation.com/wp-content/uploads/2021/08/bc61bfd9-bdf8-4117-8394-9269df16c04d.jpg",
+      "usage": "Homepage CSR tile",
+      "alt": "Corporate social responsibility"
+    },
+    {
+      "local": "/assets/reports/annual-report-2024-2025.pdf",
+      "source": "https://love21foundation.com/wp-content/uploads/2026/04/Annualreport_final.pdf",
+      "usage": "Our Reports",
+      "alt": "2024-2025 Annual Report"
+    },
+    {
+      "local": "/assets/reports/annual-report-2023-2024.pdf",
+      "source": "https://love21foundation.com/wp-content/uploads/2025/10/Love21-ANNUAL-REPORT_2324.pdf",
+      "usage": "Our Reports",
+      "alt": "2023-2024 Annual Report"
+    },
+    {
+      "local": "/assets/reports/annual-report-2022-2023.pdf",
+      "source": "https://love21foundation.com/wp-content/uploads/2024/03/Love-21-Annual-Report-2022-2023-ENG-3.pdf",
+      "usage": "Our Reports",
+      "alt": "2022-2023 Annual Report"
+    }
+  ]
+}
