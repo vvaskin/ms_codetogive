@@ -30,14 +30,14 @@ function getSimpleViewServerSnapshot() {
 
 const enAbout = [
   ["Our Story", "/our-story/"],
-  ["Impact & Reports", "/our-finance/"],
+  ["Trust & Transparency", "/our-finance/"],
   ["Leadership & Staff", "/leadership/"],
   ["Media", "/media/"],
 ];
 
 const zhAbout = [
   ["關於我們", "/zh/our-story-hk/"],
-  ["影響與報告", "/zh/our-finance-hk/"],
+  ["信任與透明", "/zh/our-finance-hk/"],
   ["管理層與員工", "/zh/leadership-hk/"],
   ["媒體報導", "/zh/media-hk/"],
 ];
