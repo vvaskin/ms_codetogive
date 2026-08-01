@@ -199,15 +199,19 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const involvedItems = zh ? zhInvolved : enInvolved;
   const contactPath = zh ? "/zh/contact-us-hk/" : "/contact-us/";
   const loginPath = session ? "/portal" : "/login/";
-  const volunteerLabel = session
+  const memberLabel = session
     ? zh
       ? "個人頁面"
       : "My portal"
     : zh
-      ? "做義工"
-      : "Volunteer";
+      ? "註冊 / 登入"
+      : "Sign up / Login";
+  const volunteerPath = zh ? "/zh/our-volunteer-hk/" : "/our-volunteer/";
+  const volunteerLabel = zh ? "做義工" : "Volunteer";
   const donatePath = zh ? "/zh/donate-hk/" : "/donate/";
   const homePath = zh ? "/zh/" : "/";
+  const enPath = zh ? alternate : pathname;
+  const zhPath = zh ? pathname : alternate;
   const missionLine = zh
     ? "透過運動、營養及全面支援，為唐氏綜合症和自閉症社群帶來機會與包容。"
     : "Opportunity, inclusion and support for the Down syndrome and autistic community through sport, nutrition and holistic programmes.";
@@ -231,7 +235,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             onMouseLeave={() => setOpenGroup(null)}
           >
             <MenuGroup
-              label={zh ? "關於我們" : "About Us"}
+              label={zh ? "關於" : "About"}
               items={aboutItems}
               open={openGroup === "about"}
               onOpen={() => setOpenGroup("about")}
@@ -288,42 +292,59 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className={styles.headerActions}>
-            <Link
-              href={donatePath}
-              className={`${styles.donatePill} ${styles.donatePillCompact}`}
-            >
-              {zh ? "捐贈" : "Donate"}
-            </Link>
-
             <CalmModeToggle
               zh={zh}
               simpleView={simpleView}
               onToggle={toggleSimpleView}
+              className={styles.calmToggleHeader}
             />
 
             <div className={styles.languageLinks} aria-label="Language">
               <Link
-                href={zh ? alternate : pathname}
+                href={enPath}
                 className={!zh ? styles.languageActive : undefined}
               >
                 EN
               </Link>
               <span className={styles.languageDivider} aria-hidden="true">
-                |
+                ·
               </span>
               <Link
-                href={zh ? pathname : alternate}
+                href={zhPath}
                 className={zh ? styles.languageActive : undefined}
               >
                 繁
               </Link>
+              <span className={styles.languageDivider} aria-hidden="true">
+                ·
+              </span>
+              <span
+                className={styles.languageSoon}
+                aria-disabled="true"
+                title={
+                  zh ? "簡體中文即將推出" : "Simplified Chinese coming soon"
+                }
+              >
+                简
+              </span>
             </div>
 
-            <Link href={loginPath} className={styles.portalLink}>
-              {volunteerLabel}
+            <Link href={loginPath} className={styles.memberLogin}>
+              {memberLabel}
             </Link>
 
             <Link href={donatePath} className={styles.donatePill}>
+              {zh ? "捐贈" : "Donate"}
+            </Link>
+
+            <Link href={volunteerPath} className={styles.volunteerPill}>
+              {volunteerLabel}
+            </Link>
+
+            <Link
+              href={donatePath}
+              className={`${styles.donatePill} ${styles.donatePillCompact}`}
+            >
               {zh ? "捐贈" : "Donate"}
             </Link>
 
@@ -351,7 +372,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           }}
         >
           <MenuGroup
-            label={zh ? "關於我們" : "About Us"}
+            label={zh ? "關於" : "About"}
             items={aboutItems}
             open={openGroup === "about"}
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
@@ -390,10 +411,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
           <div className={styles.mobileUtility}>
             <div className={styles.mobileUtilityRow}>
+              <Link href={loginPath} className={styles.memberLogin}>
+                {memberLabel}
+              </Link>
               <Link href={donatePath} className={styles.mobileUtilityDonate}>
                 {zh ? "捐贈" : "Donate"}
               </Link>
-              <Link href={loginPath} className={styles.mobileNavLink}>
+              <Link href={volunteerPath} className={styles.volunteerPill}>
                 {volunteerLabel}
               </Link>
             </div>
