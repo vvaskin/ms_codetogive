@@ -1,35 +1,40 @@
 "use server";
 
-import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ensureAccount } from "@/lib/server/ensure-account";
+import { VOLUNTEER_INTEREST_VALUES } from "@/lib/volunteer-interests";
 
 export interface RegisterForEventInput {
   eventId: number;
-  /** Guest details — required only when the visitor is logged out. */
-  email?: string;
-  name?: string;
-  phone?: string;
+  /** Volunteers only — the role they want for this event. */
+  interest?: string | null;
+  /** Guests only — required when the visitor is logged out. */
+  guestName?: string | null;
+  guestEmail?: string | null;
 }
 
 export interface RegisterForEventResult {
   ok: boolean;
   error?: string;
-  createdAccount?: boolean;
-  notifiedVia?: "sms" | "email" | "none";
-  warning?: string;
+  /** Which sign-up path was taken. */
+  mode?: "volunteer" | "member" | "guest";
 }
 
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
 /**
- * Registers the visitor to volunteer for an event. Logged-in users register
- * themselves (RLS-checked); guests auto-get a volunteer account first, then
- * the participation row is written with the service-role client.
+ * Signs a visitor up for an event.
+ *
+ * - Authenticated volunteers pick an interest; their row stores user_id + interest.
+ * - Authenticated members/donors sign up under their own account (no interest).
+ * - Logged-out guests provide a name + email; their row stores guest_name +
+ *   guest_email with user_id NULL (no account is created).
  */
 export async function registerForEvent(
   input: RegisterForEventInput,
 ): Promise<RegisterForEventResult> {
-  if (!Number.isInteger(input.eventId)) {
+  if (!Number.isInteger(input.eventId) || input.eventId < 1) {
     return { ok: false, error: "Invalid event." };
   }
 
@@ -38,74 +43,68 @@ export async function registerForEvent(
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Logged-in: register under their own session.
   if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const isVolunteer = profile?.role === "volunteer";
+    const interest = isVolunteer ? normalizeInterest(input.interest) : null;
+
     const { error } = await supabase
       .from("event_participations")
       .upsert(
-        { user_id: user.id, event_id: input.eventId, status: "registered" },
-        { onConflict: "user_id,event_id", ignoreDuplicates: true },
-      );
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
-  }
-
-  // Guest: create/find a volunteer account, then register them. Phone is now
-  // required — set-password message goes out via SMS.
-  const email = input.email?.trim();
-  const name = input.name?.trim();
-  const phone = input.phone?.trim();
-  if (!email || !name || !phone) {
-    return {
-      ok: false,
-      error: "Please enter your name, email, and phone number.",
-    };
-  }
-
-  try {
-    const origin = await appOrigin();
-    const account = await ensureAccount({
-      email,
-      name,
-      phone,
-      role: "volunteer",
-      origin,
-    });
-
-    const admin = createAdminClient();
-    const { error } = await admin
-      .from("event_participations")
-      .upsert(
         {
-          user_id: account.userId,
+          user_id: user.id,
           event_id: input.eventId,
+          interest,
           status: "registered",
         },
-        { onConflict: "user_id,event_id", ignoreDuplicates: true },
+        { onConflict: "user_id,event_id" },
       );
+
     if (error) return { ok: false, error: error.message };
 
-    if (account.actionLink) {
-      console.log(
-        `[guest volunteer] ${account.notifiedVia} link for ${email}: ${account.actionLink}`,
-      );
-    }
-
-    return {
-      ok: true,
-      createdAccount: account.created,
-      notifiedVia: account.notifiedVia,
-      warning: account.warning,
-    };
-  } catch (err) {
-    return { ok: false, error: (err as Error).message };
+    revalidatePath("/portal/events");
+    return { ok: true, mode: isVolunteer ? "volunteer" : "member" };
   }
+
+  // Guest: store name + email directly (no account is created).
+  const name = input.guestName?.trim();
+  const email = input.guestEmail?.trim();
+
+  if (!name) return { ok: false, error: "Please enter your name." };
+  if (!email) return { ok: false, error: "Please enter your email." };
+  if (!EMAIL_PATTERN.test(email)) {
+    return { ok: false, error: "Please enter a valid email." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("event_guest_signups")
+    .upsert(
+      {
+        event_id: input.eventId,
+        guest_name: name,
+        guest_email: email,
+        interest: null,
+        status: "registered",
+      },
+      { onConflict: "guest_email,event_id" },
+    );
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/portal/events");
+  return { ok: true, mode: "guest" };
 }
 
-async function appOrigin(): Promise<string> {
-  const h = await headers();
-  return (
-    h.get("origin") ??
-    (h.get("host") ? `https://${h.get("host")}` : "http://localhost:3000")
+function normalizeInterest(interest: string | null | undefined): string | null {
+  if (!interest) return null;
+  const value = VOLUNTEER_INTEREST_VALUES.find(
+    (option) => option === interest,
   );
+  return value ?? null;
 }

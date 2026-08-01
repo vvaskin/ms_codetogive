@@ -61,23 +61,17 @@ const textSizeStore = {
 };
 
 const enAbout = [
-  ["Our Story", "/our-story/"],
   ["Trust & Transparency", "/our-finance/"],
-  ["Leadership & Staff", "/leadership/"],
   ["Media", "/media/"],
 ];
 
 const zhAbout = [
-  ["關於我們", "/zh/our-story-hk/"],
   ["信任與透明", "/zh/our-finance-hk/"],
-  ["管理層與員工", "/zh/leadership-hk/"],
   ["媒體報導", "/zh/media-hk/"],
 ];
 
 const cnAbout = [
-  ["关于我们", "/cn/our-story/"],
   ["信任与透明", "/cn/our-finance/"],
-  ["管理层与员工", "/cn/leadership/"],
   ["媒体报道", "/cn/media/"],
 ];
 
@@ -628,7 +622,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             <MenuGroup
               locale={locale}
               label={pick("About", "關於", "关于")}
-              href={pick("/our-story/", "/zh/our-story-hk/", "/cn/our-story/")}
+              href={pick("/about/", "/zh/about-hk/", "/cn/about/")}
               items={aboutItems}
             />
             <Link href={eventsPath} className={styles.navLink}>
@@ -644,44 +638,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           )}
 
           <div className={styles.headerActions}>
-            <AccessibilityMenu
-              locale={locale}
-              simpleView={simpleView}
-              highContrast={highContrast}
-              textSize={textSize}
-              onToggleSimpleView={toggleSimpleView}
-              onToggleHighContrast={toggleHighContrast}
-              onAdjustTextSize={adjustTextSize}
-              className={styles.accessHeader}
-            />
-
-            <div className={styles.languageLinks} aria-label="Language">
-              <Link
-                href={trio.en}
-                className={locale === "en" ? styles.languageActive : undefined}
-              >
-                EN
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.zh}
-                className={zh ? styles.languageActive : undefined}
-              >
-                繁
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.cn}
-                className={cn ? styles.languageActive : undefined}
-              >
-                简
-              </Link>
-            </div>
-
             {session ? (
               <>
                 <Link href={portalPath} className={styles.memberLogin}>
@@ -739,7 +695,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           <MenuGroup
             locale={locale}
             label={pick("About", "關於", "关于")}
-            href={pick("/our-story/", "/zh/our-story-hk/", "/cn/our-story/")}
+            href={pick("/about/", "/zh/about-hk/", "/cn/about/")}
             items={aboutItems}
             open={openGroup === "about"}
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}

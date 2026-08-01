@@ -246,9 +246,9 @@ export const boardMembers: PersonProfile[] = [
 
 const enPages: SitePage[] = [
   {
-    path: "/our-story/",
+    path: "/about/",
     locale: "en",
-    alternatePath: "/zh/our-story-hk/",
+    alternatePath: "/zh/about-hk/",
     template: "about",
     title: "OUR STORY",
     image: images.story,
@@ -387,9 +387,9 @@ const enPages: SitePage[] = [
 
 const zhPages: SitePage[] = [
   {
-    path: "/zh/our-story-hk/",
+    path: "/zh/about-hk/",
     locale: "zh",
-    alternatePath: "/our-story/",
+    alternatePath: "/about/",
     template: "about",
     title: "關於我們",
     image: images.story,
@@ -528,9 +528,9 @@ const zhPages: SitePage[] = [
 
 const cnPages: SitePage[] = [
   {
-    path: "/cn/our-story/",
+    path: "/cn/about/",
     locale: "cn",
-    alternatePath: "/our-story/",
+    alternatePath: "/about/",
     template: "about",
     title: "关于我们",
     image: images.story,

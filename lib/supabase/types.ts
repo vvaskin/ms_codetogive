@@ -18,4 +18,8 @@ export type UserRow = Database["public"]["Tables"]["users"]["Row"];
 export type EventRow = Database["public"]["Tables"]["events"]["Row"];
 export type EventParticipationRow =
   Database["public"]["Tables"]["event_participations"]["Row"];
+export type EventGuestSignupRow =
+  Database["public"]["Tables"]["event_guest_signups"]["Row"];
 export type DonationRow = Database["public"]["Tables"]["donations"]["Row"];
+export type InstagramPostRow =
+  Database["public"]["Tables"]["instagram_posts"]["Row"];
