@@ -13,6 +13,9 @@ export type ParticipationStatus =
   | "attended"
   | "no_show"
   | "cancelled";
+export type DonationKind = "one_time" | "recurring";
+export type DonationFrequency = "monthly" | "quarterly" | "yearly";
+export type DonationStatus = "completed" | "active" | "paused" | "cancelled";
 
 export type UserRow = {
   id: string;
@@ -35,6 +38,7 @@ export type EventRow = {
   subtype: string | null;
   location: string | null;
   location_link: string | null;
+  slug: string | null;
   created_at: string;
 }
 
@@ -48,13 +52,17 @@ export type EventParticipationRow = {
   updated_at: string;
 }
 
-export type EventSponsorshipRow = {
+export type DonationRow = {
   id: number;
   donor_id: string;
-  event_id: number;
+  event_id: number | null;
+  kind: DonationKind;
   amount_cents: number;
   currency: string;
+  frequency: DonationFrequency | null;
+  status: DonationStatus;
   certificate_path: string | null;
+  note: string | null;
   created_at: string;
 }
 
@@ -87,6 +95,7 @@ export type Database = {
           | "subtype"
           | "location"
           | "location_link"
+          | "slug"
           | "created_at"
         >;
         Update: Partial<EventRow>;
@@ -101,13 +110,19 @@ export type Database = {
         Update: Partial<EventParticipationRow>;
         Relationships: [];
       };
-      event_sponsorships: {
-        Row: EventSponsorshipRow;
+      donations: {
+        Row: DonationRow;
         Insert: Writable<
-          EventSponsorshipRow,
-          "id" | "currency" | "certificate_path" | "created_at"
+          DonationRow,
+          | "id"
+          | "event_id"
+          | "currency"
+          | "frequency"
+          | "certificate_path"
+          | "note"
+          | "created_at"
         >;
-        Update: Partial<EventSponsorshipRow>;
+        Update: Partial<DonationRow>;
         Relationships: [];
       };
     };
@@ -117,6 +132,9 @@ export type Database = {
       user_role: UserRole;
       event_type: EventType;
       participation_status: ParticipationStatus;
+      donation_kind: DonationKind;
+      donation_frequency: DonationFrequency;
+      donation_status: DonationStatus;
     };
     CompositeTypes: { [_ in never]: never };
   };

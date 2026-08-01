@@ -114,6 +114,42 @@ html.simple-view body {
   line-height: 1.7;
 }
 
+/* Accessibility: text size */
+html.text-large {
+  font-size: 112.5%;
+}
+
+html.text-largest {
+  font-size: 125%;
+}
+
+/* Accessibility: high contrast */
+html.high-contrast {
+  --color-text-primary: #000000;
+  --color-text-muted: #000000;
+  --color-ink: #000000;
+  --color-border: #000000;
+  --color-canvas: #ffffff;
+  --color-white: #ffffff;
+  --color-background: #ffffff;
+  --color-focus: #000000;
+  --shadow-soft: none;
+  --shadow-card: none;
+  --shadow-lift: none;
+}
+
+html.high-contrast body {
+  background: var(--color-canvas);
+}
+
+html.high-contrast a,
+html.high-contrast button,
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  border-color: #000000;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

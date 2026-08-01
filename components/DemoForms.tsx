@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import type { ContactCopy } from "../content/contact";
+import type { Locale } from "../content/site-data";
 import styles from "./DemoForms.module.css";
 
 function useDemoSubmit() {
@@ -21,34 +22,36 @@ function useDemoSubmit() {
   return { submitted, onSubmit };
 }
 
-export function NewsletterForm({ zh = false }: { zh?: boolean }) {
+function text(locale: Locale, en: string, zh: string, cn: string) {
+  return locale === "zh" ? zh : locale === "cn" ? cn : en;
+}
+
+export function NewsletterForm({ locale = "en" }: { locale?: Locale }) {
   const { submitted, onSubmit } = useDemoSubmit();
 
   return (
     <section className={styles.newsletterSection}>
       <div className={styles.sectionRule} />
-      <h2>{zh ? "訂閱 Love 21 電子通訊" : "Subscribe to our eNews"}</h2>
+      <h2>{text(locale, "Subscribe to our eNews", "訂閱 Love 21 電子通訊", "订阅 Love 21 电子通讯")}</h2>
       {submitted ? (
         <div className={styles.formSuccess} role="status">
-          {zh
-            ? "謝謝！這是開發版本，資料並未傳送。"
-            : "Thank you! This is a development copy, so no information was transmitted."}
+          {text(locale, "Thank you! This is a development copy, so no information was transmitted.", "謝謝！這是開發版本，資料並未傳送。", "谢谢！这是开发版本，资料并未传送。")}
         </div>
       ) : (
         <form className={styles.newsletterForm} onSubmit={onSubmit}>
           <label>
-            {zh ? "姓氏" : "Last Name"}
+            {text(locale, "Last Name", "姓氏", "姓氏")}
             <input name="lastName" autoComplete="family-name" />
           </label>
           <label>
-            {zh ? "名字" : "First Name"}
+            {text(locale, "First Name", "名字", "名字")}
             <input name="firstName" autoComplete="given-name" />
           </label>
           <label>
-            {zh ? "電郵地址*" : "Email Address*"}
+            {text(locale, "Email Address*", "電郵地址*", "电邮地址*")}
             <input name="email" type="email" autoComplete="email" required />
           </label>
-          <button type="submit">{zh ? "訂閱" : "Subscribe"}</button>
+          <button type="submit">{text(locale, "Subscribe", "訂閱", "订阅")}</button>
         </form>
       )}
     </section>
@@ -97,17 +100,15 @@ export function ContactForm({ copy }: { copy: ContactCopy["form"] }) {
   );
 }
 
-export function VolunteerForm({ zh = false }: { zh?: boolean }) {
+export function VolunteerForm({ locale = "en" }: { locale?: Locale }) {
   const { submitted, onSubmit } = useDemoSubmit();
 
   if (submitted) {
     return (
       <div className={`${styles.formSuccess} ${styles.large}`} role="status">
-        <strong>{zh ? "感謝你的參與！" : "Thank you for volunteering!"}</strong>
+        <strong>{text(locale, "Thank you for volunteering!", "感謝你的參與！", "感谢你的参与！")}</strong>
         <p>
-          {zh
-            ? "此開發版本沒有傳送資料。"
-            : "This development copy has not transmitted your information."}
+          {text(locale, "This development copy has not transmitted your information.", "此開發版本沒有傳送資料。", "此开发版本没有传送资料。")}
         </p>
       </div>
     );
@@ -115,11 +116,14 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
 
   return (
     <form className={styles.stackedForm} onSubmit={onSubmit}>
-      <h2>{zh ? "Love 21義工報名表格" : "Sign-up as Love 21 Volunteer"}</h2>
+      <h2>{text(locale, "Sign-up as Love 21 Volunteer", "Love 21義工報名表格", "Love 21 义工报名表格")}</h2>
       <p>
-        {zh
-          ? "我們現正尋找充滿熱誠的義工，一同參與及支援不同的項目和活動！"
-          : "We’re looking for passionate and enthusiastic volunteers to join us across classes, events and community activities."}
+        {text(
+          locale,
+          "We’re looking for passionate and enthusiastic volunteers to join us across classes, events and community activities.",
+          "我們現正尋找充滿熱誠的義工，一同參與及支援不同的項目和活動！",
+          "我们现在正在寻找充满热诚的义工，一同参与及支持不同的项目和活动！",
+        )}
       </p>
       <div className={styles.formGrid}>
         <label>
@@ -194,10 +198,10 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
 
 export function AccountForm({
   title,
-  zh = false,
+  locale = "en",
 }: {
   title: string;
-  zh?: boolean;
+  locale?: Locale;
 }) {
   const { submitted, onSubmit } = useDemoSubmit();
   const reset = title.toLowerCase().includes("reset");
@@ -205,9 +209,7 @@ export function AccountForm({
   if (submitted) {
     return (
       <div className={`${styles.formSuccess} ${styles.large}`} role="status">
-        {zh
-          ? "此開發版本不會連接真實帳戶。"
-          : "Account actions are disabled in this safe development copy."}
+        {text(locale, "Account actions are disabled in this safe development copy.", "此開發版本不會連接真實帳戶。", "此开发版本不会连接真实账户。")}
       </div>
     );
   }
@@ -215,22 +217,24 @@ export function AccountForm({
   return (
     <form className={styles.accountForm} onSubmit={onSubmit}>
       <label>
-        {zh ? "用戶名稱或電郵" : "Username or E-mail"}
+        {text(locale, "Username or E-mail", "用戶名稱或電郵", "用户名称或电邮")}
         <input name="username" type={reset ? "email" : "text"} required />
       </label>
       {!reset && (
         <label>
-          {zh ? "密碼" : "Password"}
+          {text(locale, "Password", "密碼", "密码")}
           <input name="password" type="password" required />
         </label>
       )}
       {!reset && (
         <label className={styles.checkLine}>
           <input name="remember" type="checkbox" />
-          {zh ? "保持登入" : "Keep me signed in"}
+          {text(locale, "Keep me signed in", "保持登入", "保持登录")}
         </label>
       )}
-      <button type="submit">{reset ? "RESET PASSWORD" : zh ? "登入" : "Login"}</button>
+      <button type="submit">
+        {reset ? "RESET PASSWORD" : text(locale, "Login", "登入", "登录")}
+      </button>
       {!reset && (
         <div className={styles.accountLinks}>
           <Link href="/join-us/">Register</Link>
@@ -238,9 +242,7 @@ export function AccountForm({
         </div>
       )}
       <p className={styles.privacyNote}>
-        {zh
-          ? "開發版本：登入功能已停用。"
-          : "Development copy: authentication is intentionally disabled."}
+        {text(locale, "Development copy: authentication is intentionally disabled.", "開發版本：登入功能已停用。", "开发版本：登录功能已停用。")}
       </p>
     </form>
   );

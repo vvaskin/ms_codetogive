@@ -12,7 +12,7 @@ CSS Modules are the official component-styling approach.
 - Colocate `ComponentName.module.css` with camel-cased selectors.
 - Global CSS is limited to:
   - `styles/tokens.css` — design tokens
-  - `styles/base.css` — reset, element defaults, Calm mode (`html.simple-view`), reduced motion
+  - `styles/base.css` — reset, element defaults, accessibility (text size / high contrast / Calm mode `html.simple-view`), reduced motion
   - `app/globals.css` — entrypoint (imports tokens/base) plus the quiet development ribbon
 - Do not add new globally named component classes.
 - New visual patterns must use shared tokens from `styles/tokens.css`.
@@ -52,8 +52,8 @@ Presentational only (no API, persistence, or business rules):
 
 ### Chrome and templates
 
-- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), Calm mode, language, Donate, dark footer
-- Calm mode is the Simple View feature: storage key remains `"simple-view"`; class `html.simple-view`
+- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), accessibility menu, language, Donate, dark footer
+- Accessibility menu replaces the old Calm-mode toggle. It offers High contrast (`html.high-contrast`), Text size (A−/A+, levels 0–2 as `html.text-large` / `html.text-largest`, stored in `"text-size"`), and Calm mode (Simple View). Storage keys: `"simple-view"` → class `html.simple-view`; `"high-contrast"` → `html.high-contrast`; `"text-size"` = 0|1|2. All applied via effects on `document.documentElement` in `SiteChrome`.
 - Homepage: `components/HomeExperience.*` + `content/homepage.ts`
 - Donation: `content/donation.ts` + donate template in `PageRenderer`
 - Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`

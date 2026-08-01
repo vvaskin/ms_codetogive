@@ -14,7 +14,7 @@ import { SectionShell } from "./ui/SectionShell";
 import styles from "./MediaExperience.module.css";
 
 export function MediaExperience({ locale }: { locale: Locale }) {
-  const zh = locale === "zh";
+  const zh = locale !== "en";
   const feedItems = mediaFeedItems();
 
   return (

@@ -841,6 +841,12 @@
   background: #fff;
 }
 
+.donation-guest-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .donation-summary {
   display: flex;
   align-items: center;
