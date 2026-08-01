@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import {
   VOLUNTEER_SIGNUP_DRAFT_KEY,
+  VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE,
   type VolunteerSignupDraft,
 } from "@/lib/volunteer-signup-draft";
 import styles from "./VolunteerSignupForm.module.css";
@@ -194,26 +195,43 @@ function PolicyModal({
   );
 }
 
-export function VolunteerSignupForm() {
-  const router = useRouter();
-  const [draft] = useState<VolunteerSignupDraft | null>(() => {
-    if (typeof window === "undefined") return null;
-    const raw = window.sessionStorage.getItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
-    if (!raw) return null;
+let cachedDraftRaw: string | null | undefined;
+let cachedDraft: VolunteerSignupDraft | null = null;
+
+function getDraftSnapshot(): VolunteerSignupDraft | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.sessionStorage.getItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
+  if (raw === cachedDraftRaw) return cachedDraft;
+  cachedDraftRaw = raw;
+  cachedDraft = null;
+  if (raw) {
     try {
       const parsed = JSON.parse(raw) as Partial<VolunteerSignupDraft>;
       if (parsed.name && parsed.email && parsed.password) {
-        return {
+        cachedDraft = {
           name: parsed.name,
           email: parsed.email,
           password: parsed.password,
         };
       }
     } catch {
-      // fall through to missingDraft
+      // ignore malformed drafts
     }
-    return null;
-  });
+  }
+  return cachedDraft;
+}
+
+function subscribeToDraft() {
+  return () => {};
+}
+
+export function VolunteerSignupForm() {
+  const router = useRouter();
+  const draft = useSyncExternalStore(
+    subscribeToDraft,
+    getDraftSnapshot,
+    getDraftSnapshot,
+  );
   const [chineseName, setChineseName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [gender, setGender] = useState<Gender | "">("");
@@ -293,6 +311,7 @@ export function VolunteerSignupForm() {
       }
 
       window.sessionStorage.removeItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace("/portal");
       router.refresh();
     } catch {
