@@ -7,6 +7,7 @@ import {
   type Locale,
   SitePage,
 } from "../content/site-data";
+import { getPublishedCalendarEvents } from "../lib/supabase/calendar-events";
 import {
   AccountForm,
   VolunteerForm,
@@ -180,7 +181,7 @@ function JoinPage({ locale }: { locale: Locale }) {
   );
 }
 
-export function PageRenderer({ path }: { path: string }) {
+export async function PageRenderer({ path }: { path: string }) {
   const page = getPage(path);
   if (!page) notFound();
 
@@ -216,7 +217,12 @@ export function PageRenderer({ path }: { path: string }) {
         </article>
       );
     case "calendar":
-      return <ActivitiesExperience locale={page.locale} />;
+      return (
+        <ActivitiesExperience
+          locale={page.locale}
+          events={await getPublishedCalendarEvents()}
+        />
+      );
     case "join":
       return <JoinPage locale={page.locale} />;
   }

@@ -1,6 +1,6 @@
 import type { Locale } from "./site-data";
 
-export type ActivityCategory = "sports" | "nutrition" | "family" | "csr";
+export type ActivityCategory = "sports" | "nutrition" | "family" | "csr" | "event";
 
 export interface LocalizedText {
   en: string;
@@ -33,6 +33,7 @@ export const activityCategories: Array<{
   { id: "nutrition", label: { en: "Nutrition", zh: "營養", cn: "营养" }, color: "var(--color-teal)" },
   { id: "family", label: { en: "Family", zh: "家庭", cn: "家庭" }, color: "var(--color-pink)" },
   { id: "csr", label: { en: "CSR", zh: "CSR", cn: "CSR" }, color: "var(--color-purple)" },
+  { id: "event", label: { en: "Event", zh: "活動", cn: "活动" }, color: "var(--color-purple)" },
 ];
 
 const event = (
@@ -72,9 +73,9 @@ export const activitiesContent = {
     title: { en: "See what’s happening.", zh: "看看最近有甚麼活動。", cn: "看看最近有什么活动。" },
     accent: { en: "Then come be part of it.", zh: "一起參與吧。", cn: "一起参与吧。" },
     description: {
-      en: "Explore a demo view of Love 21 activities for our community. Choose a date to see what is planned, or discover ways to get involved.",
-      zh: "探索Love 21社群活動的示範時間表。選擇日期查看當日安排，或了解如何參與。",
-      cn: "探索 Love 21 社群活动的示范时间表。选择日期查看当日安排，或了解如何参与。",
+      en: "Explore Love 21 activities for our community. Choose a date to see what is planned, or discover ways to get involved.",
+      zh: "探索Love 21社群活動時間表。選擇日期查看當日安排，或了解如何參與。",
+      cn: "探索 Love 21 社群活动时间表。选择日期查看当日安排，或了解如何参与。",
     },
     primary: { en: "Explore the calendar", zh: "查看日曆", cn: "查看日历" },
     secondary: { en: "Volunteer with us", zh: "成為義工", cn: "成为义工" },

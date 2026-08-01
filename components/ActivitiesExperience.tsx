@@ -6,23 +6,45 @@ import {
   activitiesContent,
   activityCategories,
   activityText,
-  august2026Events,
-  upcomingActivities,
   type ActivityCategory,
+  type ActivityEvent,
 } from "../content/activities";
 import type { Locale } from "../content/site-data";
 import { ButtonLink } from "./ui/ButtonLink";
 import { SectionShell } from "./ui/SectionShell";
 import styles from "./ActivitiesExperience.module.css";
 
-const monthStart = new Date(2026, 7, 1);
-const daysInMonth = 31;
-
-function dateKey(day: number) {
-  return `2026-08-${String(day).padStart(2, "0")}`;
+function hongKongDateKey() {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Hong_Kong",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
-export function ActivitiesExperience({ locale }: { locale: Locale }) {
+function dateKey(month: string, day: number) {
+  return `${month}-${String(day).padStart(2, "0")}`;
+}
+
+function shiftedMonth(month: string, offset: number) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const next = new Date(year, monthNumber - 1 + offset, 1);
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function ActivitiesExperience({
+  locale,
+  events,
+}: {
+  locale: Locale;
+  events: ActivityEvent[];
+}) {
+  const today = hongKongDateKey();
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const nextEvent = events.find((event) => event.date >= today);
+    return (nextEvent ?? events.at(-1))?.date.slice(0, 7) ?? today.slice(0, 7);
+  });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ActivityCategory | "all">("all");
   const zh = locale === "zh" || locale === "cn";
@@ -33,6 +55,9 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
   const weekdays = zh
     ? ["日", "一", "二", "三", "四", "五", "六"]
     : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [visibleYear, visibleMonthNumber] = visibleMonth.split("-").map(Number);
+  const monthStart = new Date(visibleYear, visibleMonthNumber - 1, 1);
+  const daysInMonth = new Date(visibleYear, visibleMonthNumber, 0).getDate();
   const monthLabel = new Intl.DateTimeFormat(intlLocale, {
     month: "long",
     year: "numeric",
@@ -48,17 +73,28 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
 
   const eventsByDate = useMemo(
     () =>
-      august2026Events.reduce<Record<string, typeof august2026Events>>((groups, event) => {
+      events.reduce<Record<string, ActivityEvent[]>>((groups, event) => {
         (groups[event.date] ??= []).push(event);
         return groups;
       }, {}),
-    [],
+    [events],
   );
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] ?? [] : [];
-  const filteredActivities = upcomingActivities.filter(
-    (activity) => activeCategory === "all" || activity.category === activeCategory,
+  const upcomingEvents = events.filter((event) => event.date >= today);
+  const filteredActivities = upcomingEvents
+    .filter(
+      (activity) => activeCategory === "all" || activity.category === activeCategory,
+    )
+    .slice(0, 6);
+  const visibleCategories = activityCategories.filter((category) =>
+    upcomingEvents.some((event) => event.category === category.id),
   );
   const monthOffset = monthStart.getDay();
+
+  function moveMonth(offset: number) {
+    setVisibleMonth((month) => shiftedMonth(month, offset));
+    setSelectedDate(null);
+  }
 
   return (
     <article className={`${styles.page} ${zh ? styles.zh : ""}`}>
@@ -99,11 +135,29 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
           <div className={styles.calendarCard}>
             <div className={styles.calendarHeader}>
               <h3>{monthLabel}</h3>
-              {selectedDate && (
-                <button type="button" className={styles.clearSelection} onClick={() => setSelectedDate(null)}>
-                  {pick("Clear selection", "清除選擇", "清除选择")}
+              <div className={styles.calendarControls}>
+                <button
+                  type="button"
+                  className={styles.monthButton}
+                  onClick={() => moveMonth(-1)}
+                  aria-label={pick("Previous month", "上一個月", "上一个月")}
+                >
+                  ←
                 </button>
-              )}
+                <button
+                  type="button"
+                  className={styles.monthButton}
+                  onClick={() => moveMonth(1)}
+                  aria-label={pick("Next month", "下一個月", "下一个月")}
+                >
+                  →
+                </button>
+                {selectedDate && (
+                  <button type="button" className={styles.clearSelection} onClick={() => setSelectedDate(null)}>
+                    {pick("Clear selection", "清除選擇", "清除选择")}
+                  </button>
+                )}
+              </div>
             </div>
             <div className={styles.weekdays} aria-hidden="true">
               {weekdays.map((day) => <span key={day}>{day}</span>)}
@@ -112,14 +166,14 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
               {Array.from({ length: monthOffset }, (_, index) => <span key={`blank-${index}`} />)}
               {Array.from({ length: daysInMonth }, (_, index) => {
                 const day = index + 1;
-                const key = dateKey(day);
+                const key = dateKey(visibleMonth, day);
                 const dayEvents = eventsByDate[key] ?? [];
                 const isSelected = selectedDate === key;
                 const dateLabel = new Intl.DateTimeFormat(intlLocale, {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
-                }).format(new Date(2026, 7, day));
+                }).format(new Date(visibleYear, visibleMonthNumber - 1, day));
                 return (
                   <button
                     type="button"
@@ -161,12 +215,14 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
                       </span>
                       <strong>{activityText(event.title, locale)}</strong>
                       <span>{event.time} · {activityText(event.location, locale)}</span>
-                      <p>{activityText(event.summary, locale)}</p>
+                      {activityText(event.summary, locale) && (
+                        <p>{activityText(event.summary, locale)}</p>
+                      )}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className={styles.emptyDay}>{pick("No demo activities are listed for this day. Choose a date with coloured dots to explore.", "這天暫未有示範活動。請選擇另一個有彩色圓點的日期。", "这天暂未有示范活动。请选择另一个有彩色圆点的日期。")}</p>
+                <p className={styles.emptyDay}>{pick("No published activities are listed for this day. Choose a date with coloured dots to explore.", "這天暫未有已發佈活動。請選擇另一個有彩色圓點的日期。", "这天暂未有已发布活动。请选择另一个有彩色圆点的日期。")}</p>
               )}
             </aside>
           )}
@@ -195,23 +251,27 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
         <div className={styles.sectionHeading}>
           <p className={styles.eyebrow}>{pick("What’s coming up", "即將舉行", "即将举行")}</p>
           <h2>{pick("Upcoming activities", "即將舉行的活動", "即将举行的活动")}</h2>
-          <p>{pick("These are demo activity listings; registration will be available later.", "以下為示範活動資料；報名功能將於日後推出。", "以下为示范活动资料；报名功能将于日后推出。")}</p>
+          <p>{pick("Browse the latest activities published by the Love 21 team.", "瀏覽Love 21團隊最新發佈的活動。", "浏览 Love 21 团队最新发布的活动。")}</p>
         </div>
         <div className={styles.filters} aria-label={pick("Filter activities by category", "活動類別篩選", "活动类别筛选")}>
           <button type="button" onClick={() => setActiveCategory("all")} aria-pressed={activeCategory === "all"}>{pick("All activities", "全部", "全部")}</button>
-          {activityCategories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id}>{activityText(category.label, locale)}</button>)}
+          {visibleCategories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id}>{activityText(category.label, locale)}</button>)}
         </div>
-        <div className={styles.activityGrid}>
-          {filteredActivities.map((activity) => (
-            <article className={styles.activityCard} key={activity.id}>
-              <span className={styles.cardDate}>{activityText(activity.dayLabel, locale)}</span>
-              <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
-              <h3>{activityText(activity.title, locale)}</h3>
-              <p>{activity.time} · {activityText(activity.location, locale)}</p>
-              <button type="button" disabled>{pick("Preview — booking coming later", "預覽 — 稍後開放報名", "预览 — 稍后开放报名")}</button>
-            </article>
-          ))}
-        </div>
+        {filteredActivities.length > 0 ? (
+          <div className={styles.activityGrid}>
+            {filteredActivities.map((activity) => (
+              <article className={styles.activityCard} key={activity.id}>
+                <span className={styles.cardDate}>{new Intl.DateTimeFormat(intlLocale, { month: "short", day: "numeric" }).format(new Date(`${activity.date}T12:00:00`))}</span>
+                <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
+                <h3>{activityText(activity.title, locale)}</h3>
+                <p>{activity.time} · {activityText(activity.location, locale)}</p>
+                <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className={styles.emptyActivities}>{pick("No upcoming published activities yet.", "暫時沒有即將舉行的已發佈活動。", "暂时没有即将举行的已发布活动。")}</p>
+        )}
       </SectionShell>
 
       <SectionShell tone="white" className={styles.wrapped}>

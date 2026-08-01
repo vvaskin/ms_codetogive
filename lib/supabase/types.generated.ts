@@ -143,7 +143,6 @@ export type Database = {
       }
       events: {
         Row: {
-          audience: Database["public"]["Enums"]["event_audience"]
           created_at: string
           date: string | null
           description: string | null
@@ -154,7 +153,6 @@ export type Database = {
           location: string | null
           location_link: string | null
           location_zh: string | null
-          slug: string | null
           starts_at: string
           status: Database["public"]["Enums"]["event_status"]
           subtype: string | null
@@ -164,7 +162,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          audience?: Database["public"]["Enums"]["event_audience"]
           created_at?: string
           date?: string | null
           description?: string | null
@@ -175,7 +172,6 @@ export type Database = {
           location?: string | null
           location_link?: string | null
           location_zh?: string | null
-          slug?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
@@ -185,7 +181,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          audience?: Database["public"]["Enums"]["event_audience"]
           created_at?: string
           date?: string | null
           description?: string | null
@@ -196,7 +191,6 @@ export type Database = {
           location?: string | null
           location_link?: string | null
           location_zh?: string | null
-          slug?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
@@ -254,7 +248,6 @@ export type Database = {
       donation_frequency: "monthly" | "quarterly" | "yearly"
       donation_kind: "one_time" | "recurring"
       donation_status: "completed" | "active" | "paused" | "cancelled"
-      event_audience: "members" | "volunteers" | "everyone"
       event_status: "draft" | "published" | "cancelled"
       event_type: "sport" | "nutrition" | "family_support"
       participation_status: "registered" | "attended" | "no_show" | "cancelled"
@@ -842,7 +835,6 @@ export const Constants = {
       donation_frequency: ["monthly", "quarterly", "yearly"],
       donation_kind: ["one_time", "recurring"],
       donation_status: ["completed", "active", "paused", "cancelled"],
-      event_audience: ["members", "volunteers", "everyone"],
       event_status: ["draft", "published", "cancelled"],
       event_type: ["sport", "nutrition", "family_support"],
       participation_status: ["registered", "attended", "no_show", "cancelled"],
