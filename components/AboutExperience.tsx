@@ -130,7 +130,7 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               <Link
                 key={leader.name.en}
                 href={
-                  locale === "zh"
+                  locale !== "en"
                     ? boardHref
                     : `/board-of-directors/${leader.slug}/`
                 }
@@ -151,7 +151,7 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               <li key={member.slug}>
                 <Link
                   href={
-                    locale === "zh"
+                    locale !== "en"
                       ? boardHref
                       : `/board-of-directors/${member.slug}/`
                   }

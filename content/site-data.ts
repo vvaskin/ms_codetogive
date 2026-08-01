@@ -1,4 +1,4 @@
-export type Locale = "en" | "zh";
+export type Locale = "en" | "zh" | "cn";
 
 export type PageTemplate =
   | "standard"
@@ -555,16 +555,212 @@ const zhPages: SitePage[] = [
   },
 ];
 
-export const pages = [...enPages, ...zhPages];
+const cnPages: SitePage[] = [
+  {
+    path: "/cn/our-story/",
+    locale: "cn",
+    alternatePath: "/our-story/",
+    template: "about",
+    title: "关于我们",
+    image: images.story,
+    paragraphs: [
+      "Love 21旨在通过运动、营养及其他全面活动，让唐氏综合症和自闭症人士获得充分发挥潜力的机会。",
+      "我们是在香港的慈善机构，希望通过不同活动改善会员及其家庭的生活。",
+    ],
+  },
+  {
+    path: "/cn/our-finance/",
+    locale: "cn",
+    alternatePath: "/our-finance/",
+    template: "reports",
+    title: "信任与透明",
+    paragraphs: [
+      "Love 21 Foundation是香港《税务条例》第88条下的注册慈善机构。",
+      "我们致力于以负责任和透明的方式，支持唐氏综合症、自闭症及神经多样性社群。",
+    ],
+  },
+  {
+    path: "/cn/our-volunteer/",
+    locale: "cn",
+    alternatePath: "/our-volunteer/",
+    template: "volunteer",
+    title: "我们的义工团队",
+    image: images.story,
+    paragraphs: ["Love 21衷心感谢每一位充满爱心和热诚的义工！"],
+  },
+  {
+    path: "/cn/media/",
+    locale: "cn",
+    alternatePath: "/media/",
+    template: "media-index",
+    title: "媒体报道",
+  },
+  {
+    path: "/cn/join-us/",
+    locale: "cn",
+    alternatePath: "/join-us/",
+    template: "join",
+    title: "实习机会",
+  },
+  {
+    path: "/cn/board-of-directors/",
+    locale: "cn",
+    alternatePath: "/board-of-directors/",
+    template: "people-index",
+    title: "我们的董事",
+    paragraphs: [
+      "董事会成员来自香港不同专业背景，以各自的才能和热诚支持Love 21的发展。",
+    ],
+  },
+  {
+    path: "/cn/staff/",
+    locale: "cn",
+    alternatePath: "/staff/",
+    template: "standard",
+    title: "工作人员",
+    image: "/assets/images/staff-leadership.jpg",
+    paragraphs: [
+      "Love 21的工作人员通过运动、营养及全面支援计划，为会员和家庭提供服务。",
+    ],
+  },
+  {
+    path: "/cn/our-programmes/",
+    locale: "cn",
+    alternatePath: "/our-programmes/",
+    template: "programmes",
+    title: "我们的计划",
+  },
+  {
+    path: "/cn/contact-us/",
+    locale: "cn",
+    alternatePath: "/contact-us/",
+    template: "contact",
+    title: "联系我们",
+  },
+  {
+    path: "/cn/donate/",
+    locale: "cn",
+    alternatePath: "/donate/",
+    template: "donate",
+    title: "捐赠",
+  },
+  {
+    path: "/cn/login-hk/",
+    locale: "cn",
+    alternatePath: "/login/",
+    template: "account",
+    title: "登录 / 注册",
+  },
+  {
+    path: "/cn/signup-hk/",
+    locale: "cn",
+    alternatePath: "/signup/",
+    template: "account",
+    title: "创建账户",
+  },
+  {
+    path: "/cn/events",
+    locale: "cn",
+    alternatePath: "/events",
+    template: "calendar",
+    title: "活动时间表",
+  },
+  {
+    path: "/cn/raffle2025/",
+    locale: "cn",
+    alternatePath: "/raffle2025-2/",
+    template: "article",
+    title: "Love 21 Foundation 慈善奖券 2025",
+    image: "/assets/images/media-raffle.png",
+    paragraphs: [
+      "支持神经多样性社群的同时赢取丰富奖品。善款将支持Love 21中心的营运及各项活动和服务。",
+    ],
+  },
+  {
+    path: "/cn/leadership/",
+    locale: "cn",
+    alternatePath: "/leadership/",
+    template: "people-index",
+    title: "管理层与员工",
+    paragraphs: [
+      "董事会成员来自香港不同专业背景，以各自的才能和热诚支持Love 21的发展。",
+    ],
+  },
+  {
+    path: "/cn/stories/",
+    locale: "cn",
+    alternatePath: "/stories/",
+    template: "media-index",
+    title: "会员故事",
+  },
+  {
+    path: "/cn/get-involved/",
+    locale: "cn",
+    alternatePath: "/get-involved/",
+    template: "get-involved",
+    title: "参与我们",
+    description: "做义工、企业合作或捐助 — 在 Love 21 找到你的位置。",
+  },
+  {
+    path: "/cn/volunteer/calendar/",
+    locale: "cn",
+    alternatePath: "/volunteer/calendar/",
+    template: "calendar",
+    title: "义工日历",
+  },
+];
+
+export const pages = [...enPages, ...zhPages, ...cnPages];
 
 export const alternatePaths: Record<string, string> = Object.fromEntries(
   pages.map((page) => [page.path, page.alternatePath]),
 );
 
+export interface LocalePaths {
+  en: string;
+  zh: string;
+  cn: string;
+}
+
+const enKeyed: Record<string, Partial<LocalePaths>> = {};
+for (const page of pages) {
+  const key = page.locale === "en" ? page.path : page.alternatePath;
+  (enKeyed[key] ??= {})[page.locale] = page.path;
+}
+
+export function localePaths(path: string): LocalePaths {
+  const normalized = normalizePath(path);
+  if (normalized === "/" || normalized === "/zh/" || normalized === "/cn/") {
+    return { en: "/", zh: "/zh/", cn: "/cn/" };
+  }
+  const direct = enKeyed[normalized];
+  if (direct) {
+    return {
+      en: direct.en ?? "",
+      zh: direct.zh ?? "",
+      cn: direct.cn ?? "",
+    };
+  }
+  const alternate = getPage(normalized)?.alternatePath;
+  if (alternate) {
+    const trio = enKeyed[alternate] ?? enKeyed[normalizePath(alternate)];
+    if (trio) {
+      return {
+        en: trio.en ?? "",
+        zh: trio.zh ?? "",
+        cn: trio.cn ?? "",
+      };
+    }
+  }
+  return { en: "/", zh: "/zh/", cn: "/cn/" };
+}
+
 export function normalizePath(path: string) {
   if (path === "/") return "/";
   const normalized = `/${path.replace(/^\/|\/$/g, "")}/`;
-  return normalized === "/events/" ? "/events" : normalized;
+  if (normalized === "/events/") return "/events";
+  if (normalized === "/cn/events/") return "/cn/events";
+  return normalized;
 }
 
 export function getPage(path: string): SitePage | undefined {

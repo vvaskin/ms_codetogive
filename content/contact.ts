@@ -99,4 +99,36 @@ export const contactContent: Record<Locale, ContactCopy> = {
       officeLabel: "Love 21 Office",
     },
   },
+  cn: {
+    intro: {
+      eyebrow: "我们很想听听你的想法",
+      title: "欢迎联系我们。",
+      description:
+        "无论你想了解计划、捐款、做义工、合作或传媒查询，欢迎与我们联系。",
+    },
+    form: {
+      title: "发送讯息给我们",
+      nameLabel: "你的姓名",
+      emailLabel: "电邮地址",
+      topicLabel: "查询类别",
+      messageLabel: "讯息",
+      namePlaceholder: "你的姓名",
+      emailPlaceholder: "you@example.com",
+      messagePlaceholder: "告诉我们如何协助你…",
+      topicPlaceholder: "请选择类别",
+      topics: ["一般查询", "计划", "义工服务", "合作", "传媒查询"],
+      submit: "发送讯息",
+      privacyNote: "开发版本：此表单只会在本机验证，不会传送或储存个人资料。",
+      successTitle: "谢谢你的讯息！",
+      successDescription: "这是开发版本，资料并未传送。",
+    },
+    direct: {
+      title: "直接联系我们",
+      emailLabel: "电邮",
+      addressLabel: "到访地址",
+      socialLabel: "关注我们",
+      spaceLabel: "Love 21 Space",
+      officeLabel: "Love 21 Office",
+    },
+  },
 };

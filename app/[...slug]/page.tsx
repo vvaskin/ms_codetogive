@@ -29,6 +29,13 @@ export async function generateMetadata({
         "Love 21透過運動、營養及全面支援計劃，支持香港唐氏綜合症、自閉症及神經多樣性社群。",
     };
   }
+  if (path === "/cn/") {
+    return {
+      title: "LOVE 21 Foundation",
+      description:
+        "Love 21 通过运动、营养及全面支援计划，支持香港唐氏综合症、自闭症及神经多样性社群。",
+    };
+  }
   const page = getPage(path);
   return {
     title: page?.title || "LOVE 21 Foundation",
@@ -41,6 +48,7 @@ export async function generateMetadata({
           languages: {
             en: page.locale === "en" ? page.path : page.alternatePath,
             "zh-HK": page.locale === "zh" ? page.path : page.alternatePath,
+            "zh-Hans": page.locale === "cn" ? page.path : page.alternatePath,
           },
         }
       : undefined,
@@ -51,5 +59,6 @@ export default async function CatchAllPage({ params }: RouteProps) {
   const { slug } = await params;
   const path = normalizePath(`/${slug.join("/")}/`);
   if (path === "/zh/") return <HomeExperience locale="zh" />;
+  if (path === "/cn/") return <HomeExperience locale="cn" />;
   return <PageRenderer path={path} />;
 }

@@ -43,7 +43,7 @@ function DirectContact({ copy }: { copy: ContactCopy }) {
 
 export function ContactExperience({ locale }: { locale: Locale }) {
   const copy = contactContent[locale];
-  const isChinese = locale === "zh";
+  const isChinese = locale !== "en";
 
   return (
     <article className={styles.page}>
