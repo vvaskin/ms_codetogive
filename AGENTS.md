@@ -56,6 +56,12 @@ Presentational only (no API, persistence, or business rules):
 - Calm mode is the Simple View feature: storage key remains `"simple-view"`; class `html.simple-view`
 - Homepage: `components/HomeExperience.*` + `content/homepage.ts`
 - Donation: `content/donation.ts` + donate template in `PageRenderer`
+- Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`
+- About: `content/about.ts` + `AboutExperience` (`template: "about"`)
+- Finance / Trust & Transparency: `content/finance.ts` + `FinanceExperience` (`template: "reports"`); annual PDFs under `public/assets/reports/`
+- Activities & Calendar: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for activity schedule and volunteer-calendar routes. The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
+- News & Media: `content/media.ts` + `MediaExperience` (`template: "media-index"`) for bilingual media and member-story routes. The "From our feeds" grid mixes presentational feed cards with live Instagram posts served by `InstagramFeed` (data from `/api/instagram-webhook`, persisted to gitignored `data/instagram-posts.json`); external social links are the Love 21 Facebook and Instagram URLs.
+- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) for `/get-involved/` (and `/zh/get-involved-hk/`). Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), calendar/events, donate, and contact.
 - Other templates: `PageRenderer.module.css`
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
 - Portal presentation: `app/portal/page.module.css`

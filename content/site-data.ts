@@ -2,6 +2,7 @@ export type Locale = "en" | "zh";
 
 export type PageTemplate =
   | "standard"
+  | "about"
   | "programmes"
   | "reports"
   | "media-index"
@@ -9,6 +10,7 @@ export type PageTemplate =
   | "people-index"
   | "person"
   | "volunteer"
+  | "get-involved"
   | "contact"
   | "donate"
   | "account"
@@ -248,7 +250,7 @@ const enPages: SitePage[] = [
     path: "/our-story/",
     locale: "en",
     alternatePath: "/zh/our-story-hk/",
-    template: "standard",
+    template: "about",
     title: "OUR STORY",
     image: images.story,
     paragraphs: [
@@ -261,7 +263,7 @@ const enPages: SitePage[] = [
     locale: "en",
     alternatePath: "/zh/our-finance-hk/",
     template: "reports",
-    title: "OUR REPORTS",
+    title: "Trust & Transparency",
     paragraphs: [
       "Love 21 Foundation is a registered charity under Section 88 of the Inland Revenue Ordinance in Hong Kong.",
       "It is our goal to provide the greatest support for the Down syndrome and autistic community through sport and nutrition programmes.",
@@ -366,7 +368,7 @@ const enPages: SitePage[] = [
   {
     path: "/leadership/",
     locale: "en",
-    alternatePath: "/zh/管理層與員工/",
+    alternatePath: "/zh/leadership-hk/",
     template: "people-index",
     title: "LEADERSHIP & STAFF",
     paragraphs: [
@@ -376,38 +378,25 @@ const enPages: SitePage[] = [
   {
     path: "/stories/",
     locale: "en",
-    alternatePath: "/zh/會員故事/",
+    alternatePath: "/zh/stories-hk/",
     template: "media-index",
     title: "MEMBER STORIES",
   },
   {
-    path: "/volunteer/",
+    path: "/get-involved/",
     locale: "en",
-    alternatePath: "/zh/義工機會/",
-    template: "volunteer",
-    title: "VOLUNTEER OPPORTUNITIES",
-    image: images.story,
-    paragraphs: [
-      "Love 21 Foundation is extremely grateful for our loving and dedicated team of volunteers!",
-    ],
+    alternatePath: "/zh/get-involved-hk/",
+    template: "get-involved",
+    title: "Get Involved",
+    description:
+      "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
   },
   {
     path: "/volunteer/calendar/",
     locale: "en",
-    alternatePath: "/zh/義工日曆/",
+    alternatePath: "/zh/volunteer-calendar-hk/",
     template: "calendar",
     title: "VOLUNTEER CALENDAR",
-  },
-  {
-    path: "/corporate/",
-    locale: "en",
-    alternatePath: "/zh/企業夥伴/",
-    template: "standard",
-    title: "CORPORATE PARTNERSHIPS",
-    paragraphs: [
-      "Our Corporate Social Responsibility Programme helps Hong Kong organisations learn about the community through shared activity and human connection.",
-      "If you’d like to learn more, please contact our Founder/CEO at jeff@love21foundation.com.",
-    ],
   },
 ];
 
@@ -416,7 +405,7 @@ const zhPages: SitePage[] = [
     path: "/zh/our-story-hk/",
     locale: "zh",
     alternatePath: "/our-story/",
-    template: "standard",
+    template: "about",
     title: "關於我們",
     image: images.story,
     paragraphs: [
@@ -429,7 +418,7 @@ const zhPages: SitePage[] = [
     locale: "zh",
     alternatePath: "/our-finance/",
     template: "reports",
-    title: "我們的報告",
+    title: "信任與透明",
     paragraphs: [
       "Love 21 Foundation是香港《稅務條例》第88條下的註冊慈善機構。",
       "我們致力以負責任和透明的方式，支援唐氏綜合症、自閉症及神經多樣性社群。",
@@ -550,13 +539,12 @@ const zhPages: SitePage[] = [
     title: "會員故事",
   },
   {
-    path: "/zh/volunteer-hk/",
+    path: "/zh/get-involved-hk/",
     locale: "zh",
-    alternatePath: "/volunteer/",
-    template: "volunteer",
-    title: "義工機會",
-    image: images.story,
-    paragraphs: ["Love 21衷心感謝每一位充滿愛心和熱誠的義工！"],
+    alternatePath: "/get-involved/",
+    template: "get-involved",
+    title: "參與我們",
+    description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
   },
   {
     path: "/zh/volunteer-calendar-hk/",
@@ -564,17 +552,6 @@ const zhPages: SitePage[] = [
     alternatePath: "/volunteer/calendar/",
     template: "calendar",
     title: "義工日曆",
-  },
-  {
-    path: "/zh/corporate-hk/",
-    locale: "zh",
-    alternatePath: "/corporate/",
-    template: "standard",
-    title: "企業夥伴",
-    paragraphs: [
-      "我們的企業社會責任計劃透過共同活動和人與人之間的聯繫，讓香港企業認識我們的社群。",
-      "如欲了解更多，歡迎聯絡我們的創辦人及行政總監：jeff@love21foundation.com。",
-    ],
   },
 ];
 

@@ -1,38 +1,16 @@
 .lockup {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
   min-height: 44px;
 }
 
-.mark {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
+.logo {
+  display: block;
   height: 40px;
-  border-radius: 50%;
-  background: var(--color-pink);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.04em;
+  width: auto;
+  object-fit: contain;
 }
 
-.wordmark {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--color-ink);
-}
-
-.compact .mark {
-  width: 34px;
-  height: 34px;
-  font-size: 0.95rem;
-}
-
-.compact .wordmark {
-  font-size: 1.15rem;
+.compact .logo {
+  height: 36px;
 }

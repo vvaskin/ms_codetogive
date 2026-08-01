@@ -18,4 +18,18 @@
 .large { font-size: 1.1rem; }
 .accountForm { max-width: 460px; }
 .accountLinks { display: flex; justify-content: space-between; color: var(--color-brand-primary); font-size: var(--font-size-small); }
+.contactForm { display: grid; gap: var(--space-4); }
+.contactForm h2 { margin: 0 0 var(--space-1); color: var(--color-ink); font-family: var(--font-display); font-size: clamp(1.45rem, 3vw, 1.8rem); letter-spacing: var(--letter-display); }
+.contactForm label { display: grid; gap: var(--space-2); color: var(--color-ink); font-size: var(--font-size-small); font-weight: 800; }
+.contactForm input, .contactForm select, .contactForm textarea { width: 100%; min-height: var(--control-height); padding: .75rem var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-canvas); color: var(--color-ink); font: inherit; }
+.contactForm textarea { min-height: 132px; resize: vertical; }
+.contactForm input::placeholder, .contactForm textarea::placeholder { color: #938b86; }
+.contactForm input:focus-visible, .contactForm select:focus-visible, .contactForm textarea:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-color: var(--color-focus); }
+.contactGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.contactSubmit { min-height: var(--control-height-lg); justify-self: start; padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: var(--color-pink); color: var(--color-white); font: inherit; font-weight: 900; box-shadow: var(--shadow-lift); }
+.contactSubmit:hover { background: var(--color-pink-dark); }
+.contactSubmit:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.contactPrivacyNote { margin: 0; }
+.contactSuccess { margin: 0; }
 @media (max-width: 760px) { .newsletterForm, .formGrid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .contactGrid { grid-template-columns: 1fr; } }

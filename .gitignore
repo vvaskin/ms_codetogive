@@ -37,9 +37,15 @@ yarn-error.log*
 /data/*.sqlite
 /data/*.sqlite-*
 
+# local instagram sync data
+/data/instagram-posts.json
+
 # vercel
 .vercel
 
 # typescript
 next-env.d.ts
 *.tsbuildinfo
+
+#context
+context.txt

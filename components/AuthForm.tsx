@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import {
-  PUBLIC_USER_ROLES,
-  type PublicUserRole,
-} from "@/lib/db/schema";
+import { createClient } from "@/lib/supabase/client";
+import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
@@ -26,6 +23,8 @@ const copy = {
     password: "Password",
     passwordHelp: "Use at least 8 characters.",
     accountType: "Account type",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     roles: {
       member: {
         label: "Member",
@@ -43,8 +42,13 @@ const copy = {
     genericError: "Something went wrong. Please try again.",
     invalidCredentials: "The email or password is incorrect.",
     emailExists: "An account with this email already exists.",
+    emailNotConfirmed:
+      "Please confirm your email address first — check your inbox for the link.",
     networkError:
       "We could not reach the authentication service. Please try again.",
+    checkInboxTitle: "Check your inbox",
+    checkInboxBody:
+      "We sent a confirmation link to {email}. Click it to activate your account, then log in.",
     loggingIn: "Logging in…",
     creatingAccount: "Creating account…",
     logIn: "Log in",
@@ -63,6 +67,8 @@ const copy = {
     password: "密碼",
     passwordHelp: "請使用至少 8 個字元。",
     accountType: "帳戶類型",
+    showPassword: "顯示密碼",
+    hidePassword: "隱藏密碼",
     roles: {
       member: {
         label: "會員",
@@ -80,7 +86,11 @@ const copy = {
     genericError: "發生錯誤，請再試一次。",
     invalidCredentials: "電郵或密碼不正確。",
     emailExists: "此電郵已註冊帳戶。",
+    emailNotConfirmed: "請先確認您的電郵地址——請查看收件箱中的連結。",
     networkError: "無法連接驗證服務，請再試一次。",
+    checkInboxTitle: "請查看您的電郵",
+    checkInboxBody:
+      "我們已向 {email} 發送確認連結。請點擊連結啟用帳戶，然後登入。",
     loggingIn: "登入中…",
     creatingAccount: "建立帳戶中…",
     logIn: "登入",
@@ -98,10 +108,15 @@ function readableError(message: string | undefined, lang: Copy) {
   const normalized = message.toLowerCase();
 
   if (
+    normalized.includes("invalid login credentials") ||
     normalized.includes("invalid email or password") ||
     normalized.includes("invalid credentials")
   ) {
     return lang.invalidCredentials;
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return lang.emailNotConfirmed;
   }
 
   if (
@@ -127,9 +142,11 @@ export function AuthForm({
 }) {
   const router = useRouter();
   const lang: Copy = locale === "zh" ? copy.zh : copy.en;
-  const [role, setRole] = useState<PublicUserRole>("member");
+  const [role, setRole] = useState<UserRole>("member");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const isSignup = mode === "signup";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -140,24 +157,38 @@ export function AuthForm({
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const supabase = createClient();
 
     try {
-      const result = isSignup
-        ? await authClient.signUp.email({
-            name: String(formData.get("name") ?? "").trim(),
-            email,
-            password,
-            role,
-          })
-        : await authClient.signIn.email({
-            email,
-            password,
-            rememberMe: true,
-          });
+      if (isSignup) {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            // Consumed by the handle_new_user() trigger to build the profile.
+            data: { name: String(formData.get("name") ?? "").trim(), role },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+          },
+        });
 
-      if (result.error) {
-        setError(readableError(result.error.message, lang));
-        return;
+        if (signUpError) {
+          setError(readableError(signUpError.message, lang));
+          return;
+        }
+
+        // Email confirmation is required, so there is no session yet.
+        if (!data.session) {
+          setPendingEmail(email);
+          return;
+        }
+      } else {
+        const { error: signInError } =
+          await supabase.auth.signInWithPassword({ email, password });
+
+        if (signInError) {
+          setError(readableError(signInError.message, lang));
+          return;
+        }
       }
 
       router.replace(redirectTo);
@@ -177,6 +208,21 @@ export function AuthForm({
       : isSignup
         ? "/login"
         : "/signup";
+
+  if (pendingEmail) {
+    return (
+      <div className={styles.authForm}>
+        <div className={styles.authFormHeading}>
+          <p className={styles.eyebrow}>{lang.eyebrow}</p>
+          <h1>{lang.checkInboxTitle}</h1>
+          <p>{lang.checkInboxBody.replace("{email}", pendingEmail)}</p>
+        </div>
+        <p className={styles.authSwitch}>
+          <Link href={switchHref}>{lang.logIn}</Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form className={styles.authForm} method="post" onSubmit={onSubmit}>
@@ -213,15 +259,59 @@ export function AuthForm({
 
       <label>
         {lang.password}
-        <input
-          name="password"
-          type="password"
-          autoComplete={isSignup ? "new-password" : "current-password"}
-          minLength={8}
-          required
-          disabled={isSubmitting}
-          aria-describedby={isSignup ? "password-help" : undefined}
-        />
+        <div className={styles.passwordField}>
+          <input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            minLength={8}
+            required
+            disabled={isSubmitting}
+            aria-describedby={isSignup ? "password-help" : undefined}
+          />
+          <button
+            type="button"
+            className={styles.passwordToggle}
+            onClick={() => setShowPassword((value) => !value)}
+            disabled={isSubmitting}
+            aria-pressed={showPassword}
+            aria-label={showPassword ? lang.hidePassword : lang.showPassword}
+            title={showPassword ? lang.hidePassword : lang.showPassword}
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.4 5.2A9.3 9.3 0 0112 5c5 0 9 4.5 9 7a12 12 0 01-2.4 3.3M6.1 6.1A12 12 0 003 12c0 2.5 4 7 9 7a9 9 0 003.9-.9"
+                />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
       </label>
 
       {isSignup && (

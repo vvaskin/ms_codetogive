@@ -64,6 +64,49 @@
   box-shadow: 0 0 0 3px rgba(24, 120, 242, 0.15);
 }
 
+.passwordField {
+  position: relative;
+  display: flex;
+}
+
+.passwordField input {
+  padding-right: 2.9rem;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--motion-fast);
+}
+
+.passwordToggle:hover:not(:disabled) {
+  color: var(--color-brand-primary);
+}
+
+.passwordToggle:focus-visible {
+  outline: none;
+  color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(24, 120, 242, 0.15);
+}
+
+.passwordToggle:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .fieldHelp {
   margin-top: calc(var(--space-4) * -1);
   color: var(--color-text-muted);

@@ -1,12 +1,14 @@
 # LOVE 21 Foundation site clone
 
 A Next.js App Router clone of the LOVE 21 Foundation website (English + zh-HK)
-with Better Auth, Drizzle ORM, and a local SQLite database.
+with Supabase for authentication, database, and file storage.
 
 ## Prerequisites
 
 - Node.js `>=20`
 - npm
+- Access to the project's Supabase project (ask a teammate for an invite, or
+  for the project ref if you're linking your own local CLI)
 
 ## Quick Start
 
@@ -22,23 +24,46 @@ npm install
 cp .env.example .env.local
 ```
 
-Open `.env.local` and replace `BETTER_AUTH_SECRET` with a random value of at
-least 32 characters. You can generate one with:
+Open `.env.local` and fill in the three Supabase values from the dashboard at
+**Project Settings → API Keys**:
 
-```bash
-openssl rand -base64 32
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable key, starts with sb_publishable_>
+SUPABASE_SERVICE_ROLE_KEY=<secret key, starts with sb_secret_>
 ```
 
-Keep `BETTER_AUTH_URL=http://localhost:3000` unless the app runs on a different
-URL. `DB_FILE_NAME` must be a filename, not a path.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are safe to
+  ship to the browser.
+- `SUPABASE_SERVICE_ROLE_KEY` bypasses Row Level Security. Keep it
+  server-only — never prefix it with `NEXT_PUBLIC_`, never commit it, never
+  log it.
 
-3. Create or update your local database:
+3. Link the Supabase CLI to the project and apply the schema:
 
 ```bash
-npm run db:migrate
+npx supabase login
+npx supabase link --project-ref <project-ref>
+npm run db:push
 ```
 
-4. Start the app:
+`<project-ref>` is the subdomain in your project URL — e.g. for
+`https://afssbvjqpqlveqwyzvvs.supabase.co` it's `afssbvjqpqlveqwyzvvs`. You
+can also find it at **Project Settings → General → Reference ID**.
+
+`npx supabase login` opens a browser to authenticate the CLI; `link` will
+prompt for the project's database password. `db:push` applies every SQL file
+under `supabase/migrations/` (tables, enums, triggers, Row Level Security,
+storage buckets).
+
+4. In the dashboard, confirm **Authentication → URL Configuration** has:
+   - Site URL: `http://localhost:3000`
+   - Redirect URLs includes: `http://localhost:3000/auth/callback`
+
+   Email confirmation is required by default — new accounts must click the
+   link emailed to them before they can log in.
+
+5. Start the app:
 
 ```bash
 npm run dev
@@ -55,215 +80,193 @@ npm start
 
 ## Database setup
 
-The app uses a local SQLite database through Drizzle ORM. There is no separate
-database server to install or start.
-
-The important files are:
-
-- `lib/db/schema.ts` — the TypeScript source of truth for database tables.
-- `drizzle/` — generated SQL migrations. These files should be committed.
-- `drizzle.config.ts` — tells Drizzle where the schema, migrations, and database
-  are located.
-- `data/love21.sqlite` — your local database file. It is created by
-  `npm run db:migrate` and is ignored by Git.
-- `.env.local` — local secrets and the SQLite filename. It is also ignored by
-  Git.
-
-The database contains Better Auth's required tables:
-
-- `user`
-- `session`
-- `account`
-- `verification`
-
-It also contains:
-
-- `event` — bilingual activity-schedule records managed by staff
-
-The `user` table also contains the Love 21 `role` field. Its allowed values are
-`member`, `donor`, `volunteer`, and `staff`. Public signup offers only the first
-three roles. Staff access must be granted locally after the account exists:
-
-```bash
-npm run staff:promote -- person@example.com
-```
-
-After promotion, sign out and back in through `/admin/login`. Staff accounts are
-routed to `/admin`; other accounts continue to use `/portal`. The staff portal
-contains the People database at `/admin` and Events database at `/admin/events`.
-
-### After pulling database changes
-
-If another teammate changed `lib/db/schema.ts` or added files under `drizzle/`,
-run:
+If you're setting up your own Supabase project from scratch instead of
+linking to the shared one:
 
 ```bash
 npm install
-npm run db:migrate
+npx supabase login
+npx supabase link --project-ref afssbvjqpqlveqwyzvvs
+npm run db:push
 ```
 
-`db:migrate` applies only migrations that have not already been applied. It is
-safe to run it again when your database is already up to date.
+### After pulling schema changes
+
+If another teammate added a file under `supabase/migrations/`, apply it:
+
+```bash
+npm run db:push
+```
+
+This only applies migrations that haven't already been run against the
+linked project.
 
 ### Changing the schema
 
-Use this workflow when adding or changing a table or column:
+Use this workflow when adding or changing a table, enum, policy, or storage
+bucket:
 
-1. Edit `lib/db/schema.ts`.
-2. Generate a migration:
-
-   ```bash
-   npm run db:generate -- --name describe_your_change
-   ```
-
-   For example:
+1. Add a new, chronologically-named SQL file under `supabase/migrations/`
+   (e.g. `20260815000000_add_something.sql`). Don't edit already-applied
+   migration files — write a new one, the same way Drizzle/Rails-style
+   migration tools work.
+2. Apply it:
 
    ```bash
-   npm run db:generate -- --name add_member_profile
+   npm run db:push
    ```
 
-3. Read the new SQL file under `drizzle/` and make sure it matches the intended
-   change.
-4. Apply it to your local database:
+3. If the change affects table shapes, regenerate the TypeScript types:
 
    ```bash
-   npm run db:migrate
+   npm run db:types
    ```
 
-5. Run the checks:
+   This overwrites `lib/supabase/types.ts` from the live linked schema.
+
+4. Run the checks:
 
    ```bash
    npm run lint
    npm run build
    ```
 
-Commit both the schema change and its generated migration. Do not commit the
-SQLite database file, `.env.local`, or authentication secrets.
+Commit the new migration file and any regenerated types. Do not commit
+`.env.local` or any Supabase secret key.
 
-Do not generate a migration for normal UI or application-logic changes. A
-migration is needed only when the database schema changes.
+Do not add a migration for normal UI or application-logic changes. A
+migration is needed only when the database schema, policies, or storage
+configuration change.
 
 ### Viewing the database
 
-Drizzle Studio provides a local browser interface for inspecting tables and
-rows:
+Use the Supabase dashboard's **Table Editor** and **SQL Editor** to inspect
+tables and rows for the linked project, or run the CLI's local Studio against
+a local stack:
 
 ```bash
-npm run db:studio
+npx supabase start
 ```
 
-Stop it with `Ctrl+C` when finished. Avoid editing authentication rows manually
-unless you understand the effect on Better Auth.
+This spins up a local Postgres + Studio + Auth + Storage stack (see
+`supabase/config.toml`) so you can develop against a throwaway database
+instead of the shared one. Stop it with:
+
+```bash
+npx supabase stop
+```
+
+Avoid editing rows in `auth.*` tables manually — let Supabase Auth manage
+them.
 
 ## Database troubleshooting
 
-Try the relevant fix below before resetting anything.
+### `supabase: command not found`
 
-### `no such table` or login returns a database error
-
-Your local database is probably missing a migration:
-
-```bash
-npm run db:migrate
-```
-
-Restart `npm run dev` after the migration finishes.
-
-### `BETTER_AUTH_SECRET is required`
-
-Create `.env.local` from the template and add a secret:
+The Supabase CLI isn't installed globally, and npm intentionally does not
+support installing it as a global package. Either keep using `npx` (already
+wired into `npm run db:push` / `npm run db:types`, downloads on first use), or
+install a persistent binary via Homebrew:
 
 ```bash
-cp .env.example .env.local
-openssl rand -base64 32
+brew install supabase/tap/supabase
 ```
 
-Paste the generated value after `BETTER_AUTH_SECRET=` in `.env.local`, then
-restart the app.
+### `Supabase is not configured` error on every page
 
-### `DB_FILE_NAME must be a filename`
+`NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` is missing from
+`.env.local`. Copy them from **Project Settings → API Keys** and restart
+`npm run dev`.
 
-Use only a filename in `.env.local`:
+### Signup succeeds but login says the email isn't confirmed
 
-```dotenv
-DB_FILE_NAME=love21.sqlite
-```
+Email confirmation is required. Check the inbox for the address you signed up
+with (including spam) and click the confirmation link, which lands on
+`/auth/callback` and logs you in automatically.
 
-Do not use `./data/love21.sqlite` or another path. The app always stores the
-file inside `data/`.
+### The confirmation link doesn't work / redirects to the wrong place
 
-### `database is locked`
+Check **Authentication → URL Configuration** in the dashboard: Site URL must
+be `http://localhost:3000` (or your deployed URL), and Redirect URLs must
+include `<site-url>/auth/callback`.
 
-SQLite allows only limited concurrent writes. Stop duplicate `npm run dev`
-processes and close Drizzle Studio, then try again. The
-`love21.sqlite-shm` and `love21.sqlite-wal` files are normal SQLite working
-files and are ignored by Git.
+### `relation "public.users" does not exist` or similar
 
-### `better-sqlite3` or native module error
-
-First confirm that Node.js 20 or newer is active:
+The schema hasn't been pushed to this project yet:
 
 ```bash
-node --version
+npx supabase link --project-ref <project-ref>
+npm run db:push
 ```
 
-Then rebuild the SQLite package:
+### Row Level Security errors (`new row violates row-level security policy`)
 
-```bash
-npm rebuild better-sqlite3
-```
-
-If it still fails, reinstall the dependencies with the same supported Node.js
-version.
-
-### Last resort: reset a disposable local database
-
-Only do this for a local development database whose data can be lost. Never use
-these steps on a shared or production database.
-
-Stop the app first, back up the database, remove the local SQLite files, and
-reapply the migrations:
-
-```bash
-cp data/love21.sqlite /tmp/love21.sqlite.backup
-rm -f data/love21.sqlite
-rm -f data/love21.sqlite-shm
-rm -f data/love21.sqlite-wal
-npm run db:migrate
-```
-
-If the database contains important data, do not reset it. Keep the files and
-ask the team to review the migration history together.
+This is usually correct behavior — a user tried to read or write a row they
+don't own. `public.users`, `event_participations`, and `event_sponsorships`
+are all scoped to `auth.uid()`. If you need to bypass RLS for a one-off
+admin/staff script, use the `service_role` key server-side — never in
+client-side code.
 
 ## Authentication
 
-- Email and password signup/login is handled by Better Auth at `/api/auth/*`.
-- Drizzle schema and relations live in `lib/db/schema.ts`.
-- SQLite defaults to `data/love21.sqlite`; its filename inside `data/` can be
-  changed with `DB_FILE_NAME`.
-- Each user has one checked `role`: `member`, `donor`, `volunteer`, or `staff`.
-- Public signup exposes only member, donor, and volunteer roles.
-- Regular authenticated users use `/portal`; staff use `/admin`.
+- Email and password signup/login is handled by **Supabase Auth**. Session
+  cookies are managed by `@supabase/ssr` and refreshed on every request by
+  `middleware.ts`.
+- `app/auth/callback/route.ts` exchanges the emailed confirmation link for a
+  session.
+- Supabase Auth owns credentials in its own `auth.users` table — the app
+  never stores or reads a password. `public.users` (see
+  `supabase/migrations/20260801000001_init.sql`) is a *profile* row keyed by
+  the same `id`, auto-created by a database trigger on signup.
+- Each user has one `role`: `member`, `donor`, or `volunteer`, chosen at
+  signup and stored on `public.users`.
+- Unauthenticated visits to `/portal/*` redirect to `/login`.
+- `lib/supabase/client.ts` is for client components, `lib/supabase/server.ts`
+  for server components/route handlers, and `lib/supabase/profile.ts` exposes
+  `getSessionProfile()` — the combined auth + profile lookup used by the
+  portal pages.
 
-## Events
+## Database design
 
-- Staff create and manage events at `/admin/events`.
-- New records default to draft unless staff selects another status.
-- The events database is an admin-only prototype and is not connected to the
-  public Activity Schedule yet.
-- Date and time input uses Hong Kong time.
+Defined in `supabase/migrations/`:
+
+- **`users`** — profile for a Supabase Auth user (name, phone, address,
+  role, avatar path). No password column.
+- **`events`** — the shared calendar of events (title, image, date, type,
+  subtype, location, Google Maps link).
+- **`event_participations`** — one row per (user, event) for members and
+  volunteers. `status` is `registered` (upcoming/"attending"), `attended`,
+  `no_show`, or `cancelled`. A volunteer's attendance certificate path is
+  only ever set once `status = 'attended'`.
+- **`event_sponsorships`** — one row per (donor, event), with the amount
+  donated to that specific event (`amount_cents`, integer minor units) and a
+  path to that event's sponsorship certificate PDF.
+
+Storage buckets (see `20260801000002_storage.sql`):
+
+- `avatars` — public read, write restricted to the owning user's folder.
+- `event-images` — public read, staff-managed writes.
+- `certificates` — private; a user may only read files inside their own
+  folder, served via signed URLs.
 
 ## Project shape
 
 - `app/` — App Router pages and layout
-- `components/` — UI (chrome, home experience, page renderer, demo forms)
+- `app/auth/callback/` — Supabase email-confirmation landing route
+- `middleware.ts` — refreshes the Supabase session on every request and
+  guards `/portal/*`
+- `components/` — UI (chrome, home experience, page renderer, demo forms,
+  portal)
 - `content/site-data.ts` — bilingual page content
 - `styles/` — design tokens and foundational global CSS
-- `lib/` — Better Auth and Drizzle database configuration
-- `drizzle/` — generated, versioned SQL migrations
+- `lib/supabase/` — Supabase client/server helpers, session + profile
+  lookup, and generated database types
+- `lib/roles.ts` — the `member` / `donor` / `volunteer` role union
+- `supabase/migrations/` — versioned SQL migrations (schema, RLS, storage)
+- `supabase/config.toml` — local Supabase CLI stack configuration
 - `public/assets/` — images and reports
-- `AGENTS.md` — permanent guidance for agents and contributors; update it when
-  architecture, conventions, commands, or workflows change
+- `AGENTS.md` — permanent guidance for agents and contributors; update it
+  when architecture, conventions, commands, or workflows change
 
 ## Styling
 

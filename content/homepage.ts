@@ -311,7 +311,7 @@ export const homepageContent: HomepageContent = {
     },
     secondaryCta: {
       label: { en: "Get involved", zh: "參與其中" },
-      href: { en: "#help", zh: "#help" },
+      href: { en: "/get-involved/", zh: "/zh/get-involved-hk/" },
     },
     metrics: proofPoints,
   },
@@ -354,8 +354,8 @@ export const homepageContent: HomepageContent = {
   stories: {
     id: "stories",
     eyebrow: {
-      en: "01 · Community",
-      zh: "01 · 社群",
+      en: "02 · Community",
+      zh: "02 · 社群",
     },
     title: {
       en: "On the pitch. In the kitchen. With family.",
@@ -534,8 +534,8 @@ export const homepageContent: HomepageContent = {
   model: {
     id: "what-we-do",
     eyebrow: {
-      en: "02 · What we run",
-      zh: "02 · 我們的計劃",
+      en: "01 · What we run",
+      zh: "01 · 我們的計劃",
     },
     title: {
       en: "Sport. Nutrition. Family support.",
@@ -633,8 +633,8 @@ export const homepageContent: HomepageContent = {
   opportunities: {
     id: "opportunities",
     eyebrow: {
-      en: "03 · Volunteer",
-      zh: "03 · 義工",
+      en: "04 · Volunteer",
+      zh: "04 · 義工",
     },
     title: {
       en: "Come for a Saturday. Stay for the community.",
@@ -670,7 +670,7 @@ export const homepageContent: HomepageContent = {
     },
     contactCta: {
       label: { en: "Corporate volunteering", zh: "企業義工" },
-      href: { en: "/corporate/", zh: "/zh/corporate-hk/" },
+      href: { en: "/get-involved/#corporate", zh: "/zh/get-involved-hk/#corporate" },
     },
     activities: [
       {
@@ -776,8 +776,8 @@ export const homepageContent: HomepageContent = {
   donatePreview: {
     id: "donate-preview",
     eyebrow: {
-      en: "04 · Give",
-      zh: "04 · 捐助",
+      en: "05 · Give",
+      zh: "05 · 捐助",
     },
     title: {
       en: "Keep every programme free.",
@@ -974,8 +974,8 @@ export const homepageContent: HomepageContent = {
   trust: {
     id: "trust",
     eyebrow: {
-      en: "06 · Trust",
-      zh: "06 · 信任",
+      en: "03 · Trust",
+      zh: "03 · 信任",
     },
     title: {
       en: "Section 88 charity. Open books. Clear governance.",
