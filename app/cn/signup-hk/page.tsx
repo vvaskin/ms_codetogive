@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
+import { isUserRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -9,13 +10,21 @@ export const metadata: Metadata = {
   description: "建立 Love 21 基金会个人页面账户。",
 };
 
-export default async function SignupCnPage() {
+export default async function SignupCnPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string | string[] }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) redirect("/portal");
+
+  const rawRole = (await searchParams).role;
+  const roleValue = Array.isArray(rawRole) ? rawRole[0] : rawRole;
+  const initialRole = isUserRole(roleValue) ? roleValue : "member";
 
   return (
     <AuthPage
@@ -24,7 +33,7 @@ export default async function SignupCnPage() {
       title="每个人都可以出一分力。"
       description="建立账户时，请选择会员、捐赠者或义工身份。"
     >
-      <AuthForm mode="signup" locale="cn" />
+      <AuthForm mode="signup" locale="cn" initialRole={initialRole} />
     </AuthPage>
   );
 }

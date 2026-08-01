@@ -237,7 +237,7 @@ export function AccountForm({
       </button>
       {!reset && (
         <div className={styles.accountLinks}>
-          <Link href="/join-us/">Register</Link>
+          <Link href="/signup/">Register</Link>
           <Link href="/password-reset/">Forgot your password?</Link>
         </div>
       )}

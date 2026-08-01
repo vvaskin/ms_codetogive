@@ -25,11 +25,12 @@ export function SignOutButton({
   return (
     <button
       className={className}
+      className={className}
       type="button"
       onClick={signOut}
       disabled={isSigningOut}
     >
-      {isSigningOut ? "Logging out…" : "Log out"}
+      {isSigningOut ? pendingLabel : label}
     </button>
   );
 }

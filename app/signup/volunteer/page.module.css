@@ -1,0 +1,43 @@
+.page {
+  display: flex;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem) var(--layout-gutter);
+  background: var(--color-canvas);
+}
+
+.inner {
+  width: min(100%, 36rem);
+  display: grid;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-pink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+
+.description {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.formWrap {
+  text-align: left;
+}

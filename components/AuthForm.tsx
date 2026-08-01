@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { VOLUNTEER_SIGNUP_DRAFT_KEY, VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE } from "@/lib/volunteer-signup-draft";
 import { createClient } from "@/lib/supabase/client";
 import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
@@ -170,16 +171,18 @@ export function AuthForm({
   redirectTo = "/portal",
   locale = "en",
   showAccountSwitch = true,
+  initialRole = "member",
 }: {
   mode: AuthMode;
   redirectTo?: string;
   locale?: Locale;
   showAccountSwitch?: boolean;
+  initialRole?: UserRole;
 }) {
   const router = useRouter();
   const lang: Copy =
     locale === "zh" ? copy.zh : locale === "cn" ? copy.cn : copy.en;
-  const [role, setRole] = useState<UserRole>("member");
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -191,9 +194,21 @@ export function AuthForm({
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
+    const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const supabase = createClient();
+
+    if (isSignup && role === "volunteer") {
+      window.sessionStorage.setItem(
+        VOLUNTEER_SIGNUP_DRAFT_KEY,
+        JSON.stringify({ name, email, password }),
+      );
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=1; Path=/; Max-Age=1800; SameSite=Lax`;
+      router.push("/signup/volunteer");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       if (isSignup) {
@@ -224,6 +239,7 @@ export function AuthForm({
         }
       }
 
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace(redirectTo);
       router.refresh();
     } catch {
@@ -380,7 +396,9 @@ export function AuthForm({
             ? lang.creatingAccount
             : lang.loggingIn
           : isSignup
-            ? lang.createAccount
+            ? role === "volunteer"
+              ? "Continue"
+              : lang.createAccount
             : lang.logIn}
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
