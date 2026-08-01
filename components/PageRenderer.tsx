@@ -192,17 +192,10 @@ export function PageRenderer({ path }: { path: string }) {
       return <PersonPage page={page} />;
     case "volunteer":
       return <VolunteerPage page={page} />;
-    case "get-involved": {
-      const initialSection = page.path.includes("corporate")
-        ? ("corporate" as const)
-        : undefined;
+    case "get-involved":
       return (
-        <GetInvolvedExperience
-          locale={page.locale === "zh" ? "zh" : "en"}
-          initialSection={initialSection}
-        />
+        <GetInvolvedExperience locale={page.locale === "zh" ? "zh" : "en"} />
       );
-    }
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":

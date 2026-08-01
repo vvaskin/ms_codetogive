@@ -392,29 +392,11 @@ const enPages: SitePage[] = [
       "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
   },
   {
-    path: "/volunteer/",
-    locale: "en",
-    alternatePath: "/zh/volunteer-hk/",
-    template: "get-involved",
-    title: "Get Involved",
-    description:
-      "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
-  },
-  {
     path: "/volunteer/calendar/",
     locale: "en",
     alternatePath: "/zh/volunteer-calendar-hk/",
     template: "calendar",
     title: "VOLUNTEER CALENDAR",
-  },
-  {
-    path: "/corporate/",
-    locale: "en",
-    alternatePath: "/zh/corporate-hk/",
-    template: "get-involved",
-    title: "Corporate Partnerships",
-    description:
-      "Plan a corporate day with Love 21 — shared activity, facilitation, and human connection.",
   },
 ];
 
@@ -565,27 +547,11 @@ const zhPages: SitePage[] = [
     description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
   },
   {
-    path: "/zh/volunteer-hk/",
-    locale: "zh",
-    alternatePath: "/volunteer/",
-    template: "get-involved",
-    title: "參與我們",
-    description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
-  },
-  {
     path: "/zh/volunteer-calendar-hk/",
     locale: "zh",
     alternatePath: "/volunteer/calendar/",
     template: "calendar",
     title: "義工日曆",
-  },
-  {
-    path: "/zh/corporate-hk/",
-    locale: "zh",
-    alternatePath: "/corporate/",
-    template: "get-involved",
-    title: "企業夥伴",
-    description: "與 Love 21 規劃企業日 — 共同活動、引導與真實連繫。",
   },
 ];
 

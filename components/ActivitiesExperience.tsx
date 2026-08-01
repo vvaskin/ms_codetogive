@@ -68,7 +68,7 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
           <p>{activityText(c.hero.description, locale)}</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryButton} href="#calendar">{activityText(c.hero.primary, locale)}</a>
-            <ButtonLink href={zh ? "/zh/volunteer-hk/" : "/volunteer/"} variant="outline">
+            <ButtonLink href={zh ? "/zh/get-involved-hk/#opportunities" : "/get-involved/#opportunities"} variant="outline">
               {activityText(c.hero.secondary, locale)}
             </ButtonLink>
           </div>
@@ -177,7 +177,7 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
         </div>
         <div className={styles.quickGrid}>
           {c.quickStart.items.map((item, index) => {
-            const href = index === 0 ? (zh ? "/zh/join-us-hk/" : "/join-us/") : index === 1 ? (zh ? "/zh/volunteer-hk/" : "/volunteer/") : (zh ? "/zh/corporate-hk/" : "/corporate/");
+            const href = index === 0 ? (zh ? "/zh/join-us-hk/" : "/join-us/") : index === 1 ? (zh ? "/zh/get-involved-hk/#opportunities" : "/get-involved/#opportunities") : (zh ? "/zh/get-involved-hk/#corporate" : "/get-involved/#corporate");
             return <Link href={href} className={styles.quickCard} key={item.title.en}><strong>{activityText(item.title, locale)}</strong><span>{activityText(item.copy, locale)}</span><b aria-hidden="true">→</b></Link>;
           })}
         </div>
@@ -219,7 +219,7 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
 
       <SectionShell tone="sky" className={styles.volunteerCta}>
         <div><h2>{activityText(c.volunteer.title, locale)}</h2><p>{activityText(c.volunteer.description, locale)}</p></div>
-        <div><ButtonLink href={zh ? "/zh/volunteer-hk/" : "/volunteer/"} variant="teal">{activityText(c.volunteer.primary, locale)}</ButtonLink><ButtonLink href={zh ? "/zh/contact-us-hk/" : "/contact-us/"} variant="outline">{activityText(c.volunteer.secondary, locale)}</ButtonLink></div>
+        <div><ButtonLink href={zh ? "/zh/get-involved-hk/#opportunities" : "/get-involved/#opportunities"} variant="teal">{activityText(c.volunteer.primary, locale)}</ButtonLink><ButtonLink href={zh ? "/zh/contact-us-hk/" : "/contact-us/"} variant="outline">{activityText(c.volunteer.secondary, locale)}</ButtonLink></div>
       </SectionShell>
     </article>
   );

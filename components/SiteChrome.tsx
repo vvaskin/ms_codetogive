@@ -70,14 +70,10 @@ const zhActivities = [
 
 const enInvolved = [
   ["Get Involved", "/get-involved/"],
-  ["Volunteer Opportunities", "/get-involved/#opportunities"],
-  ["Corporate Partnerships", "/get-involved/#corporate"],
 ];
 
 const zhInvolved = [
   ["參與我們", "/zh/get-involved-hk/"],
-  ["義工機會", "/zh/get-involved-hk/#opportunities"],
-  ["企業夥伴", "/zh/get-involved-hk/#corporate"],
 ];
 
 function CalmModeToggle({
@@ -263,10 +259,12 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               label={zh ? "活動與行事曆" : "Activities & Calendar"}
               items={activityItems}
             />
-            <MenuGroup
-              label={zh ? "參與我們" : "Get Involved"}
-              items={involvedItems}
-            />
+            <Link
+              href={zh ? "/zh/get-involved-hk/" : "/get-involved/"}
+              className={styles.navLink}
+            >
+              {zh ? "參與我們" : "Get Involved"}
+            </Link>
             <Link href={contactPath} className={styles.navLink}>
               {zh ? "聯絡我們" : "Contact Us"}
             </Link>
@@ -374,15 +372,12 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             }
             variant="mobile"
           />
-          <MenuGroup
-            label={zh ? "參與我們" : "Get Involved"}
-            items={involvedItems}
-            open={openGroup === "involved"}
-            onToggle={() =>
-              setOpenGroup(openGroup === "involved" ? null : "involved")
-            }
-            variant="mobile"
-          />
+          <Link
+            href={zh ? "/zh/get-involved-hk/" : "/get-involved/"}
+            className={styles.mobileNavLink}
+          >
+            {zh ? "參與我們" : "Get Involved"}
+          </Link>
           <Link href={contactPath} className={styles.mobileNavLink}>
             {zh ? "聯絡我們" : "Contact Us"}
           </Link>

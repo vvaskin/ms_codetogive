@@ -670,7 +670,7 @@ export const homepageContent: HomepageContent = {
     },
     contactCta: {
       label: { en: "Corporate volunteering", zh: "企業義工" },
-      href: { en: "/corporate/", zh: "/zh/corporate-hk/" },
+      href: { en: "/get-involved/#corporate", zh: "/zh/get-involved-hk/#corporate" },
     },
     activities: [
       {
