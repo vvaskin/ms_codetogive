@@ -585,12 +585,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      {!pathname.startsWith("/portal") && (
-        <Link className="floating-donate" href={donatePath}>
-          {zh ? "捐贈" : "DONATE"} <span aria-hidden="true">➜</span>
-        </Link>
-      )}
-
       <main>{children}</main>
 
       <footer className={styles.footer}>

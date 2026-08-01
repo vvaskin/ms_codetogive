@@ -604,41 +604,6 @@
   width: 100%;
 }
 
-/* ── Floating donate (desktop only) ───────────────────────────────────── */
-
-.floatingDonate {
-  position: fixed;
-  right: clamp(0.75rem, 2vw, 1.25rem);
-  bottom: clamp(0.75rem, 2vw, 1.25rem);
-  z-index: 90;
-  display: none;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 48px;
-  padding: 0.65rem 1.25rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-pink);
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #fff;
-  box-shadow: var(--shadow-lift);
-  transition:
-    background-color var(--motion-fast),
-    transform var(--motion-fast);
-}
-
-.floatingDonate:hover {
-  background: var(--color-pink-dark);
-  transform: translateY(-2px);
-}
-
-.floatingDonateArrow {
-  font-size: 1rem;
-  line-height: 1;
-}
-
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
 .footer {
@@ -857,10 +822,6 @@
     display: none;
   }
 
-  .floatingDonate {
-    display: inline-flex;
-  }
-
   .footerColumns {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -930,8 +891,7 @@
   .accessPanel,
   .mobileToggle span,
   .mobileNavGroupTrigger span,
-  .donatePill,
-  .floatingDonate {
+  .donatePill {
     transition: none;
   }
 }
