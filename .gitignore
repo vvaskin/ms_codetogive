@@ -37,9 +37,6 @@ yarn-error.log*
 /data/*.sqlite
 /data/*.sqlite-*
 
-# local social media uploads
-/public/uploads/
-
 # local instagram sync data
 /data/instagram-posts.json
 
