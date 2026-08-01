@@ -46,7 +46,7 @@
   gap: 0.15rem;
   flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   padding-inline: 0.5rem;
 }
 
@@ -93,8 +93,7 @@
 }
 
 .navGroupTrigger:hover,
-.navGroupOpen .navGroupTrigger,
-.navGroup:focus-within .navGroupTrigger {
+.navGroup:hover .navGroupTrigger {
   color: var(--color-pink);
   background: transparent;
 }
@@ -108,7 +107,7 @@
   top: 100%;
   left: 50%;
   z-index: 20;
-  display: grid;
+  display: none;
   gap: 0.15rem;
   min-width: 12.5rem;
   /* Top padding bridges the trigger→menu gap so hover is not lost */
@@ -118,22 +117,11 @@
   background: var(--color-white);
   background-clip: padding-box;
   box-shadow: var(--shadow-soft);
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -6px);
-  transition:
-    opacity var(--motion-base),
-    transform var(--motion-base),
-    visibility var(--motion-base);
-  pointer-events: none;
+  transform: translateX(-50%);
 }
 
-.navGroupOpen .navDropdown,
-.navGroup:focus-within .navDropdown {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%, 0);
-  pointer-events: auto;
+.navGroup:hover .navDropdown {
+  display: grid;
 }
 
 .navDropdown a {

@@ -1,0 +1,471 @@
+.page {
+  overflow: hidden;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.hero,
+.mission,
+.programmes,
+.governance {
+  width: min(1120px, calc(100% - (var(--layout-gutter) * 2)));
+  margin: 0 auto;
+  padding: var(--space-section) 0;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.heroBlobOne,
+.heroBlobTwo {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.heroBlobOne {
+  top: 8%;
+  left: 4%;
+  width: 120px;
+  height: 120px;
+  background: rgba(37, 175, 227, 0.18);
+}
+
+.heroBlobTwo {
+  right: 6%;
+  bottom: 12%;
+  width: 160px;
+  height: 160px;
+  background: rgba(244, 7, 112, 0.12);
+}
+
+.hero h1 {
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.heroLead {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.heroScript {
+  margin: 0.35rem 0 0;
+  color: var(--color-pink);
+  font-family: var(--font-script);
+  font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+  line-height: 1.35;
+}
+
+:lang(zh-Hant) .heroScript,
+:lang(zh) .heroScript {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.mission {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.missionVisual {
+  position: relative;
+  min-height: 340px;
+}
+
+.missionCard {
+  position: absolute;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.missionCard img {
+  object-fit: cover;
+}
+
+.missionCardPink {
+  top: 0;
+  left: 0;
+  width: min(100%, 280px);
+  height: 280px;
+  background: var(--color-blush);
+}
+
+.missionCardBlue {
+  right: 0;
+  bottom: 0;
+  width: min(72%, 210px);
+  height: 210px;
+  background: var(--color-sky);
+}
+
+.missionCopy {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.missionCopy h2 {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.missionCopy p {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  color: var(--color-pink);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.programmes {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.sectionIntro {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+}
+
+.sectionIntro h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.sectionIntro p {
+  margin: 0;
+  max-width: 40ch;
+  color: var(--color-text-muted);
+}
+
+.programmeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.programmeCard {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  min-height: 100%;
+  padding: 1.35rem 1.25rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.programmeCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+.programmeIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--color-blush);
+}
+
+.tone_pink .programmeIcon {
+  background: #ffe0ef;
+}
+
+.tone_teal .programmeIcon {
+  background: #d7f5ec;
+}
+
+.tone_blue .programmeIcon {
+  background: #dcebff;
+}
+
+.tone_purple .programmeIcon {
+  background: #ebe4ff;
+}
+
+.programmeCard h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.programmeCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.impact {
+  padding: clamp(2.5rem, 5vw, 3.5rem) var(--layout-gutter);
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.impactList {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  list-style: none;
+  padding: 0;
+}
+
+.impactList li {
+  display: grid;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.impactList strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.impactList span {
+  font-size: 0.95rem;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
+.governance {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  justify-items: stretch;
+}
+
+.quote {
+  width: 100%;
+  margin: 0;
+  padding: clamp(1.35rem, 3vw, 1.85rem) clamp(1.35rem, 3.5vw, 2rem);
+  border-radius: var(--radius-lg);
+  border-left: 5px solid var(--color-pink);
+  background: var(--color-blush);
+}
+
+.quoteLabel {
+  margin: 0 0 0.65rem;
+  color: var(--color-pink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quoteBody {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.quoteAttribution {
+  margin-top: 0.85rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.leadershipRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  width: 100%;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.leaderCard {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+}
+
+.leaderCard strong {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.leaderCard span {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.leaderCard:hover strong {
+  color: var(--color-pink);
+}
+
+.boardBlock {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+  justify-items: start;
+}
+
+.boardHeading {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.boardGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.85rem 1.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.boardGrid a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  transition: color var(--motion-fast);
+}
+
+.boardGrid a:hover {
+  color: var(--color-pink);
+}
+
+.boardNote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.governanceLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  color: var(--color-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.governanceLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 1024px) {
+  .programmeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .boardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .mission {
+    grid-template-columns: 1fr;
+  }
+
+  .missionVisual {
+    min-height: 280px;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+
+  .impactList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .leadershipRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .programmeGrid,
+  .boardGrid,
+  .impactList {
+    grid-template-columns: 1fr;
+  }
+
+  .heroBlobOne,
+  .heroBlobTwo {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .programmeCard {
+    transition: none;
+  }
+
+  .programmeCard:hover {
+    transform: none;
+  }
+}

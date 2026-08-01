@@ -2,11 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { alternatePaths, normalizePath } from "../content/site-data";
 import { authClient } from "../lib/auth-client";
 import { BrandLockup } from "./ui/BrandLockup";
 import styles from "./SiteChrome.module.css";
+
+const SIMPLE_VIEW_KEY = "simple-view";
+const SIMPLE_VIEW_EVENT = "love21-simple-view";
+
+function subscribeSimpleView(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+  };
+}
+
+function getSimpleViewSnapshot() {
+  return window.localStorage.getItem(SIMPLE_VIEW_KEY) === "on";
+}
+
+function getSimpleViewServerSnapshot() {
+  return false;
+}
 
 const enAbout = [
   ["Our Story", "/our-story/"],
@@ -49,13 +69,15 @@ const zhActivities = [
 ];
 
 const enInvolved = [
-  ["Volunteer Opportunities", "/volunteer/"],
-  ["Corporate Partnerships", "/corporate/"],
+  ["Get Involved", "/get-involved/"],
+  ["Volunteer Opportunities", "/get-involved/#opportunities"],
+  ["Corporate Partnerships", "/get-involved/#corporate"],
 ];
 
 const zhInvolved = [
-  ["義工機會", "/zh/volunteer-hk/"],
-  ["企業夥伴", "/zh/corporate-hk/"],
+  ["參與我們", "/zh/get-involved-hk/"],
+  ["義工機會", "/zh/get-involved-hk/#opportunities"],
+  ["企業夥伴", "/zh/get-involved-hk/#corporate"],
 ];
 
 function CalmModeToggle({
@@ -98,16 +120,14 @@ function CalmModeToggle({
 function MenuGroup({
   label,
   items,
-  open,
+  open = false,
   onToggle,
-  onOpen,
-  onClose,
   variant = "desktop",
 }: {
   label: string;
   items: string[][];
-  open: boolean;
-  onToggle: () => void;
+  open?: boolean;
+  onToggle?: () => void;
   onOpen?: () => void;
   onClose?: () => void;
   variant?: "desktop" | "mobile";
@@ -137,17 +157,22 @@ function MenuGroup({
 
   return (
     <div
-      className={`${styles.navGroup} ${open ? styles.navGroupOpen : ""}`}
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
+      className={styles.navGroup}
+      onMouseLeave={(event) => {
+        const active = document.activeElement;
+        if (
+          active instanceof HTMLElement &&
+          event.currentTarget.contains(active)
+        ) {
+          active.blur();
+        }
+      }}
     >
       <button
         className={styles.navGroupTrigger}
         type="button"
-        aria-expanded={open}
+        aria-expanded={false}
         aria-haspopup="true"
-        onClick={onToggle}
-        onFocus={onOpen}
       >
         {label}
         <span aria-hidden="true">⌄</span>
@@ -169,12 +194,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  // Always start false so SSR and the first client render match; hydrate from storage after mount.
-  const [simpleView, setSimpleView] = useState(false);
-
-  useEffect(() => {
-    setSimpleView(window.localStorage.getItem("simple-view") === "on");
-  }, []);
+  const simpleView = useSyncExternalStore(
+    subscribeSimpleView,
+    getSimpleViewSnapshot,
+    getSimpleViewServerSnapshot,
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle("simple-view", simpleView);
@@ -185,11 +209,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   }, [zh]);
 
   const toggleSimpleView = () => {
-    setSimpleView((value) => {
-      const next = !value;
-      window.localStorage.setItem("simple-view", next ? "on" : "off");
-      return next;
-    });
+    const next = !simpleView;
+    window.localStorage.setItem(SIMPLE_VIEW_KEY, next ? "on" : "off");
+    window.dispatchEvent(new Event(SIMPLE_VIEW_EVENT));
   };
 
   const alternate = alternatePaths[pathname] || (zh ? "/" : "/zh/");
@@ -229,62 +251,21 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             <BrandLockup href={homePath} compact />
           </div>
 
-          <nav
-            className={styles.primaryNav}
-            aria-label="Primary"
-            onMouseLeave={() => setOpenGroup(null)}
-          >
-            <MenuGroup
-              label={zh ? "關於" : "About"}
-              items={aboutItems}
-              open={openGroup === "about"}
-              onOpen={() => setOpenGroup("about")}
-              onClose={() =>
-                setOpenGroup((current) => (current === "about" ? null : current))
-              }
-              onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
-            />
-            <MenuGroup
-              label={zh ? "我們的計劃" : "Our Programmes"}
-              items={programmeItems}
-              open={openGroup === "programmes"}
-              onOpen={() => setOpenGroup("programmes")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "programmes" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "programmes" ? null : "programmes")
-              }
-            />
+          <nav className={styles.primaryNav} aria-label="Primary">
+            <MenuGroup label={zh ? "關於" : "About"} items={aboutItems} />
+            <Link
+              href={zh ? "/zh/our-programmes-hk/" : "/our-programmes/"}
+              className={styles.navLink}
+            >
+              {zh ? "我們的計劃" : "Our Programmes"}
+            </Link>
             <MenuGroup
               label={zh ? "活動與行事曆" : "Activities & Calendar"}
               items={activityItems}
-              open={openGroup === "activities"}
-              onOpen={() => setOpenGroup("activities")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "activities" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "activities" ? null : "activities")
-              }
             />
             <MenuGroup
               label={zh ? "參與我們" : "Get Involved"}
               items={involvedItems}
-              open={openGroup === "involved"}
-              onOpen={() => setOpenGroup("involved")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "involved" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "involved" ? null : "involved")
-              }
             />
             <Link href={contactPath} className={styles.navLink}>
               {zh ? "聯絡我們" : "Contact Us"}
@@ -378,15 +359,12 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
             variant="mobile"
           />
-          <MenuGroup
-            label={zh ? "我們的計劃" : "Our Programmes"}
-            items={programmeItems}
-            open={openGroup === "programmes"}
-            onToggle={() =>
-              setOpenGroup(openGroup === "programmes" ? null : "programmes")
-            }
-            variant="mobile"
-          />
+          <Link
+            href={zh ? "/zh/our-programmes-hk/" : "/our-programmes/"}
+            className={styles.mobileNavLink}
+          >
+            {zh ? "我們的計劃" : "Our Programmes"}
+          </Link>
           <MenuGroup
             label={zh ? "活動與行事曆" : "Activities & Calendar"}
             items={activityItems}
