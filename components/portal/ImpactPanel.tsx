@@ -1,15 +1,10 @@
+import { formatDayMonthYear } from "@/lib/format-date";
 import {
   donationHistory,
   formatCurrency,
   impactStats,
 } from "@/lib/portal/mock-data";
 import { ImpactCharts } from "./ImpactCharts";
-
-const historyDateFormatter = new Intl.DateTimeFormat("en-HK", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
 
 export function ImpactPanel({
   variant = "full",
@@ -42,7 +37,7 @@ export function ImpactPanel({
           {history.map((record) => (
             <li key={record.id}>
               <span className="impact-history-date">
-                {historyDateFormatter.format(new Date(`${record.date}T00:00:00`))}
+                {formatDayMonthYear(record.date, "T00:00:00")}
               </span>
               <span className="impact-history-amount">
                 {formatCurrency(record.amount)}

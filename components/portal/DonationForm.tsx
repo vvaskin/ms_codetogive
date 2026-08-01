@@ -17,6 +17,8 @@ interface Confirmation {
   kind: Kind;
   frequency: Frequency | null;
   createdAccount: boolean;
+  notifiedVia?: "sms" | "email" | "none";
+  warning?: string;
 }
 
 /**
@@ -33,6 +35,7 @@ export function DonationForm({ guest }: { guest?: boolean }) {
   const [frequency, setFrequency] = useState<Frequency>(frequencies[0].value);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
@@ -54,6 +57,7 @@ export function DonationForm({ guest }: { guest?: boolean }) {
       frequency: kind === "recurring" ? frequency : null,
       email: isGuest ? email : undefined,
       name: isGuest ? name : undefined,
+      phone: isGuest ? phone : undefined,
     });
 
     setSubmitting(false);
@@ -68,6 +72,8 @@ export function DonationForm({ guest }: { guest?: boolean }) {
       kind,
       frequency: kind === "recurring" ? frequency : null,
       createdAccount: Boolean(result.createdAccount),
+      notifiedVia: result.notifiedVia,
+      warning: result.warning,
     });
   }
 
@@ -97,8 +103,11 @@ export function DonationForm({ guest }: { guest?: boolean }) {
         </p>
         {confirmation.createdAccount && (
           <p className="donation-confirm-note">
-            We&apos;ve created an account for you and emailed a link to set your
-            password so you can track your giving.
+            {confirmation.warning
+              ? confirmation.warning
+              : confirmation.notifiedVia === "email"
+                ? "We've created an account for you and emailed a link to set your password so you can track your giving."
+                : "We've created an account for you and texted a link to set your password so you can track your giving."}
           </p>
         )}
         <p className="donation-confirm-note">
@@ -208,8 +217,20 @@ export function DonationForm({ guest }: { guest?: boolean }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+          </label>
+          <label className="donation-frequency">
+            Phone number
+            <input
+              type="tel"
+              autoComplete="tel"
+              placeholder="+852 XXXX XXXX"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
             <small>
-              We&apos;ll create an account so you can track your donations.
+              We&apos;ll text you a link to set your password so you can track
+              your donations.
             </small>
           </label>
         </div>

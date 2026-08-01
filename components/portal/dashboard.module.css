@@ -1,0 +1,199 @@
+/* Shared dashboard building blocks — DashboardHead + card grid + CTAs.
+   Used by DonorDashboard and PlaceholderDashboard. */
+
+/* -- DashboardHead -------------------------------------------------------- */
+
+.dashboardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.dashboardHeadText {
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.dashboardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.dashboardSubtitle {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.dashboardHeadStat {
+  flex: 0 0 auto;
+  min-width: 220px;
+}
+
+.headStat {
+  padding: 1rem 1.25rem;
+  border-radius: 18px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  text-align: right;
+}
+
+.headStatValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.25rem;
+  color: var(--color-pink);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.headStatLabel {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* -- Card grid layouts ---------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.gridFull {
+  grid-column: 1 / -1;
+}
+
+.card {
+  padding: 1.25rem 1.4rem 1.5rem;
+  border-radius: 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.cardEyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -- Card CTAs, notes, placeholder ---------------------------------------- */
+
+.cardNote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.cta {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-pink);
+  background: var(--color-white);
+  color: var(--color-pink);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.cta:hover {
+  background: var(--color-blush);
+}
+
+.ctaPrimary {
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.ctaPrimary:hover {
+  background: var(--color-pink-dark);
+  color: #fff;
+}
+
+.placeholderCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: var(--color-blush);
+  border: 1px dashed var(--color-pink);
+}
+
+.placeholderCard > span {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-pink);
+}
+
+.placeholderCard h2 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.placeholderCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.cardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.cardHeadLink {
+  color: var(--color-pink);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.cardHeadLink:hover {
+  text-decoration: underline;
+}

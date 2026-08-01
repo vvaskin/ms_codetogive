@@ -1,0 +1,239 @@
+/* Sidebar chrome for /portal — matches the Figma Console design. */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 260px;
+  padding: 1.75rem 1.25rem 1.5rem;
+  background: var(--color-white);
+  border-right: 1px solid var(--color-border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brandMark {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-pink);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-ink);
+}
+
+.brandSubtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  padding-right: 0.15rem;
+  /* Hide scrollbar unless needed */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sectionLabel {
+  padding: 0 0.75rem 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  color: var(--color-ink);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.navLink:hover {
+  background: var(--color-blush);
+}
+
+.navLinkActive {
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.navLinkActive:hover {
+  background: var(--color-pink-dark);
+}
+
+.navIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 0.75rem 0.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.avatar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-blush);
+  color: var(--color-pink);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.footerText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.footerName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footerRole {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.signOut {
+  margin-left: auto;
+  padding: 0.4rem 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.signOut:hover:not(:disabled) {
+  color: var(--color-pink);
+  background: var(--color-blush);
+}
+
+.signOut:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Mobile — collapse into a top bar and scroll horizontally. */
+@media (max-width: 900px) {
+  .sidebar {
+    position: static;
+    height: auto;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .nav {
+    flex-direction: row;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  .navSection {
+    flex-direction: row;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .sectionLabel {
+    display: none;
+  }
+
+  .navLink {
+    flex: 0 0 auto;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .footer {
+    border-top: none;
+    padding: 0.5rem 0;
+  }
+}

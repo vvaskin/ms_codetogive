@@ -353,6 +353,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const cn = locale === "cn";
   const pick = (en: string, zht: string, zhc: string) =>
     cn ? zhc : zh ? zht : en;
+  // Portal pages use a slim header: logo + accessibility + language only,
+  // with the marketing navigation removed.
+  const isPortal = pathname.startsWith("/portal");
   const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -435,14 +438,21 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     setOpenGroup(null);
   };
 
+  // Portal routes render their own chrome (PortalShell); the site header and
+  // footer are hidden entirely to match the Figma "console" design.
+  if (isPortal) {
+    return <>{children}</>;
+  }
+
   return (
     <>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${isPortal ? styles.headerPortal : ""}`}>
         <div className={styles.headerInner}>
           <div className={styles.headerBrand}>
             <BrandLockup href={homePath} compact />
           </div>
 
+          {!isPortal && (
           <nav className={styles.primaryNav} aria-label="Primary">
             <MenuGroup
               locale={locale}
@@ -472,6 +482,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               {pick("Contact Us", "聯絡我們", "联系我们")}
             </Link>
           </nav>
+          )}
 
           <div className={styles.headerActions}>
             <AccessibilityMenu
@@ -512,39 +523,44 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
 
-            <Link href={loginPath} className={styles.memberLogin}>
-              {memberLabel}
-            </Link>
+            {!isPortal && (
+              <>
+                <Link href={loginPath} className={styles.memberLogin}>
+                  {memberLabel}
+                </Link>
 
-            <Link href={donatePath} className={styles.donatePill}>
-              {donateLabel}
-            </Link>
+                <Link href={donatePath} className={styles.donatePill}>
+                  {donateLabel}
+                </Link>
 
-            <Link href={volunteerPath} className={styles.volunteerPill}>
-              {volunteerLabel}
-            </Link>
+                <Link href={volunteerPath} className={styles.volunteerPill}>
+                  {volunteerLabel}
+                </Link>
 
-            <Link
-              href={donatePath}
-              className={`${styles.donatePill} ${styles.donatePillCompact}`}
-            >
-              {donateLabel}
-            </Link>
+                <Link
+                  href={donatePath}
+                  className={`${styles.donatePill} ${styles.donatePillCompact}`}
+                >
+                  {donateLabel}
+                </Link>
 
-            <button
-              type="button"
-              className={`${styles.mobileToggle} ${mobileOpen ? styles.mobileToggleOpen : ""}`}
-              aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
-              aria-expanded={mobileOpen}
-              onClick={() => setMobileOpen((value) => !value)}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+                <button
+                  type="button"
+                  className={`${styles.mobileToggle} ${mobileOpen ? styles.mobileToggleOpen : ""}`}
+                  aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+                  aria-expanded={mobileOpen}
+                  onClick={() => setMobileOpen((value) => !value)}
+                >
+                  <span />
+                  <span />
+                  <span />
+                </button>
+              </>
+            )}
           </div>
         </div>
 
+        {!isPortal && (
         <nav
           className={`${styles.mobileNav} ${mobileOpen ? styles.mobileNavOpen : ""}`}
           aria-label="Mobile"
@@ -621,6 +637,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
         </nav>
+        )}
       </header>
 
       <main>{children}</main>

@@ -2,6 +2,8 @@
 // the database and a payment provider; for now they power the dashboard, the
 // My Impact page, and the donation history preview.
 
+import { formatDayMonthYear } from "@/lib/format-date";
+
 export interface PortalEvent {
   id: string;
   title: string;
@@ -131,14 +133,8 @@ export const frequencies = [
 
 export type Frequency = (typeof frequencies)[number]["value"];
 
-const dateFormatter = new Intl.DateTimeFormat("en-HK", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
 export function formatEventDate(iso: string): string {
-  return dateFormatter.format(new Date(`${iso}T00:00:00`));
+  return formatDayMonthYear(iso, "T00:00:00");
 }
 
 export function formatCurrency(amount: number): string {

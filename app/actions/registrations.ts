@@ -17,6 +17,8 @@ export interface RegisterForEventResult {
   ok: boolean;
   error?: string;
   createdAccount?: boolean;
+  notifiedVia?: "sms" | "email" | "none";
+  warning?: string;
 }
 
 /**
@@ -48,11 +50,16 @@ export async function registerForEvent(
     return { ok: true };
   }
 
-  // Guest: create/find a volunteer account, then register them.
+  // Guest: create/find a volunteer account, then register them. Phone is now
+  // required — set-password message goes out via SMS.
   const email = input.email?.trim();
   const name = input.name?.trim();
-  if (!email || !name) {
-    return { ok: false, error: "Please enter your name and email." };
+  const phone = input.phone?.trim();
+  if (!email || !name || !phone) {
+    return {
+      ok: false,
+      error: "Please enter your name, email, and phone number.",
+    };
   }
 
   try {
@@ -60,8 +67,8 @@ export async function registerForEvent(
     const account = await ensureAccount({
       email,
       name,
+      phone,
       role: "volunteer",
-      phone: input.phone?.trim() || null,
       origin,
     });
 
@@ -78,11 +85,18 @@ export async function registerForEvent(
       );
     if (error) return { ok: false, error: error.message };
 
-    if (account.setPasswordLink) {
-      console.log(`[guest volunteer] set-password link for ${email}: ${account.setPasswordLink}`);
+    if (account.actionLink) {
+      console.log(
+        `[guest volunteer] ${account.notifiedVia} link for ${email}: ${account.actionLink}`,
+      );
     }
 
-    return { ok: true, createdAccount: account.created };
+    return {
+      ok: true,
+      createdAccount: account.created,
+      notifiedVia: account.notifiedVia,
+      warning: account.warning,
+    };
   } catch (err) {
     return { ok: false, error: (err as Error).message };
   }

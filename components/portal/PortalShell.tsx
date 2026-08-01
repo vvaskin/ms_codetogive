@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { PortalSidebar, type PortalUser } from "./PortalSidebar";
+import styles from "./PortalShell.module.css";
 
 export function PortalShell({
   user,
@@ -9,9 +10,9 @@ export function PortalShell({
   children: ReactNode;
 }) {
   return (
-    <div className="portal-layout">
+    <div className={styles.shell}>
       <PortalSidebar user={user} />
-      <main className="portal-content">{children}</main>
+      <main className={styles.content}>{children}</main>
     </div>
   );
 }

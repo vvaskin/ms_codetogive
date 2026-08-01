@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { registerForEvent } from "@/app/actions/registrations";
+import { formatWeekdayDayMonth } from "@/lib/format-date";
 import styles from "./VolunteerEventsFeed.module.css";
 
 type FeedEvent = {
@@ -26,17 +27,16 @@ const typeColors: Record<FeedEvent["type"], string> = {
   family_support: "var(--color-pink, #eb6834)",
 };
 
-const dateFormatter = new Intl.DateTimeFormat("en-HK", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
 type CardStatus =
   | { state: "idle" }
   | { state: "open" }
   | { state: "submitting" }
-  | { state: "done"; createdAccount: boolean }
+  | {
+      state: "done";
+      createdAccount: boolean;
+      notifiedVia?: "sms" | "email" | "none";
+      warning?: string;
+    }
   | { state: "error"; message: string };
 
 export function VolunteerEventsFeed({
@@ -101,6 +101,8 @@ function EventCard({
     setStatus({
       state: "done",
       createdAccount: Boolean(result.createdAccount),
+      notifiedVia: result.notifiedVia,
+      warning: result.warning,
     });
   }
 
@@ -108,7 +110,7 @@ function EventCard({
     <article className={styles.card}>
       <div className={styles.cardTop}>
         <time className={styles.date}>
-          {dateFormatter.format(new Date(`${event.date}T12:00:00`))}
+          {formatWeekdayDayMonth(event.date)}
         </time>
         <span
           className={styles.tag}
@@ -137,8 +139,11 @@ function EventCard({
           <strong>You&apos;re signed up to volunteer! 🎉</strong>
           {status.createdAccount && (
             <span>
-              We created an account for you and emailed a link to set your
-              password.
+              {status.warning
+                ? status.warning
+                : status.notifiedVia === "email"
+                  ? "We created an account for you and emailed a link to set your password."
+                  : "We created an account for you and texted a link to set your password."}
             </span>
           )}
         </div>
@@ -163,8 +168,14 @@ function EventCard({
                 <input name="email" type="email" autoComplete="email" required />
               </label>
               <label>
-                Phone (optional)
-                <input name="phone" type="tel" autoComplete="tel" />
+                Phone number
+                <input
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+852 XXXX XXXX"
+                  required
+                />
               </label>
             </>
           )}

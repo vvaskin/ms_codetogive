@@ -9,6 +9,14 @@
   border-bottom: 1px solid #ece7e2;
 }
 
+/* Slim portal header: logo (left) + accessibility & language (right). The
+   marketing nav and hamburger are removed, so keep those controls visible at
+   every width (they otherwise collapse into the mobile menu below 1320px). */
+.headerPortal .languageLinks,
+.headerPortal .accessHeader {
+  display: inline-flex;
+}
+
 .headerInner {
   display: flex;
   align-items: center;
