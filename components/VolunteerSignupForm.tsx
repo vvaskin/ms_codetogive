@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 import {
   VOLUNTEER_SIGNUP_DRAFT_KEY,
   type VolunteerSignupDraft,
@@ -276,17 +276,23 @@ export function VolunteerSignupForm() {
       .join("\n");
 
     try {
-      const result = await authClient.signUp.email({
-        name: displayName,
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
         email: draft.email,
         password: draft.password,
-        role: "volunteer",
-        phone: phone.trim(),
-        address: profileNotes || undefined,
+        options: {
+          data: {
+            name: displayName,
+            role: "volunteer",
+            phone: phone.trim(),
+            address: profileNotes || undefined,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
+        },
       });
 
-      if (result.error) {
-        setError(readableError(result.error.message));
+      if (error) {
+        setError(readableError(error.message));
         return;
       }
 
