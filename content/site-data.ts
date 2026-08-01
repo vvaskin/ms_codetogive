@@ -368,7 +368,7 @@ const enPages: SitePage[] = [
   {
     path: "/leadership/",
     locale: "en",
-    alternatePath: "/zh/管理層與員工/",
+    alternatePath: "/zh/leadership-hk/",
     template: "people-index",
     title: "LEADERSHIP & STAFF",
     paragraphs: [
@@ -378,7 +378,7 @@ const enPages: SitePage[] = [
   {
     path: "/stories/",
     locale: "en",
-    alternatePath: "/zh/會員故事/",
+    alternatePath: "/zh/stories-hk/",
     template: "media-index",
     title: "MEMBER STORIES",
   },
