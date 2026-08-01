@@ -39,12 +39,7 @@ type CardStatus =
   | { state: "idle" }
   | { state: "open" }
   | { state: "submitting" }
-  | {
-      state: "done";
-      createdAccount: boolean;
-      notifiedVia?: "sms" | "email" | "none";
-      warning?: string;
-    }
+  | { state: "done" }
   | { state: "error"; message: string };
 
 export function VolunteerEventsFeed({
@@ -108,21 +103,15 @@ function EventCard({
 
     const result = await registerForEvent({
       eventId: event.id,
-      email: isGuest ? String(form.get("email") ?? "").trim() : undefined,
-      name: isGuest ? String(form.get("name") ?? "").trim() : undefined,
-      phone: isGuest ? String(form.get("phone") ?? "").trim() : undefined,
+      guestName: isGuest ? String(form.get("name") ?? "").trim() : null,
+      guestEmail: isGuest ? String(form.get("email") ?? "").trim() : null,
     });
 
     if (!result.ok) {
       setStatus({ state: "error", message: result.error ?? "Please try again." });
       return;
     }
-    setStatus({
-      state: "done",
-      createdAccount: Boolean(result.createdAccount),
-      notifiedVia: result.notifiedVia,
-      warning: result.warning,
-    });
+    setStatus({ state: "done" });
   }
 
   return (
@@ -162,15 +151,6 @@ function EventCard({
       {status.state === "done" ? (
         <div className={styles.success} role="status">
           <strong>You&apos;re signed up to volunteer! 🎉</strong>
-          {status.createdAccount && (
-            <span>
-              {status.warning
-                ? status.warning
-                : status.notifiedVia === "email"
-                  ? "We created an account for you and emailed a link to set your password."
-                  : "We created an account for you and texted a link to set your password."}
-            </span>
-          )}
         </div>
       ) : status.state === "idle" ? (
         <button
@@ -191,16 +171,6 @@ function EventCard({
               <label>
                 Email
                 <input name="email" type="email" autoComplete="email" required />
-              </label>
-              <label>
-                Phone number
-                <input
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  placeholder="+852 XXXX XXXX"
-                  required
-                />
               </label>
             </>
           )}

@@ -96,12 +96,55 @@ export type Database = {
           },
         ]
       }
+      event_guest_signups: {
+        Row: {
+          created_at: string
+          event_id: number
+          guest_email: string
+          guest_name: string
+          id: number
+          interest: string | null
+          status: Database["public"]["Enums"]["participation_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: number
+          guest_email: string
+          guest_name: string
+          id?: never
+          interest?: string | null
+          status?: Database["public"]["Enums"]["participation_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number
+          guest_email?: string
+          guest_name?: string
+          id?: never
+          interest?: string | null
+          status?: Database["public"]["Enums"]["participation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_signups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_participations: {
         Row: {
           certificate_path: string | null
           created_at: string
           event_id: number
+          hours_logged: number | null
           id: number
+          interest: string | null
           status: Database["public"]["Enums"]["participation_status"]
           updated_at: string
           user_id: string
@@ -110,7 +153,9 @@ export type Database = {
           certificate_path?: string | null
           created_at?: string
           event_id: number
+          hours_logged?: number | null
           id?: never
+          interest?: string | null
           status?: Database["public"]["Enums"]["participation_status"]
           updated_at?: string
           user_id: string
@@ -119,7 +164,9 @@ export type Database = {
           certificate_path?: string | null
           created_at?: string
           event_id?: number
+          hours_logged?: number | null
           id?: never
+          interest?: string | null
           status?: Database["public"]["Enums"]["participation_status"]
           updated_at?: string
           user_id?: string
@@ -209,6 +256,39 @@ export type Database = {
           title_cn?: string | null
           title_zh?: string | null
           type?: Database["public"]["Enums"]["event_type"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      instagram_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          id: string
+          image_url: string
+          media_type: string
+          permalink: string
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          id: string
+          image_url: string
+          media_type?: string
+          permalink: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          media_type?: string
+          permalink?: string
+          timestamp?: string
           updated_at?: string
         }
         Relationships: []

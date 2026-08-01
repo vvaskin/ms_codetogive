@@ -57,6 +57,7 @@ export async function getPublishedCalendarEvents(): Promise<ActivityEvent[]> {
 
   return (data ?? []).map((event) => ({
     id: `event-${event.id}`,
+    dbId: event.id,
     date: dateFormatter.format(new Date(event.starts_at)),
     time: eventTime(event.starts_at, event.ends_at),
     category: activityCategory(event.type),

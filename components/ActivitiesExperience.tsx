@@ -11,8 +11,10 @@ import {
   type ActivityEvent,
 } from "../content/activities";
 import type { Locale } from "../content/site-data";
+import type { UserRole } from "../lib/roles";
 import { ButtonLink } from "./ui/ButtonLink";
 import { SectionShell } from "./ui/SectionShell";
+import { EventSignupButton } from "./EventSignupButton";
 import styles from "./ActivitiesExperience.module.css";
 
 function hongKongDateKey() {
@@ -37,9 +39,13 @@ function shiftedMonth(month: string, offset: number) {
 export function ActivitiesExperience({
   locale,
   events,
+  sessionRole = null,
+  registeredEventIds = [],
 }: {
   locale: Locale;
   events: ActivityEvent[];
+  sessionRole?: UserRole | null;
+  registeredEventIds?: number[];
 }) {
   const today = hongKongDateKey();
   const [visibleMonth, setVisibleMonth] = useState(() => {
@@ -281,7 +287,16 @@ export function ActivitiesExperience({
                 <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
                 <h3>{activityText(activity.title, locale)}</h3>
                 <p>{activity.time} · {activityText(activity.location, locale)}</p>
-                <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+                {activity.dbId ? (
+                  <EventSignupButton
+                    eventId={activity.dbId}
+                    locale={locale}
+                    sessionRole={sessionRole}
+                    signedUp={registeredEventIds.includes(activity.dbId)}
+                  />
+                ) : (
+                  <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+                )}
               </article>
             ))}
           </div>

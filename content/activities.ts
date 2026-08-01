@@ -11,6 +11,8 @@ export interface LocalizedText {
 
 export interface ActivityEvent {
   id: string;
+  /** Numeric primary key in `public.events`. Absent for static demo content. */
+  dbId?: number;
   date: string;
   time: string;
   category: ActivityCategory;
