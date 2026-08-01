@@ -21,7 +21,6 @@ const copy = {
       "Choose the account type that best describes how you connect with Love 21.",
     fullName: "Full name",
     phoneNumber: "Phone number",
-    phoneHint: "Optional — used only for updates about events you sign up for.",
     emailAddress: "Email address",
     password: "Password",
     passwordHelp: "Use at least 8 characters.",
@@ -64,7 +63,6 @@ const copy = {
     signupIntro: "請選擇最能描述您與 Love 21 關係的帳戶類型。",
     fullName: "姓名",
     phoneNumber: "電話號碼",
-    phoneHint: "選填 — 只會用來通知你已報名的活動更新。",
     emailAddress: "電郵地址",
     password: "密碼",
     passwordHelp: "請使用至少 8 個字元。",
@@ -105,7 +103,6 @@ const copy = {
     signupIntro: "请选择最能描述您与 Love 21 关系的账户类型。",
     fullName: "姓名",
     phoneNumber: "电话号码",
-    phoneHint: "选填 — 只会用来通知你已报名的活动更新。",
     emailAddress: "电邮地址",
     password: "密码",
     passwordHelp: "请使用至少 8 个字符。",
@@ -206,9 +203,10 @@ export function AuthForm({
     const supabase = createClient();
 
     if (isSignup && role === "volunteer") {
+      const phone = String(formData.get("phone") ?? "").trim();
       window.sessionStorage.setItem(
         VOLUNTEER_SIGNUP_DRAFT_KEY,
-        JSON.stringify({ name, email, password }),
+        JSON.stringify({ name, email, password, phone }),
       );
       document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=1; Path=/; Max-Age=1800; SameSite=Lax`;
       router.push("/signup/volunteer");
@@ -291,7 +289,12 @@ export function AuthForm({
       {isSignup && (
         <>
           <label>
-            {lang.fullName}
+            <span>
+              {lang.fullName}
+              <span className={styles.required} aria-hidden="true">
+                {" *"}
+              </span>
+            </span>
             <input
               name="name"
               type="text"
@@ -301,24 +304,31 @@ export function AuthForm({
             />
           </label>
           <label>
-            {lang.phoneNumber}
+            <span>
+              {lang.phoneNumber}
+              <span className={styles.required} aria-hidden="true">
+                {" *"}
+              </span>
+            </span>
             <input
               name="phone"
               type="tel"
               autoComplete="tel"
               placeholder="+852 XXXX XXXX"
+              required
               disabled={isSubmitting}
-              aria-describedby="phone-help"
             />
-            <small id="phone-help" className={styles.fieldHelp}>
-              {lang.phoneHint}
-            </small>
           </label>
         </>
       )}
 
       <label>
-        {lang.emailAddress}
+        <span>
+          {lang.emailAddress}
+          <span className={styles.required} aria-hidden="true">
+            {" *"}
+          </span>
+        </span>
         <input
           name="email"
           type="email"
@@ -330,7 +340,12 @@ export function AuthForm({
       </label>
 
       <label>
-        {lang.password}
+        <span>
+          {lang.password}
+          <span className={styles.required} aria-hidden="true">
+            {" *"}
+          </span>
+        </span>
         <div className={styles.passwordField}>
           <input
             name="password"

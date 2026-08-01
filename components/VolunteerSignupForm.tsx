@@ -56,6 +56,17 @@ function PolicyModal({
   const [canCheck, setCanCheck] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
 
+  // If the policy text is short enough to fit without scrolling, there's
+  // nothing to scroll to — enable agreement immediately so the button never
+  // dead-ends. When the text does overflow, the onScroll handler below gates
+  // agreement on reaching the bottom.
+  useEffect(() => {
+    const element = bodyRef.current;
+    if (element && element.scrollHeight <= element.clientHeight) {
+      setCanCheck(true);
+    }
+  }, []);
+
   if (typeof document === "undefined") {
     return null;
   }
@@ -183,6 +194,7 @@ function getDraftSnapshot(): VolunteerSignupDraft | null {
           name: parsed.name,
           email: parsed.email,
           password: parsed.password,
+          phone: parsed.phone ?? "",
         };
       }
     } catch {
@@ -206,7 +218,6 @@ export function VolunteerSignupForm() {
   const [chineseName, setChineseName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [gender, setGender] = useState<Gender | "">("");
-  const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [referral, setReferral] = useState<ReferralSource | "">("");
   const [showPolicy, setShowPolicy] = useState(false);
@@ -219,13 +230,7 @@ export function VolunteerSignupForm() {
     }
   }, [draft, router]);
 
-  const canReviewPolicy = Boolean(
-    draft &&
-      ageGroup &&
-      gender &&
-      phone.trim() &&
-      referral,
-  );
+  const canReviewPolicy = Boolean(draft && ageGroup && gender && referral);
 
   async function finalizeSignup() {
     if (!draft) return;
@@ -249,23 +254,33 @@ export function VolunteerSignupForm() {
 
     try {
       const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: draft.email,
-        password: draft.password,
-        options: {
-          data: {
-            name: displayName,
-            role: "volunteer",
-            phone: phone.trim(),
-            address: profileNotes || undefined,
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: draft.email,
+          password: draft.password,
+          options: {
+            data: {
+              name: displayName,
+              role: "volunteer",
+              ...(draft.phone ? { phone: draft.phone } : {}),
+              address: profileNotes || undefined,
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
-        },
-      });
+        });
 
       if (signUpError) {
         setError(readableError(signUpError.message));
         return;
+      }
+
+      // The handle_new_user trigger seeds name/email/role but not the phone,
+      // so persist it into the profile row (RLS: users update their own row).
+      if (draft.phone && signUpData.user) {
+        await supabase
+          .from("users")
+          .update({ phone_number: draft.phone })
+          .eq("id", signUpData.user.id);
       }
 
       window.sessionStorage.removeItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
@@ -322,20 +337,6 @@ export function VolunteerSignupForm() {
             value={chineseName}
             onChange={(event) => setChineseName(event.target.value)}
             placeholder="陳大文"
-          />
-        </label>
-
-        <label>
-          <span className={styles.fieldLabel}>
-            Contact number <span className={styles.required}>*</span>
-          </span>
-          <input
-            className={styles.control}
-            type="tel"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            placeholder="+852 9123 4567"
-            required
           />
         </label>
 

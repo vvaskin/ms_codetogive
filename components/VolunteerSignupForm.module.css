@@ -381,6 +381,9 @@
 .modalBody {
   flex: 1 1 auto;
   min-height: 0;
+  /* Bound the reading area so the policy is a scrolling region on normal
+     screens, rather than expanding to fit and never scrolling. */
+  max-height: 45vh;
   overflow-y: auto;
   display: grid;
   gap: var(--space-3);
