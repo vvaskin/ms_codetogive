@@ -4,17 +4,20 @@ import { notFound } from "next/navigation";
 import {
   boardMembers,
   getPage,
-  images,
-  mediaArticles,
   SitePage,
 } from "../content/site-data";
 import {
   AccountForm,
-  ContactForm,
   VolunteerForm,
 } from "./DemoForms";
+import { AboutExperience } from "./AboutExperience";
+import { ActivitiesExperience } from "./ActivitiesExperience";
+import { ContactExperience } from "./ContactExperience";
 import { DonateExperience } from "./DonateExperience";
-import { InstagramFeed } from "./InstagramFeed";
+import { FinanceExperience } from "./FinanceExperience";
+import { GetInvolvedExperience } from "./GetInvolvedExperience";
+import { MediaExperience } from "./MediaExperience";
+import { ProgrammesExperience } from "./ProgrammesExperience";
 import styles from "./PageRenderer.module.css";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
@@ -36,163 +39,6 @@ function StandardPage({ page }: { page: SitePage }) {
       )}
       <div className={styles.prose}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-      </div>
-    </article>
-  );
-}
-
-function ProgrammesPage({ zh }: { zh: boolean }) {
-  const programmes = zh
-    ? [
-        {
-          id: "sport",
-          title: "體育",
-          image: images.sports,
-          paragraphs: [
-            "我們的體育計劃不設限制，致力為會員提供充分發揮潛能的機會。",
-            "除了運動課堂，我們亦注重力量訓練、協調能力及心理健康活動。",
-          ],
-        },
-        {
-          id: "nutrition",
-          title: "飲食與營養",
-          image: images.nutrition,
-          paragraphs: [
-            "我們提供個人營養支援和指導，協助會員及家庭建立健康生活方式。",
-            "我們亦定期舉辦烹飪及食物準備課堂。",
-          ],
-        },
-        {
-          id: "family",
-          title: "家庭",
-          image: images.family,
-          paragraphs: [
-            "Love 21重視整個家庭，為家長提供專屬課堂、輔導和參與活動的機會。",
-          ],
-        },
-        {
-          id: "csr",
-          title: "企業社會責任",
-          image: images.csr,
-          paragraphs: [
-            "企業夥伴透過共同活動了解會員的能力，建立更共融的香港。",
-          ],
-        },
-      ]
-    : [
-        {
-          id: "sport",
-          title: "Sports",
-          image: images.sports,
-          paragraphs: [
-            "Our sports programme is designed without limitations. We aim to give our beneficiaries the greatest opportunity to reach their full potential by offering a comprehensive range of activities while also striving for excellence in each sport.",
-            "In addition to sport classes, we also focus on strength training, coordination and mental health activities.",
-          ],
-        },
-        {
-          id: "nutrition",
-          title: "Nutrition",
-          image: images.nutrition,
-          paragraphs: [
-            "Sport classes alone are not enough to significantly extend the life expectancy of our beneficiaries. This is why we’ve developed a well thought out nutrition programme to give our community the support and guidance needed to make healthy lifestyle changes.",
-            "We also run regular cooking and food preparation lessons for families.",
-          ],
-        },
-        {
-          id: "family",
-          title: "Family",
-          image: images.family,
-          paragraphs: [
-            "Love 21’s focus on family sets us apart. We offer specialty classes for parents and allow parental participation in many sport and healthy lifestyle classes.",
-          ],
-        },
-        {
-          id: "csr",
-          title: "CSR",
-          image: images.csr,
-          paragraphs: [
-            "Our Corporate Social Responsibility Programme helps Hong Kong organisations learn about the community through shared activity and human connection.",
-            "If you’d like to learn more, please contact our Founder/CEO at jeff@love21foundation.com.",
-          ],
-        },
-      ];
-
-  return (
-    <article className={`${styles.contentPage} ${styles.programmesPage}`}>
-      <PageHeading>{zh ? "我們的計劃" : "OUR PROGRAMMES"}</PageHeading>
-      {programmes.map((programme, index) => (
-        <section className={styles.programmeRow} id={programme.id} key={programme.title}>
-          <div className={styles.programmePhoto}>
-            <Image
-              src={programme.image}
-              alt=""
-              fill
-              unoptimized
-              sizes="(max-width: 800px) 100vw, 45vw"
-            />
-          </div>
-          <div className={styles.programmeCopy}>
-            <h2>{programme.title}</h2>
-            {programme.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          {index < programmes.length - 1 && <div className={styles.wideRule} />}
-        </section>
-      ))}
-    </article>
-  );
-}
-
-function ReportsPage({ page }: { page: SitePage }) {
-  const reports = [
-    ["2024-2025 Annual Report", "/assets/reports/annual-report-2024-2025.pdf"],
-    ["2023-2024 Annual Report", "/assets/reports/annual-report-2023-2024.pdf"],
-    ["2022-2023 Annual Report", "/assets/reports/annual-report-2022-2023.pdf"],
-  ];
-  return (
-    <article className={styles.contentPage}>
-      <PageHeading>{page.title}</PageHeading>
-      <div className={`${styles.prose} ${styles.centered}`}>
-        {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-      </div>
-      <div className={styles.reportLinks}>
-        {reports.map(([label, href]) => (
-          <a href={href} target="_blank" rel="noreferrer" key={href}>
-            {label} <span>➜</span>
-          </a>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function MediaIndex({ zh }: { zh: boolean }) {
-  return (
-    <article className={styles.contentPage}>
-      <PageHeading>{zh ? "媒體報導" : "MEDIA"}</PageHeading>
-      <div className={styles.mediaGrid}>
-        {mediaArticles.map((article) => (
-          <article className={styles.mediaCard} key={article.slug}>
-            <Link href={`/${article.slug}/`} className={styles.mediaCardImage}>
-              {article.image && (
-                <Image
-                  src={article.image}
-                  alt=""
-                  fill
-                  unoptimized
-                  sizes="(max-width: 800px) 100vw, 33vw"
-                />
-              )}
-            </Link>
-            <div>
-              <span>{article.date}</span>
-              <h2>
-                <Link href={`/${article.slug}/`}>{article.title}</Link>
-              </h2>
-            </div>
-          </article>
-        ))}
       </div>
     </article>
   );
@@ -282,38 +128,6 @@ function VolunteerPage({ page }: { page: SitePage }) {
   );
 }
 
-function ContactPage({ page }: { page: SitePage }) {
-  const zh = page.locale === "zh";
-  return (
-    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
-      <PageHeading>{page.title}</PageHeading>
-      <div className={styles.prose}>
-        <p>
-          {zh
-            ? "如果你想加入計劃、捐款、做義工或了解更多，歡迎聯絡我們。"
-            : "If you’d like to join our programme, donate, volunteer or find out more information, please get in touch. We’d love to hear from you!"}
-        </p>
-        <p>
-          Love 21 Space: 2/F, Trium Lab, 21 Luk Hop Street, San Po Kong, Kowloon
-          <br />
-          Love 21 Office: 1102, 11/F, Trium Lab, 21 Luk Hop Street, San Po Kong,
-          Kowloon
-        </p>
-        <p>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLScxXfbxdMlHBDphqwJhMZS1YuUuF9anGC8Mb_ncgpwiEes-Pw/viewform"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {zh ? "會員登記表 ➜" : "Member registration form ➜"}
-          </a>
-        </p>
-      </div>
-      <ContactForm zh={zh} />
-    </article>
-  );
-}
-
 function DonatePage({ page }: { page: SitePage }) {
   const locale = page.locale === "zh" ? "zh" : "en";
   return <DonateExperience locale={locale} />;
@@ -360,20 +174,37 @@ export function PageRenderer({ path }: { path: string }) {
     case "standard":
     case "article":
       return <StandardPage page={page} />;
+    case "about":
+      return (
+        <AboutExperience locale={page.locale === "zh" ? "zh" : "en"} />
+      );
     case "programmes":
-      return <ProgrammesPage zh={page.locale === "zh"} />;
+      return <ProgrammesExperience locale={page.locale} />;
     case "reports":
-      return <ReportsPage page={page} />;
+      return (
+        <FinanceExperience locale={page.locale === "zh" ? "zh" : "en"} />
+      );
     case "media-index":
-      return <MediaIndex zh={page.locale === "zh"} />;
+      return <MediaExperience locale={page.locale} />;
     case "people-index":
       return <PeopleIndex page={page} />;
     case "person":
       return <PersonPage page={page} />;
     case "volunteer":
       return <VolunteerPage page={page} />;
+    case "get-involved": {
+      const initialSection = page.path.includes("corporate")
+        ? ("corporate" as const)
+        : undefined;
+      return (
+        <GetInvolvedExperience
+          locale={page.locale === "zh" ? "zh" : "en"}
+          initialSection={initialSection}
+        />
+      );
+    }
     case "contact":
-      return <ContactPage page={page} />;
+      return <ContactExperience locale={page.locale} />;
     case "donate":
       return <DonatePage page={page} />;
     case "account":
@@ -384,34 +215,7 @@ export function PageRenderer({ path }: { path: string }) {
         </article>
       );
     case "calendar":
-      return (
-        <article className={`${styles.contentPage} ${styles.calendarPage}`}>
-          <PageHeading>{page.title}</PageHeading>
-      <p>
-        {page.locale === "zh" ? (
-          <>
-            如你希望義務為我們的會員每星期教授一堂課，或支援現有的課堂，歡迎聯絡我們的計劃經理：
-            <a href="mailto:maggie@love21foundation.com">
-              maggie@love21foundation.com
-            </a>
-            。
-          </>
-        ) : (
-          <>
-            If you’d like to commit to teaching your own weekly class for our
-            beneficiaries or support an existing class, please contact our
-            Programme Manager at{" "}
-            <a href="mailto:maggie@love21foundation.com">
-              maggie@love21foundation.com
-            </a>
-            .
-          </>
-        )}
-      </p>
-      <h2>{page.locale === "zh" ? "最新Instagram貼文" : "Latest from Instagram"}</h2>
-      <InstagramFeed />
-    </article>
-      );
+      return <ActivitiesExperience locale={page.locale} />;
     case "join":
       return <JoinPage zh={page.locale === "zh"} />;
   }

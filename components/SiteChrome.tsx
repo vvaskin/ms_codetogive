@@ -2,11 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { alternatePaths, normalizePath } from "../content/site-data";
 import { authClient } from "../lib/auth-client";
 import { BrandLockup } from "./ui/BrandLockup";
 import styles from "./SiteChrome.module.css";
+
+const SIMPLE_VIEW_KEY = "simple-view";
+const SIMPLE_VIEW_EVENT = "love21-simple-view";
+
+function subscribeSimpleView(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+  };
+}
+
+function getSimpleViewSnapshot() {
+  return window.localStorage.getItem(SIMPLE_VIEW_KEY) === "on";
+}
+
+function getSimpleViewServerSnapshot() {
+  return false;
+}
 
 const enAbout = [
   ["Our Story", "/our-story/"],
@@ -49,13 +69,15 @@ const zhActivities = [
 ];
 
 const enInvolved = [
-  ["Volunteer Opportunities", "/volunteer/"],
-  ["Corporate Partnerships", "/corporate/"],
+  ["Get Involved", "/get-involved/"],
+  ["Volunteer Opportunities", "/get-involved/#opportunities"],
+  ["Corporate Partnerships", "/get-involved/#corporate"],
 ];
 
 const zhInvolved = [
-  ["義工機會", "/zh/volunteer-hk/"],
-  ["企業夥伴", "/zh/corporate-hk/"],
+  ["參與我們", "/zh/get-involved-hk/"],
+  ["義工機會", "/zh/get-involved-hk/#opportunities"],
+  ["企業夥伴", "/zh/get-involved-hk/#corporate"],
 ];
 
 function CalmModeToggle({
@@ -98,16 +120,14 @@ function CalmModeToggle({
 function MenuGroup({
   label,
   items,
-  open,
+  open = false,
   onToggle,
-  onOpen,
-  onClose,
   variant = "desktop",
 }: {
   label: string;
   items: string[][];
-  open: boolean;
-  onToggle: () => void;
+  open?: boolean;
+  onToggle?: () => void;
   onOpen?: () => void;
   onClose?: () => void;
   variant?: "desktop" | "mobile";
@@ -137,17 +157,22 @@ function MenuGroup({
 
   return (
     <div
-      className={`${styles.navGroup} ${open ? styles.navGroupOpen : ""}`}
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
+      className={styles.navGroup}
+      onMouseLeave={(event) => {
+        const active = document.activeElement;
+        if (
+          active instanceof HTMLElement &&
+          event.currentTarget.contains(active)
+        ) {
+          active.blur();
+        }
+      }}
     >
       <button
         className={styles.navGroupTrigger}
         type="button"
-        aria-expanded={open}
+        aria-expanded={false}
         aria-haspopup="true"
-        onClick={onToggle}
-        onFocus={onOpen}
       >
         {label}
         <span aria-hidden="true">⌄</span>
@@ -169,10 +194,10 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [simpleView, setSimpleView] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("simple-view") === "on",
+  const simpleView = useSyncExternalStore(
+    subscribeSimpleView,
+    getSimpleViewSnapshot,
+    getSimpleViewServerSnapshot,
   );
 
   useEffect(() => {
@@ -184,11 +209,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   }, [zh]);
 
   const toggleSimpleView = () => {
-    setSimpleView((value) => {
-      const next = !value;
-      window.localStorage.setItem("simple-view", next ? "on" : "off");
-      return next;
-    });
+    const next = !simpleView;
+    window.localStorage.setItem(SIMPLE_VIEW_KEY, next ? "on" : "off");
+    window.dispatchEvent(new Event(SIMPLE_VIEW_EVENT));
   };
 
   const alternate = alternatePaths[pathname] || (zh ? "/" : "/zh/");
@@ -198,15 +221,19 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const involvedItems = zh ? zhInvolved : enInvolved;
   const contactPath = zh ? "/zh/contact-us-hk/" : "/contact-us/";
   const loginPath = session ? "/portal" : "/login/";
-  const volunteerLabel = session
+  const memberLabel = session
     ? zh
       ? "個人頁面"
       : "My portal"
     : zh
-      ? "做義工"
-      : "Volunteer";
+      ? "註冊 / 登入"
+      : "Sign up / Login";
+  const volunteerPath = zh ? "/zh/our-volunteer-hk/" : "/our-volunteer/";
+  const volunteerLabel = zh ? "做義工" : "Volunteer";
   const donatePath = zh ? "/zh/donate-hk/" : "/donate/";
   const homePath = zh ? "/zh/" : "/";
+  const enPath = zh ? alternate : pathname;
+  const zhPath = zh ? pathname : alternate;
   const missionLine = zh
     ? "透過運動、營養及全面支援，為唐氏綜合症和自閉症社群帶來機會與包容。"
     : "Opportunity, inclusion and support for the Down syndrome and autistic community through sport, nutrition and holistic programmes.";
@@ -224,62 +251,21 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             <BrandLockup href={homePath} compact />
           </div>
 
-          <nav
-            className={styles.primaryNav}
-            aria-label="Primary"
-            onMouseLeave={() => setOpenGroup(null)}
-          >
-            <MenuGroup
-              label={zh ? "關於我們" : "About Us"}
-              items={aboutItems}
-              open={openGroup === "about"}
-              onOpen={() => setOpenGroup("about")}
-              onClose={() =>
-                setOpenGroup((current) => (current === "about" ? null : current))
-              }
-              onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
-            />
-            <MenuGroup
-              label={zh ? "我們的計劃" : "Our Programmes"}
-              items={programmeItems}
-              open={openGroup === "programmes"}
-              onOpen={() => setOpenGroup("programmes")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "programmes" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "programmes" ? null : "programmes")
-              }
-            />
+          <nav className={styles.primaryNav} aria-label="Primary">
+            <MenuGroup label={zh ? "關於" : "About"} items={aboutItems} />
+            <Link
+              href={zh ? "/zh/our-programmes-hk/" : "/our-programmes/"}
+              className={styles.navLink}
+            >
+              {zh ? "我們的計劃" : "Our Programmes"}
+            </Link>
             <MenuGroup
               label={zh ? "活動與行事曆" : "Activities & Calendar"}
               items={activityItems}
-              open={openGroup === "activities"}
-              onOpen={() => setOpenGroup("activities")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "activities" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "activities" ? null : "activities")
-              }
             />
             <MenuGroup
               label={zh ? "參與我們" : "Get Involved"}
               items={involvedItems}
-              open={openGroup === "involved"}
-              onOpen={() => setOpenGroup("involved")}
-              onClose={() =>
-                setOpenGroup((current) =>
-                  current === "involved" ? null : current,
-                )
-              }
-              onToggle={() =>
-                setOpenGroup(openGroup === "involved" ? null : "involved")
-              }
             />
             <Link href={contactPath} className={styles.navLink}>
               {zh ? "聯絡我們" : "Contact Us"}
@@ -287,42 +273,59 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className={styles.headerActions}>
-            <Link
-              href={donatePath}
-              className={`${styles.donatePill} ${styles.donatePillCompact}`}
-            >
-              {zh ? "捐贈" : "Donate"}
-            </Link>
-
             <CalmModeToggle
               zh={zh}
               simpleView={simpleView}
               onToggle={toggleSimpleView}
+              className={styles.calmToggleHeader}
             />
 
             <div className={styles.languageLinks} aria-label="Language">
               <Link
-                href={zh ? alternate : pathname}
+                href={enPath}
                 className={!zh ? styles.languageActive : undefined}
               >
                 EN
               </Link>
               <span className={styles.languageDivider} aria-hidden="true">
-                |
+                ·
               </span>
               <Link
-                href={zh ? pathname : alternate}
+                href={zhPath}
                 className={zh ? styles.languageActive : undefined}
               >
                 繁
               </Link>
+              <span className={styles.languageDivider} aria-hidden="true">
+                ·
+              </span>
+              <span
+                className={styles.languageSoon}
+                aria-disabled="true"
+                title={
+                  zh ? "簡體中文即將推出" : "Simplified Chinese coming soon"
+                }
+              >
+                简
+              </span>
             </div>
 
-            <Link href={loginPath} className={styles.portalLink}>
-              {volunteerLabel}
+            <Link href={loginPath} className={styles.memberLogin}>
+              {memberLabel}
             </Link>
 
             <Link href={donatePath} className={styles.donatePill}>
+              {zh ? "捐贈" : "Donate"}
+            </Link>
+
+            <Link href={volunteerPath} className={styles.volunteerPill}>
+              {volunteerLabel}
+            </Link>
+
+            <Link
+              href={donatePath}
+              className={`${styles.donatePill} ${styles.donatePillCompact}`}
+            >
               {zh ? "捐贈" : "Donate"}
             </Link>
 
@@ -350,21 +353,18 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           }}
         >
           <MenuGroup
-            label={zh ? "關於我們" : "About Us"}
+            label={zh ? "關於" : "About"}
             items={aboutItems}
             open={openGroup === "about"}
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
             variant="mobile"
           />
-          <MenuGroup
-            label={zh ? "我們的計劃" : "Our Programmes"}
-            items={programmeItems}
-            open={openGroup === "programmes"}
-            onToggle={() =>
-              setOpenGroup(openGroup === "programmes" ? null : "programmes")
-            }
-            variant="mobile"
-          />
+          <Link
+            href={zh ? "/zh/our-programmes-hk/" : "/our-programmes/"}
+            className={styles.mobileNavLink}
+          >
+            {zh ? "我們的計劃" : "Our Programmes"}
+          </Link>
           <MenuGroup
             label={zh ? "活動與行事曆" : "Activities & Calendar"}
             items={activityItems}
@@ -389,10 +389,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
           <div className={styles.mobileUtility}>
             <div className={styles.mobileUtilityRow}>
+              <Link href={loginPath} className={styles.memberLogin}>
+                {memberLabel}
+              </Link>
               <Link href={donatePath} className={styles.mobileUtilityDonate}>
                 {zh ? "捐贈" : "Donate"}
               </Link>
-              <Link href={loginPath} className={styles.mobileNavLink}>
+              <Link href={volunteerPath} className={styles.volunteerPill}>
                 {volunteerLabel}
               </Link>
             </div>

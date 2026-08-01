@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import type { ContactCopy } from "../content/contact";
 import styles from "./DemoForms.module.css";
 
 function useDemoSubmit() {
@@ -54,54 +55,44 @@ export function NewsletterForm({ zh = false }: { zh?: boolean }) {
   );
 }
 
-export function ContactForm({ zh = false }: { zh?: boolean }) {
+export function ContactForm({ copy }: { copy: ContactCopy["form"] }) {
   const { submitted, onSubmit } = useDemoSubmit();
 
   if (submitted) {
     return (
-      <div className={`${styles.formSuccess} ${styles.large}`} role="status">
-        <strong>{zh ? "謝謝你的訊息！" : "Thank you for your message!"}</strong>
-        <p>
-          {zh
-            ? "這是開發版本，資料並未傳送。"
-            : "This is a development copy. Your information was not transmitted."}
-        </p>
+      <div className={`${styles.formSuccess} ${styles.contactSuccess} ${styles.large}`} role="status">
+        <strong>{copy.successTitle}</strong>
+        <p>{copy.successDescription}</p>
       </div>
     );
   }
 
   return (
-    <form className={styles.stackedForm} onSubmit={onSubmit}>
-      <div className={styles.formGrid}>
+    <form className={styles.contactForm} onSubmit={onSubmit}>
+      <h2 id="contact-form-title">{copy.title}</h2>
+      <div className={styles.contactGrid}>
         <label>
-          {zh ? "名字" : "First Name"}
-          <input name="firstName" required />
+          {copy.nameLabel}
+          <input name="name" autoComplete="name" placeholder={copy.namePlaceholder} required />
         </label>
         <label>
-          {zh ? "姓氏" : "Last Name"}
-          <input name="lastName" required />
-        </label>
-        <label>
-          {zh ? "電郵地址" : "Email Address"}
-          <input name="email" type="email" required />
-        </label>
-        <label>
-          {zh ? "聯絡電話" : "Contact No."}
-          <input name="phone" type="tel" />
+          {copy.emailLabel}
+          <input name="email" type="email" autoComplete="email" placeholder={copy.emailPlaceholder} required />
         </label>
       </div>
       <label>
-        {zh ? "訊息" : "Message"}
-        <textarea name="message" rows={6} required />
+        {copy.topicLabel}
+        <select name="topic" defaultValue="">
+          <option value="" disabled>{copy.topicPlaceholder}</option>
+          {copy.topics.map((topic) => <option key={topic}>{topic}</option>)}
+        </select>
       </label>
-      <p className={styles.privacyNote}>
-        {zh
-          ? "開發版本：此表格不會傳送或儲存個人資料。"
-          : "Development copy: this form does not transmit or store personal information."}
-      </p>
-      <button className={`${styles.outlineButton} ${styles.dark}`} type="submit">
-        {zh ? "提交 ➜" : "SUBMIT ➜"}
-      </button>
+      <label>
+        {copy.messageLabel}
+        <textarea name="message" rows={6} placeholder={copy.messagePlaceholder} required />
+      </label>
+      <button className={styles.contactSubmit} type="submit">{copy.submit}</button>
+      <p className={`${styles.privacyNote} ${styles.contactPrivacyNote}`}>{copy.privacyNote}</p>
     </form>
   );
 }
