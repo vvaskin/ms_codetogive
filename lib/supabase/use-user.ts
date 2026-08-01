@@ -9,19 +9,17 @@ import { createClient } from "./client";
  * `loading` is true until the first check resolves.
  */
 export function useUser() {
+  // SiteChrome renders on public pages too, so a missing/incomplete Supabase
+  // config must not crash them — treat it as "signed out".
+  const configured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!configured);
 
   useEffect(() => {
-    // SiteChrome renders on public pages too, so a missing/incomplete Supabase
-    // config must not crash them — treat it as "signed out".
-    if (
-      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    ) {
-      setLoading(false);
-      return;
-    }
+    if (!configured) return;
 
     const supabase = createClient();
     let active = true;
@@ -44,7 +42,7 @@ export function useUser() {
       active = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [configured]);
 
   return { user, loading };
 }
