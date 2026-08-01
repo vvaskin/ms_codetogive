@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminPostForm } from "@/components/AdminPostForm";
+import { InstagramSync } from "@/components/InstagramSync";
 import styles from "@/components/AdminPost.module.css";
 
 export const metadata: Metadata = {
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 
 export default function AdminPostPage() {
   const configured = Boolean(process.env.MAKE_WEBHOOK_URL);
+  const instagramConfigured = Boolean(process.env.INSTAGRAM_USERNAME);
 
   return (
     <section className={styles.page}>
@@ -19,6 +21,7 @@ export default function AdminPostPage() {
           Facebook.
         </p>
         <AdminPostForm configured={configured} />
+        <InstagramSync configured={instagramConfigured} />
       </div>
     </section>
   );

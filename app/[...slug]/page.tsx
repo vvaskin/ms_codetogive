@@ -15,6 +15,8 @@ export function generateStaticParams() {
   return getAllStaticPaths();
 }
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: RouteProps): Promise<Metadata> {

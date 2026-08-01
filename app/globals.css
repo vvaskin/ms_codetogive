@@ -1631,3 +1631,68 @@ html.simple-view .site-footer {
   border-top: 2px solid #111;
   box-shadow: none;
 }
+
+.instagram-feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.instagram-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.instagram-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.instagram-photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #eee;
+}
+
+.instagram-photo img {
+  object-fit: cover;
+}
+
+.instagram-copy {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.instagram-copy time {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--love-red);
+  font-weight: 700;
+}
+
+.instagram-copy p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.instagram-empty {
+  margin-top: 18px;
+  color: #777;
+  font-style: italic;
+}

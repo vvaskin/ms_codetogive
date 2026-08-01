@@ -13,6 +13,7 @@ import {
   ContactForm,
   VolunteerForm,
 } from "./DemoForms";
+import { InstagramFeed } from "./InstagramFeed";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -410,28 +411,30 @@ export function PageRenderer({ path }: { path: string }) {
       return (
         <article className="content-page calendar-page">
           <PageHeading>{page.title}</PageHeading>
-          <p>
-            {page.locale === "zh" ? (
-              <>
-                如你希望義務為我們的會員每星期教授一堂課，或支援現有的課堂，歡迎聯絡我們的計劃經理：
-                <a href="mailto:maggie@love21foundation.com">
-                  maggie@love21foundation.com
-                </a>
-                。
-              </>
-            ) : (
-              <>
-                If you’d like to commit to teaching your own weekly class for our
-                beneficiaries or support an existing class, please contact our
-                Programme Manager at{" "}
-                <a href="mailto:maggie@love21foundation.com">
-                  maggie@love21foundation.com
-                </a>
-                .
-              </>
-            )}
-          </p>
-        </article>
+      <p>
+        {page.locale === "zh" ? (
+          <>
+            如你希望義務為我們的會員每星期教授一堂課，或支援現有的課堂，歡迎聯絡我們的計劃經理：
+            <a href="mailto:maggie@love21foundation.com">
+              maggie@love21foundation.com
+            </a>
+            。
+          </>
+        ) : (
+          <>
+            If you’d like to commit to teaching your own weekly class for our
+            beneficiaries or support an existing class, please contact our
+            Programme Manager at{" "}
+            <a href="mailto:maggie@love21foundation.com">
+              maggie@love21foundation.com
+            </a>
+            .
+          </>
+        )}
+      </p>
+      <h2>{page.locale === "zh" ? "最新Instagram貼文" : "Latest from Instagram"}</h2>
+      <InstagramFeed />
+    </article>
       );
     case "join":
       return <JoinPage zh={page.locale === "zh"} />;
