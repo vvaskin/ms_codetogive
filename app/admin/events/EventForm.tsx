@@ -12,16 +12,15 @@ export type EventFormValues = {
   endsAt?: string;
   location?: string;
   locationZh?: string;
-  audience?: "members" | "volunteers" | "everyone";
+  type?: "sport" | "nutrition" | "family_support";
+  subtype?: string;
   status?: "draft" | "published" | "cancelled";
-  description?: string;
-  descriptionZh?: string;
 };
 
-const audienceLabels = {
-  members: "Members",
-  volunteers: "Volunteers",
-  everyone: "Everyone",
+const eventTypeLabels = {
+  sport: "Sport",
+  nutrition: "Nutrition",
+  family_support: "Family support",
 } as const;
 
 function minuteAfter(value: string) {
@@ -123,12 +122,20 @@ export function EventForm({
         />
       </label>
       <label>
-        Audience
-        <select name="audience" defaultValue={initialValues.audience ?? "everyone"}>
-          {Object.entries(audienceLabels).map(([value, label]) => (
+        Event type
+        <select name="type" defaultValue={initialValues.type ?? "sport"}>
+          {Object.entries(eventTypeLabels).map(([value, label]) => (
             <option value={value} key={value}>{label}</option>
           ))}
         </select>
+      </label>
+      <label>
+        Event subtype (optional)
+        <input
+          name="subtype"
+          defaultValue={initialValues.subtype}
+          maxLength={120}
+        />
       </label>
       {!publishOnSave && (
         <label>
@@ -140,25 +147,6 @@ export function EventForm({
           </select>
         </label>
       )}
-      <label className={styles.fullField}>
-        English description
-        <textarea
-          name="description"
-          defaultValue={initialValues.description}
-          maxLength={2000}
-          rows={3}
-        />
-      </label>
-      <label className={styles.fullField}>
-        Chinese description
-        <textarea
-          name="descriptionZh"
-          defaultValue={initialValues.descriptionZh}
-          maxLength={2000}
-          rows={3}
-          lang="zh-Hant"
-        />
-      </label>
       <div className={styles.formActions}>
         <button className={styles.primaryButton} type="submit">{submitLabel}</button>
         {cancelAction && (

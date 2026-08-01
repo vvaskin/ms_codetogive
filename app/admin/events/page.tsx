@@ -23,10 +23,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const audienceLabels = {
-  members: "Members",
-  volunteers: "Volunteers",
-  everyone: "Everyone",
+const eventTypeLabels = {
+  sport: "Sport",
+  nutrition: "Nutrition",
+  family_support: "Family support",
 } as const;
 
 function inputDateTime(value: string | null) {
@@ -79,7 +79,7 @@ export default async function EventsDatabase() {
         <div>
           <p className={styles.eyebrow}>ADMINISTRATION</p>
           <h1>Events database</h1>
-          <p>Manage prototype event records. The public schedule is not connected.</p>
+          <p>Manage the events shown on the public activity calendar.</p>
         </div>
         <div className={styles.headerActions}>
           <span>Signed in as {authState.user.email ?? "Staff"}</span>
@@ -118,7 +118,7 @@ export default async function EventsDatabase() {
                       <span className={`${styles.statusPill} ${styles[record.status]}`}>
                         {record.status}
                       </span>
-                      <span>{audienceLabels[record.audience]}</span>
+                      <span>{record.type ? eventTypeLabels[record.type] : "General event"}</span>
                     </div>
                     <h3>{record.title}</h3>
                     {record.title_zh && <p lang="zh-Hant">{record.title_zh}</p>}
@@ -189,9 +189,8 @@ function eventFormValues(record: EventRow): EventFormValues {
     endsAt: inputDateTime(record.ends_at),
     location: record.location ?? "",
     locationZh: record.location_zh ?? "",
-    audience: record.audience,
+    type: record.type ?? undefined,
+    subtype: record.subtype ?? "",
     status: record.status,
-    description: record.description ?? "",
-    descriptionZh: record.description_zh ?? "",
   };
 }
