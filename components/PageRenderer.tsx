@@ -138,7 +138,7 @@ function VolunteerPage({ page }: { page: SitePage }) {
 }
 
 function DonatePage({ page }: { page: SitePage }) {
-  return <DonateExperience locale={page.locale} />;
+  return <DonateExperience locale={page.locale === "en" ? "en" : "zh"} />;
 }
 
 function JoinPage({ locale }: { locale: Locale }) {

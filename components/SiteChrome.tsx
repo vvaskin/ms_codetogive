@@ -102,14 +102,12 @@ const cnProgrammes = [
 
 const enActivities = [
   ["Activity Schedule", "/events"],
-  ["Volunteer at an Event", "/volunteer-events"],
   ["Member Stories", "/stories/"],
   ["How Families Join", "/join-us/"],
 ];
 
 const zhActivities = [
   ["活動時間表", "/zh/events-hk/"],
-  ["活動義工報名", "/volunteer-events"],
   ["會員故事", "/zh/stories-hk/"],
   ["如何加入", "/zh/join-us-hk/"],
 ];
