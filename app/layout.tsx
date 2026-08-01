@@ -58,9 +58,6 @@ export default function RootLayout({
       className={`${nunito.variable} ${shantell.variable} ${caveat.variable}`}
     >
       <body className={nunito.className}>
-        <div className="development-ribbon">
-          Development copy — account data is stored in local SQLite
-        </div>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

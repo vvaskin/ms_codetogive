@@ -13,7 +13,7 @@ CSS Modules are the official component-styling approach.
 - Global CSS is limited to:
   - `styles/tokens.css` — design tokens
   - `styles/base.css` — reset, element defaults, accessibility (text size / high contrast / Calm mode `html.simple-view`), reduced motion
-  - `app/globals.css` — entrypoint (imports tokens/base) plus the quiet development ribbon
+  - `app/globals.css` — entrypoint (imports tokens/base)
 - Do not add new globally named component classes.
 - New visual patterns must use shared tokens from `styles/tokens.css`.
 - Tailwind is not used.

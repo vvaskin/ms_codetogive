@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -83,13 +84,23 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
 
   return (
     <aside className={styles.sidebar} aria-label="Portal navigation">
-      <Link href="/portal" className={styles.brand}>
-        <span className={styles.brandMark} aria-hidden="true">
-          21
-        </span>
+      <Link
+        href="/"
+        className={styles.brand}
+        aria-label="Love 21 — return to website"
+      >
+        <Image
+          src="/assets/images/love21_logo.png"
+          alt=""
+          width={330}
+          height={202}
+          priority
+          className={styles.brandLogo}
+        />
         <span className={styles.brandText}>
-          <span className={styles.brandName}>Love 21</span>
-          <span className={styles.brandSubtitle}>{consoleLabels[user.role]}</span>
+          <span className={styles.brandSubtitle}>
+            {consoleLabels[user.role]}
+          </span>
         </span>
       </Link>
 
@@ -113,28 +124,36 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
       </nav>
 
       <div className={styles.footer}>
-        <div className={styles.avatar}>
-          {user.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.image} alt={user.name} />
-          ) : (
-            <span aria-hidden="true">{initials(user.name)}</span>
-          )}
+        <Link href="/" className={styles.backLink}>
+          <span className={styles.backIcon} aria-hidden="true">
+            ←
+          </span>
+          Back to website
+        </Link>
+        <div className={styles.userRow}>
+          <div className={styles.avatar}>
+            {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.image} alt={user.name} />
+            ) : (
+              <span aria-hidden="true">{initials(user.name)}</span>
+            )}
+          </div>
+          <div className={styles.footerText}>
+            <span className={styles.footerName}>{user.name}</span>
+            <span className={styles.footerRole}>{roleLabels[user.role]}</span>
+          </div>
+          <button
+            type="button"
+            className={styles.signOut}
+            onClick={signOut}
+            disabled={signingOut}
+            aria-label={signingOut ? "Signing out" : "Sign out"}
+            title="Sign out"
+          >
+            {signingOut ? "…" : "↦"}
+          </button>
         </div>
-        <div className={styles.footerText}>
-          <span className={styles.footerName}>{user.name}</span>
-          <span className={styles.footerRole}>{roleLabels[user.role]}</span>
-        </div>
-        <button
-          type="button"
-          className={styles.signOut}
-          onClick={signOut}
-          disabled={signingOut}
-          aria-label={signingOut ? "Signing out" : "Sign out"}
-          title="Sign out"
-        >
-          {signingOut ? "…" : "↦"}
-        </button>
       </div>
     </aside>
   );

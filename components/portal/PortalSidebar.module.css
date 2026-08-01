@@ -23,31 +23,17 @@
   color: inherit;
 }
 
-.brandMark {
-  display: inline-grid;
-  place-items: center;
-  width: 34px;
+.brandLogo {
+  display: block;
   height: 34px;
-  border-radius: 10px;
-  background: var(--color-pink);
-  color: #fff;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
+  width: auto;
+  object-fit: contain;
 }
 
 .brandText {
   display: flex;
   flex-direction: column;
   line-height: 1.1;
-}
-
-.brandName {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.05rem;
-  color: var(--color-ink);
 }
 
 .brandSubtitle {
@@ -109,9 +95,44 @@
   margin-top: auto;
   padding: 0.75rem 0.5rem 0.5rem;
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.userRow {
+  display: flex;
   align-items: center;
   gap: 0.7rem;
-  border-top: 1px solid var(--color-border);
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.backLink:hover {
+  color: var(--color-pink);
+  background: var(--color-blush);
+}
+
+.backIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .avatar {
