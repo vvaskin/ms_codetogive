@@ -1,4 +1,4 @@
-import type { Locale } from "./site-data";
+import { images, type Locale } from "./site-data";
 
 export type ActivityCategory = "sports" | "nutrition" | "family" | "csr" | "event";
 
@@ -80,11 +80,66 @@ export const activitiesContent = {
     primary: { en: "Explore the calendar", zh: "查看日曆", cn: "查看日历" },
     secondary: { en: "Volunteer with us", zh: "成為義工", cn: "成为义工" },
   },
-  metrics: [
-    { value: "600+", label: { en: "members and families in our community", zh: "社群中的會員及家庭", cn: "社群中的会员及家庭" } },
-    { value: "≈1,000", label: { en: "activities every month", zh: "每月約有的活動", cn: "每月约有的活动" } },
-    { value: "HK$0", label: { en: "cost to families for our programmes", zh: "家庭參與計劃的費用", cn: "家庭参与计划的费用" } },
-  ],
+  programmes: {
+    eyebrow: { en: "Our programmes", zh: "我們的計劃", cn: "我们的计划" },
+    title: {
+      en: "Sport, nutrition and family care.",
+      zh: "體育、營養與家庭支援。",
+      cn: "体育、营养与家庭支援。",
+    },
+    description: {
+      en: "Activities on the calendar grow from Love 21’s three programme pillars.",
+      zh: "日曆上的活動，來自 Love 21 三大計劃支柱。",
+      cn: "日历上的活动，来自 Love 21 三大计划支柱。",
+    },
+    pillars: [
+      {
+        id: "sports",
+        title: { en: "Sports", zh: "體育", cn: "体育" },
+        description: {
+          en: "Designed without limitations — a comprehensive range of activities, plus strength training, coordination and mental health support.",
+          zh: "不設限制的體育計劃，涵蓋多元活動，並注重力量訓練、協調能力及心理健康。",
+          cn: "不设限制的体育计划，涵盖多元活动，并注重力量训练、协调能力及心理健康。",
+        },
+        image: images.sports,
+        imageAlt: {
+          en: "Love 21 members taking part in a sports activity",
+          zh: "Love 21 會員參與體育活動",
+          cn: "Love 21 会员参与体育活动",
+        },
+      },
+      {
+        id: "nutrition",
+        title: { en: "Nutrition", zh: "營養", cn: "营养" },
+        description: {
+          en: "Support and guidance for healthy lifestyle changes, with regular cooking and food-prep lessons for families.",
+          zh: "提供健康生活支援與指導，並定期舉辦烹飪及食物準備課堂。",
+          cn: "提供健康生活支援与指导，并定期举办烹饪及食物准备课堂。",
+        },
+        image: images.nutrition,
+        imageAlt: {
+          en: "Love 21 members cooking together",
+          zh: "Love 21 會員一起烹飪",
+          cn: "Love 21 会员一起烹饪",
+        },
+      },
+      {
+        id: "family",
+        title: { en: "Family Care", zh: "家庭支援", cn: "家庭支援" },
+        description: {
+          en: "Specialty classes for parents, and parental participation in many sport and healthy lifestyle sessions.",
+          zh: "為家長提供專屬課堂，並歡迎家長參與多項體育及健康生活活動。",
+          cn: "为家长提供专属课堂，并欢迎家长参与多项体育及健康生活活动。",
+        },
+        image: images.family,
+        imageAlt: {
+          en: "Families connected through Love 21",
+          zh: "透過 Love 21 連繫的家庭",
+          cn: "透过 Love 21 连系的家庭",
+        },
+      },
+    ],
+  },
   quickStart: {
     eyebrow: { en: "Quick start", zh: "快速開始", cn: "快速开始" },
     title: { en: "Find the right way to join in.", zh: "找到合適的參與方式。", cn: "找到合适的参与方式。" },

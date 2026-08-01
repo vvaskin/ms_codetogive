@@ -7,11 +7,14 @@
 .heroContent > p:last-of-type, .sectionHeading > p:last-child, .volunteerCta p { max-width: 65ch; margin: var(--space-4) auto 0; color: var(--color-text-muted); line-height: var(--line-height-body); }
 .heroActions, .volunteerCta > div:last-child { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-5); }
 .primaryButton { display: inline-flex; min-height: var(--control-height); align-items: center; justify-content: center; padding: 0 1.1rem; border-radius: var(--radius-pill); background: var(--color-pink); color: #fff; font-weight: 800; text-decoration: none; }
-.metrics { padding-block: clamp(2rem, 5vw, 3.25rem); border-block: 1px solid var(--color-border); }
-.metrics ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); max-width: 900px; margin: 0 auto; padding: 0; list-style: none; }
-.metrics li { display: grid; gap: var(--space-2); place-items: center; text-align: center; }
-.metrics strong { color: var(--color-pink); font-size: clamp(2.1rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
-.metrics span { color: var(--color-text-muted); font-weight: 700; }
+.programmes { padding-block: clamp(2rem, 4.5vw, 3rem); }
+.programmeGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-5); }
+.programmeCard { display: grid; grid-template-rows: auto 1fr; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-white); box-shadow: var(--shadow-soft); }
+.programmeBanner { position: relative; aspect-ratio: 16 / 9; background: var(--color-blush); }
+.programmeBanner img { object-fit: cover; }
+.programmeBody { display: grid; gap: var(--space-2); padding: var(--space-4); }
+.programmeBody h3 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.programmeBody p { margin: 0; color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.45; }
 .sectionHeading { max-width: 720px; }
 .sectionHeading h2 { font-size: clamp(2rem, 4.3vw, 3.4rem); }
 .sectionHeading > p:last-child { margin-inline: 0; }
@@ -65,6 +68,7 @@
 .wrapped time { color: var(--color-pink); font-weight: 800; }.wrapped em { color: var(--color-text-muted); font-size: .9rem; font-style: normal; }
 .volunteerCta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-6); align-items: center; }.volunteerCta h2 { font-size: clamp(2rem, 4vw, 3.2rem); }.volunteerCta p { margin-left: 0; }.volunteerCta > div:last-child { justify-content: flex-end; margin-top: 0; }
 .zh .eyebrow { font-family: var(--font-body); font-size: 1rem; }.zh h1, .zh h2 { letter-spacing: 0; }
-@media (max-width: 900px) { .calendarLayout.calendarSelected, .volunteerCta { grid-template-columns: 1fr; }.volunteerCta > div:last-child { justify-content: flex-start; }.quickGrid, .activityGrid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .metrics ul, .quickGrid, .activityGrid { grid-template-columns: 1fr; }.calendarCard { padding: .8rem; }.weekdays { font-size: .7rem; }.dayButton { min-height: 42px; font-size: .9rem; }.wrapped li { grid-template-columns: 62px 1fr; }.wrapped em { grid-column: 2; }.heroActions, .volunteerCta > div:last-child { justify-content: flex-start; } }
+@media (max-width: 900px) { .calendarLayout.calendarSelected, .volunteerCta { grid-template-columns: 1fr; }.volunteerCta > div:last-child { justify-content: flex-start; }.quickGrid, .activityGrid, .programmeGrid { grid-template-columns: repeat(2, 1fr); }.programmeCard:last-child { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .quickGrid, .activityGrid, .programmeGrid { grid-template-columns: 1fr; }.programmeCard:last-child { grid-column: auto; }.calendarCard { padding: .8rem; }.weekdays { font-size: .7rem; }.dayButton { min-height: 42px; font-size: .9rem; }.wrapped li { grid-template-columns: 62px 1fr; }.wrapped em { grid-column: 2; }.heroActions, .volunteerCta > div:last-child { justify-content: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .calendarLayout, .quickCard { transition: none; } }
+:global(html.high-contrast) .page .programmeCard { border: 2px solid currentColor; }

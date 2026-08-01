@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -114,15 +115,30 @@ export function ActivitiesExperience({
         </div>
       </SectionShell>
 
-      <SectionShell tone="white" className={styles.metrics}>
-        <ul>
-          {c.metrics.map((metric) => (
-            <li key={metric.value}>
-              <strong>{metric.value}</strong>
-              <span>{activityText(metric.label, locale)}</span>
-            </li>
+      <SectionShell tone="canvas" className={styles.programmes}>
+        <div className={styles.sectionHeading}>
+          <p className={styles.eyebrow}>{activityText(c.programmes.eyebrow, locale)}</p>
+          <h2>{activityText(c.programmes.title, locale)}</h2>
+          <p>{activityText(c.programmes.description, locale)}</p>
+        </div>
+        <div className={styles.programmeGrid}>
+          {c.programmes.pillars.map((pillar) => (
+            <article className={styles.programmeCard} key={pillar.id}>
+              <div className={styles.programmeBanner}>
+                <Image
+                  src={pillar.image}
+                  alt={activityText(pillar.imageAlt, locale)}
+                  fill
+                  sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+                />
+              </div>
+              <div className={styles.programmeBody}>
+                <h3>{activityText(pillar.title, locale)}</h3>
+                <p>{activityText(pillar.description, locale)}</p>
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
       </SectionShell>
 
       <SectionShell id="calendar" tone="blush" className={styles.calendarSection}>
