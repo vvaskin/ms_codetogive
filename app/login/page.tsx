@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
-import { auth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Log in",
@@ -20,11 +19,14 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { next } = await searchParams;
   const redirectTo = safeRedirect(next);
 
-  if (session) redirect(redirectTo);
+  if (user) redirect(redirectTo);
 
   return (
     <AuthPage

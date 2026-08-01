@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { USER_ROLES, type UserRole } from "@/lib/db/schema";
+import { createClient } from "@/lib/supabase/client";
+import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
@@ -42,8 +42,13 @@ const copy = {
     genericError: "Something went wrong. Please try again.",
     invalidCredentials: "The email or password is incorrect.",
     emailExists: "An account with this email already exists.",
+    emailNotConfirmed:
+      "Please confirm your email address first — check your inbox for the link.",
     networkError:
       "We could not reach the authentication service. Please try again.",
+    checkInboxTitle: "Check your inbox",
+    checkInboxBody:
+      "We sent a confirmation link to {email}. Click it to activate your account, then log in.",
     loggingIn: "Logging in…",
     creatingAccount: "Creating account…",
     logIn: "Log in",
@@ -81,7 +86,11 @@ const copy = {
     genericError: "發生錯誤，請再試一次。",
     invalidCredentials: "電郵或密碼不正確。",
     emailExists: "此電郵已註冊帳戶。",
+    emailNotConfirmed: "請先確認您的電郵地址——請查看收件箱中的連結。",
     networkError: "無法連接驗證服務，請再試一次。",
+    checkInboxTitle: "請查看您的電郵",
+    checkInboxBody:
+      "我們已向 {email} 發送確認連結。請點擊連結啟用帳戶，然後登入。",
     loggingIn: "登入中…",
     creatingAccount: "建立帳戶中…",
     logIn: "登入",
@@ -99,10 +108,15 @@ function readableError(message: string | undefined, lang: Copy) {
   const normalized = message.toLowerCase();
 
   if (
+    normalized.includes("invalid login credentials") ||
     normalized.includes("invalid email or password") ||
     normalized.includes("invalid credentials")
   ) {
     return lang.invalidCredentials;
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return lang.emailNotConfirmed;
   }
 
   if (
@@ -130,6 +144,7 @@ export function AuthForm({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const isSignup = mode === "signup";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -140,24 +155,38 @@ export function AuthForm({
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const supabase = createClient();
 
     try {
-      const result = isSignup
-        ? await authClient.signUp.email({
-            name: String(formData.get("name") ?? "").trim(),
-            email,
-            password,
-            role,
-          })
-        : await authClient.signIn.email({
-            email,
-            password,
-            rememberMe: true,
-          });
+      if (isSignup) {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            // Consumed by the handle_new_user() trigger to build the profile.
+            data: { name: String(formData.get("name") ?? "").trim(), role },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+          },
+        });
 
-      if (result.error) {
-        setError(readableError(result.error.message, lang));
-        return;
+        if (signUpError) {
+          setError(readableError(signUpError.message, lang));
+          return;
+        }
+
+        // Email confirmation is required, so there is no session yet.
+        if (!data.session) {
+          setPendingEmail(email);
+          return;
+        }
+      } else {
+        const { error: signInError } =
+          await supabase.auth.signInWithPassword({ email, password });
+
+        if (signInError) {
+          setError(readableError(signInError.message, lang));
+          return;
+        }
       }
 
       router.replace(redirectTo);
@@ -177,6 +206,21 @@ export function AuthForm({
       : isSignup
         ? "/login"
         : "/signup";
+
+  if (pendingEmail) {
+    return (
+      <div className={styles.authForm}>
+        <div className={styles.authFormHeading}>
+          <p className={styles.eyebrow}>{lang.eyebrow}</p>
+          <h1>{lang.checkInboxTitle}</h1>
+          <p>{lang.checkInboxBody.replace("{email}", pendingEmail)}</p>
+        </div>
+        <p className={styles.authSwitch}>
+          <Link href={switchHref}>{lang.logIn}</Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form className={styles.authForm} method="post" onSubmit={onSubmit}>

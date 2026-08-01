@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -10,7 +10,8 @@ export function SignOutButton() {
 
   async function signOut() {
     setIsSigningOut(true);
-    await authClient.signOut();
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();
   }

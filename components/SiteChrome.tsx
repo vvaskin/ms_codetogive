@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { alternatePaths, normalizePath } from "../content/site-data";
-import { authClient } from "../lib/auth-client";
+import { useUser } from "../lib/supabase/use-user";
 import { BrandLockup } from "./ui/BrandLockup";
 import styles from "./SiteChrome.module.css";
 
@@ -166,7 +166,7 @@ function MenuGroup({
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
   const zh = pathname.startsWith("/zh/");
-  const { data: session } = authClient.useSession();
+  const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   // Always start false so SSR and the first client render match; hydrate from storage after mount.

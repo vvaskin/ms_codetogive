@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { upcomingEvents } from "@/lib/portal/mock-data";
 import { EventCarousel } from "./EventCarousel";
-import type { UserRole } from "@/lib/db/schema";
+import type { UserRole } from "@/lib/roles";
 
 const roleContent: Record<UserRole, { intro: string; placeholder: string }> = {
   member: {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
-import type { UserRole } from "@/lib/db/schema";
+import type { UserRole } from "@/lib/roles";
 
 export interface PortalUser {
   name: string;
