@@ -87,17 +87,6 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
         </div>
       </section>
 
-      <section className={styles.impact} aria-label={t(c.hero.badge, locale)}>
-        <ul className={styles.impactList}>
-          {c.impact.items.map((item) => (
-            <li key={item.value}>
-              <strong>{item.value}</strong>
-              <span>{t(item.label, locale)}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <section className={styles.governance} aria-labelledby="about-board-title">
         <div className={styles.sectionIntro}>
           <StatusPill tone="blue">{t(c.governance.badge, locale)}</StatusPill>
@@ -168,7 +157,6 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               </li>
             ))}
           </ul>
-          <p className={styles.boardNote}>{t(c.governance.boardNote, locale)}</p>
           <Link className={styles.governanceLink} href={financeHref}>
             {t(c.governance.financeLink.label, locale)}{" "}
             <span aria-hidden="true">→</span>

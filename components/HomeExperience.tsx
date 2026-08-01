@@ -215,22 +215,6 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
-      <section className={styles.statBand} aria-label={t(content.impactStats.label, locale)}>
-        <div className={styles.wideInner}>
-          <ul>
-            {content.impactStats.items.map((metric) => (
-              <li key={metric.value}>
-                <strong>
-                  <CountUp value={metric.value} className={styles.countUp} />
-                </strong>
-                <span>{t(metric.label, locale)}</span>
-                {metric.source && <small>{t(metric.source, locale)}</small>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* Featured Stories + Stories of Ability temporarily hidden; content kept in homepage.ts */}
 
       <section className={styles.education} aria-labelledby="education-title">

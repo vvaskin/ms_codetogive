@@ -121,14 +121,6 @@ export const aboutContent = {
       },
     ],
   },
-  impact: {
-    items: [
-      { value: "600+", label: { en: "Members and families", zh: "會員及家庭", cn: "会员及家庭" } satisfies Localized },
-      { value: "≈1,000", label: { en: "Monthly activities", zh: "每月活動節數", cn: "每月活动节数" } satisfies Localized },
-      { value: "HK$0", label: { en: "Charged to families", zh: "不向家庭收費", cn: "不向家庭收费" } satisfies Localized },
-      { value: "Section 88", label: { en: "Registered Hong Kong charity", zh: "香港註冊慈善機構", cn: "香港注册慈善机构" } satisfies Localized },
-    ],
-  },
   governance: {
     badge: { en: "Governance", zh: "管治", cn: "管治" } satisfies Localized,
     title: { en: "Meet Our Board.", zh: "認識董事局。", cn: "认识董事局。" } satisfies Localized,
@@ -164,18 +156,13 @@ export const aboutContent = {
       },
     ],
     boardHeading: { en: "Board of Directors", zh: "董事局", cn: "董事局" } satisfies Localized,
-    boardNote: {
-      en: "(Listed in alphabetical order of last name)",
-      zh: "（按姓氏英文字母排序）",
-      cn: "（按姓氏英文字母排序）",
-    } satisfies Localized,
     financeLink: {
       label: {
-        en: "See our full governance & financials",
-        zh: "查看完整管治與財務報告",
-        cn: "查看完整管治与财务报告",
+        en: "See our Board of Directors",
+        zh: "查看我們的董事局",
+        cn: "查看我们的董事局",
       } satisfies Localized,
-      href: { en: "/our-finance/", zh: "/zh/our-finance-hk/", cn: "/cn/our-finance/" },
+      href: { en: "/leadership/", zh: "/zh/leadership-hk/", cn: "/cn/leadership/" },
     },
     boardHref: {
       en: "/board-of-directors/",
