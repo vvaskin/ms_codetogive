@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { registerForEvent } from "@/app/actions/registrations";
 import type { Locale } from "@/content/site-data";
 import { formatEventTime, formatWeekdayDayMonthAt } from "@/lib/format-date";
 import { pickLocalized } from "@/lib/localized";
+import type { UserRole } from "@/lib/roles";
+import { EventSignupButton } from "./EventSignupButton";
 import styles from "./VolunteerEventsFeed.module.css";
 
 type FeedEvent = {
@@ -35,20 +35,15 @@ const typeColors: Record<NonNullable<FeedEvent["type"]>, string> = {
   family_support: "var(--color-pink, #eb6834)",
 };
 
-type CardStatus =
-  | { state: "idle" }
-  | { state: "open" }
-  | { state: "submitting" }
-  | { state: "done" }
-  | { state: "error"; message: string };
-
 export function VolunteerEventsFeed({
   events,
-  isGuest,
+  sessionRole,
+  registeredEventIds,
   locale,
 }: {
   events: FeedEvent[];
-  isGuest: boolean;
+  sessionRole: UserRole | null;
+  registeredEventIds: number[];
   locale: Locale;
 }) {
   return (
@@ -73,7 +68,8 @@ export function VolunteerEventsFeed({
             <EventCard
               key={event.id}
               event={event}
-              isGuest={isGuest}
+              sessionRole={sessionRole}
+              registered={registeredEventIds.includes(event.id)}
               locale={locale}
             />
           ))}
@@ -85,34 +81,17 @@ export function VolunteerEventsFeed({
 
 function EventCard({
   event,
-  isGuest,
+  sessionRole,
+  registered,
   locale,
 }: {
   event: FeedEvent;
-  isGuest: boolean;
+  sessionRole: UserRole | null;
+  registered: boolean;
   locale: Locale;
 }) {
-  const [status, setStatus] = useState<CardStatus>({ state: "idle" });
   const title = pickLocalized(event, "title", locale) ?? event.title;
   const location = pickLocalized(event, "location", locale) ?? event.location;
-
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    setStatus({ state: "submitting" });
-
-    const result = await registerForEvent({
-      eventId: event.id,
-      guestName: isGuest ? String(form.get("name") ?? "").trim() : null,
-      guestEmail: isGuest ? String(form.get("email") ?? "").trim() : null,
-    });
-
-    if (!result.ok) {
-      setStatus({ state: "error", message: result.error ?? "Please try again." });
-      return;
-    }
-    setStatus({ state: "done" });
-  }
 
   return (
     <article className={styles.card}>
@@ -148,48 +127,14 @@ function EventCard({
         </p>
       )}
 
-      {status.state === "done" ? (
-        <div className={styles.success} role="status">
-          <strong>You&apos;re signed up to volunteer! 🎉</strong>
-        </div>
-      ) : status.state === "idle" ? (
-        <button
-          type="button"
-          className={styles.primary}
-          onClick={() => setStatus({ state: "open" })}
-        >
-          Register to volunteer
-        </button>
-      ) : (
-        <form className={styles.form} onSubmit={onSubmit}>
-          {isGuest && (
-            <>
-              <label>
-                Your name
-                <input name="name" type="text" autoComplete="name" required />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" autoComplete="email" required />
-              </label>
-            </>
-          )}
-          {status.state === "error" && (
-            <p className={styles.error} role="alert">
-              {status.message}
-            </p>
-          )}
-          <button
-            type="submit"
-            className={styles.primary}
-            disabled={status.state === "submitting"}
-          >
-            {status.state === "submitting"
-              ? "Signing up…"
-              : "Confirm registration"}
-          </button>
-        </form>
-      )}
+      <div className={styles.signupWrap}>
+        <EventSignupButton
+          eventId={event.id}
+          locale={locale}
+          sessionRole={sessionRole}
+          signedUp={registered}
+        />
+      </div>
     </article>
   );
 }

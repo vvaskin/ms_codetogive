@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { VolunteerEventsFeed } from "@/components/VolunteerEventsFeed";
 import type { Locale } from "@/content/site-data";
+import { getSessionProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default async function VolunteerEventsPage({
 
   const nowIso = new Date().toISOString();
 
-  const [{ data: events }, { data: userData }] = await Promise.all([
+  const [{ data: events }, profile] = await Promise.all([
     supabase
       .from("events")
       .select(
@@ -31,8 +32,17 @@ export default async function VolunteerEventsPage({
       .eq("status", "published")
       .gte("starts_at", nowIso)
       .order("starts_at", { ascending: true }),
-    supabase.auth.getUser(),
+    getSessionProfile(),
   ]);
+
+  let registeredEventIds: number[] = [];
+  if (profile) {
+    const { data: participations } = await supabase
+      .from("event_participations")
+      .select("event_id")
+      .eq("user_id", profile.id);
+    registeredEventIds = (participations ?? []).map((row) => row.event_id);
+  }
 
   const { lang } = await searchParams;
   const locale = pickLocale(lang);
@@ -40,7 +50,8 @@ export default async function VolunteerEventsPage({
   return (
     <VolunteerEventsFeed
       events={events ?? []}
-      isGuest={!userData.user}
+      sessionRole={profile && profile.role !== "staff" ? profile.role : null}
+      registeredEventIds={registeredEventIds}
       locale={locale}
     />
   );

@@ -64,6 +64,12 @@ export const aboutContent = {
           cn: "不设限制的课堂与团队运动，让会员训练、比赛、成长。",
         } satisfies Localized,
         tone: "pink" as const,
+        image: images.sports,
+        imageAlt: {
+          en: "Love 21 members taking part in a sports activity",
+          zh: "Love 21 會員參與體育活動",
+          cn: "Love 21 会员参与体育活动",
+        } satisfies Localized,
       },
       {
         key: "nutrition",
@@ -74,6 +80,12 @@ export const aboutContent = {
           cn: "一对一指导与烹饪课堂，让健康习惯走进家庭。",
         } satisfies Localized,
         tone: "teal" as const,
+        image: images.nutrition,
+        imageAlt: {
+          en: "Love 21 members cooking together",
+          zh: "Love 21 會員一起烹飪",
+          cn: "Love 21 会员一起烹饪",
+        } satisfies Localized,
       },
       {
         key: "family",
@@ -84,6 +96,12 @@ export const aboutContent = {
           cn: "支援家长与照顾者 — 因为整个家庭同样重要。",
         } satisfies Localized,
         tone: "blue" as const,
+        image: images.family,
+        imageAlt: {
+          en: "Families connected through Love 21",
+          zh: "透過 Love 21 連繫的家庭",
+          cn: "透过 Love 21 连系的家庭",
+        } satisfies Localized,
       },
       {
         key: "csr",
@@ -94,6 +112,12 @@ export const aboutContent = {
           cn: "通过共同活动，让香港机构真诚认识我们的社群。",
         } satisfies Localized,
         tone: "purple" as const,
+        image: images.csr,
+        imageAlt: {
+          en: "Corporate volunteers connecting with Love 21 members",
+          zh: "企業義工與 Love 21 會員交流",
+          cn: "企业义工与 Love 21 会员交流",
+        } satisfies Localized,
       },
     ],
   },

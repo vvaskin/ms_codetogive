@@ -91,71 +91,7 @@
   text-underline-offset: 2px;
 }
 
-.primary {
+.signupWrap {
   margin-top: auto;
-  align-self: flex-start;
-  padding: 0.6rem 1.1rem;
-  border: none;
-  border-radius: 999px;
-  background: var(--color-pink, #cb3547);
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.primary:hover:not(:disabled) {
-  background: var(--color-pink-dark, #b02a3b);
-}
-
-.primary:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
-}
-
-.form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.form input {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-border, #e2e2e2);
-  border-radius: 8px;
-  font: inherit;
-  font-weight: 400;
-}
-
-.form input:focus {
-  outline: 2px solid rgba(24, 120, 242, 0.3);
-  border-color: #9aa9ce;
-}
-
-.error {
-  margin: 0;
-  color: #9e1b1b;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.success {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.25rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  background: #e7f3ea;
-  color: #3f7650;
-  font-size: 0.9rem;
+  display: grid;
 }

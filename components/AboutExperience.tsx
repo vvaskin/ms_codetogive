@@ -70,9 +70,18 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               key={item.key}
               className={`${styles.programmeCard} ${styles[`tone_${item.tone}`]}`}
             >
-              <span className={styles.programmeIcon} aria-hidden="true" />
-              <h3>{t(item.title, locale)}</h3>
-              <p>{t(item.description, locale)}</p>
+              <div className={styles.programmeMedia}>
+                <Image
+                  src={item.image}
+                  alt={t(item.imageAlt, locale)}
+                  fill
+                  sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              </div>
+              <div className={styles.programmeBody}>
+                <h3>{t(item.title, locale)}</h3>
+                <p>{t(item.description, locale)}</p>
+              </div>
             </article>
           ))}
         </div>
