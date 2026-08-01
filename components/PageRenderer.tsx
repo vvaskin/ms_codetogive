@@ -6,6 +6,7 @@ import {
   getPage,
   SitePage,
 } from "../content/site-data";
+import type { DonationModeId } from "../content/donation";
 import { getPublishedCalendarEvents } from "../lib/supabase/calendar-events";
 import {
   AccountForm,
@@ -137,11 +138,17 @@ function VolunteerPage({ page }: { page: SitePage }) {
   );
 }
 
-function DonatePage({ page }: { page: SitePage }) {
-  return <DonateExperience locale={page.locale === "en" ? "en" : "zh"} />;
+function DonatePage({ page, initialMode }: { page: SitePage; initialMode?: DonationModeId }) {
+  return <DonateExperience initialMode={initialMode} locale={page.locale === "en" ? "en" : "zh"} />;
 }
 
-export async function PageRenderer({ path }: { path: string }) {
+export async function PageRenderer({
+  path,
+  donationMode,
+}: {
+  path: string;
+  donationMode?: DonationModeId;
+}) {
   const page = getPage(path);
   if (!page) notFound();
 
@@ -168,7 +175,7 @@ export async function PageRenderer({ path }: { path: string }) {
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":
-      return <DonatePage page={page} />;
+      return <DonatePage initialMode={donationMode} page={page} />;
     case "account":
       return (
         <article className={`${styles.contentPage} ${styles.accountPage}`}>

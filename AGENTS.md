@@ -45,6 +45,7 @@ Presentational only (no API, persistence, or business rules):
 - `BrandLockup` — pink “21” mark + Love 21 wordmark
 - `SectionShell` — `tone`: canvas | white | blush | sky | blue | dark | mint; `width`: wide | standard | narrow
 - `ButtonLink` — `variant`: pink | blue | teal | dark | outline | quiet
+- `HeartIcon` — soft outline heart SVG for CTA accents (Join menu, homepage hero Donate/Volunteer hover)
 - `PageIntro` — eyebrow, title, description, actions
 - `ContentCard` — media, meta, title, summary
 - `StatusPill` — programme / story / preview tags
@@ -52,9 +53,9 @@ Presentational only (no API, persistence, or business rules):
 
 ### Chrome and templates
 
-- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), accessibility menu, language, Donate, dark footer
-- Accessibility menu replaces the old Calm-mode toggle. It offers High contrast (`html.high-contrast`), Text size (A−/A+, levels 0–2 as `html.text-large` / `html.text-largest`, stored in `"text-size"`), and Calm mode (Simple View). Storage keys: `"simple-view"` → class `html.simple-view`; `"high-contrast"` → `html.high-contrast`; `"text-size"` = 0|1|2. All applied via effects on `document.documentElement` in `SiteChrome`.
-- Homepage: `components/HomeExperience.*` + `content/homepage.ts`
+- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), outline “Make a difference” dropdown (Nunito body font + pink outline/`HeartIcon`; filled Donate / Volunteer options without per-option hearts or glow; quiet Login link at bottom; opens on hover or click; panel matches trigger width and is decorated with surrounding heart icons) or portal actions when signed in, dark footer. Volunteer opens `/signup?role=volunteer` (locale variants) with the volunteer role preselected. Homepage hero Donate (pink) and Volunteer (blue) show matching heart accents on hover; homepage `.page` keeps `overflow: visible` so those accents are not clipped.
+- Accessibility and language controls live in a fixed bottom-right floating tools cluster (menus open upward). Accessibility offers High contrast (`html.high-contrast`), Text size (A−/A+, levels 0–2 as `html.text-large` / `html.text-largest`, stored in `"text-size"`), and Calm mode (Simple View). Storage keys: `"simple-view"` → class `html.simple-view`; `"high-contrast"` → `html.high-contrast`; `"text-size"` = 0|1|2. All applied via effects on `document.documentElement` in `SiteChrome`.
+- Homepage: `components/HomeExperience.*` + `content/homepage.ts`. It follows the rebrand composition as a server-rendered sequence of hero polaroids, monthly impact, approved programme story, holistic model, audited impact statistics, curated stories, consent-safe programme observations, education, deterministic media cards, and volunteer/donation CTA bands. Homepage content is fully localized for `en`, `zh`, and `cn`; repository facts and assets replace mockup placeholders, and the homepage has no donation configurator or live-feed dependency. The wishlist CTA deep-links to the Donate Items tab with validated `?mode=items` state.
 - Donation: `content/donation.ts` + interactive `DonateExperience` (`template: "donate"`). The three bilingual modes (`money`, `events`, `items`) retain client-side selections when switching. Money can be completed through the existing PayMe QR or hosted MoonClerk URL; a collapsed disclosure provides approved HSBC/FPS/cheque instructions, and receipt requests link to Maggie by email. Amount/frequency/programme selections are not transmitted by the site. Fundable-event metadata is optional repository content, and event-support/item-selection confirmations are local-only demos with no persistence or progress updates. The community-fundraiser CTA remains disabled.
 - Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`
 - About: `content/about.ts` + `AboutExperience` (`template: "about"`)

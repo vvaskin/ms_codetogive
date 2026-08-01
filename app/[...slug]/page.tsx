@@ -6,9 +6,11 @@ import {
   getPage,
   normalizePath,
 } from "../../content/site-data";
+import type { DonationModeId } from "../../content/donation";
 
 type RouteProps = {
   params: Promise<{ slug: string[] }>;
+  searchParams?: Promise<{ mode?: string | string[] }>;
 };
 
 export function generateStaticParams() {
@@ -55,10 +57,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function CatchAllPage({ params }: RouteProps) {
+export default async function CatchAllPage({ params, searchParams }: RouteProps) {
   const { slug } = await params;
   const path = normalizePath(`/${slug.join("/")}/`);
   if (path === "/zh/") return <HomeExperience locale="zh" />;
   if (path === "/cn/") return <HomeExperience locale="cn" />;
-  return <PageRenderer path={path} />;
+  const requestedMode = (await searchParams)?.mode;
+  const donationMode: DonationModeId | undefined =
+    requestedMode === "money" || requestedMode === "events" || requestedMode === "items"
+      ? requestedMode
+      : undefined;
+  return <PageRenderer donationMode={donationMode} path={path} />;
 }

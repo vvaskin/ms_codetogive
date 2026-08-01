@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { localePaths, normalizePath, type Locale } from "../content/site-data";
 import { useUser } from "../lib/supabase/use-user";
 import { SignOutButton } from "./SignOutButton";
 import { BrandLockup } from "./ui/BrandLockup";
+import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./SiteChrome.module.css";
 
 const SIMPLE_VIEW_KEY = "simple-view";
@@ -80,26 +81,243 @@ const cnAbout = [
   ["媒体报道", "/cn/media/"],
 ];
 
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      height="20"
+      viewBox="0 0 24 24"
+      width="20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <path
+        d="M3.5 12h17"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.75"
+      />
+      <path
+        d="M12 3c2.5 2.6 3.75 5.6 3.75 9S14.5 18.4 12 21c-2.5-2.6-3.75-5.6-3.75-9S9.5 5.6 12 3Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+      />
+    </svg>
+  );
+}
+
+function JoinMenu({
+  locale,
+  loginPath,
+  donatePath,
+  volunteerPath,
+  loginLabel,
+  donateLabel,
+  volunteerLabel,
+  triggerLabel,
+  className,
+}: {
+  locale: Locale;
+  loginPath: string;
+  donatePath: string;
+  volunteerPath: string;
+  loginLabel: string;
+  donateLabel: string;
+  volunteerLabel: string;
+  triggerLabel: string;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div
+      ref={rootRef}
+      className={`${styles.joinMenu} ${className ?? ""}`}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        className={`${styles.joinTrigger} ${open ? styles.joinTriggerOpen : ""}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={triggerLabel}
+        onClick={() => setOpen(true)}
+      >
+        <span className={styles.joinTriggerLabel}>
+          {triggerLabel}
+          <HeartIcon className={styles.joinInlineHeart} />
+        </span>
+      </button>
+      {open ? (
+        <div
+          className={styles.joinPanel}
+          role="menu"
+          aria-label={
+            locale === "zh" ? "加入選項" : locale === "cn" ? "加入选项" : "Join options"
+          }
+        >
+          <span className={styles.joinHearts} aria-hidden="true">
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartOne}`} />
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartTwo}`} />
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartThree}`} />
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartFour}`} />
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartFive}`} />
+            <HeartIcon className={`${styles.joinHeart} ${styles.joinHeartSix}`} />
+          </span>
+          <Link
+            href={donatePath}
+            role="menuitem"
+            className={`${styles.joinOption} ${styles.joinOptionDonate}`}
+            onClick={() => setOpen(false)}
+          >
+            {donateLabel}
+          </Link>
+          <Link
+            href={volunteerPath}
+            role="menuitem"
+            className={`${styles.joinOption} ${styles.joinOptionVolunteer}`}
+            onClick={() => setOpen(false)}
+          >
+            {volunteerLabel}
+          </Link>
+          <Link
+            href={loginPath}
+            role="menuitem"
+            className={`${styles.joinOption} ${styles.joinOptionLogin}`}
+            onClick={() => setOpen(false)}
+          >
+            {loginLabel}
+          </Link>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function LanguageMenu({
+  locale,
+  paths,
+}: {
+  locale: Locale;
+  paths: { en: string; zh: string; cn: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const label = (zh: string, cn: string, en: string) =>
+    locale === "zh" ? zh : locale === "cn" ? cn : en;
+
+  const options = [
+    { id: "en" as const, href: paths.en, short: "EN", name: "English" },
+    { id: "zh" as const, href: paths.zh, short: "繁", name: "繁體中文" },
+    { id: "cn" as const, href: paths.cn, short: "简", name: "简体中文" },
+  ].filter((option) => Boolean(option.href));
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className={styles.languageMenu}>
+      <button
+        type="button"
+        className={`${styles.accessTrigger} ${open ? styles.accessTriggerOpen : ""}`}
+        aria-label={label("語言", "语言", "Language")}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <GlobeIcon className={styles.languageIcon} />
+      </button>
+      {open ? (
+        <div
+          className={styles.languagePanel}
+          role="menu"
+          aria-label={label("語言", "语言", "Language")}
+        >
+          {options.map((option) => (
+            <Link
+              key={option.id}
+              href={option.href}
+              role="menuitem"
+              className={`${styles.languageOption} ${locale === option.id ? styles.languageOptionActive : ""}`}
+              aria-current={locale === option.id ? "true" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              <span className={styles.languageOptionName}>{option.name}</span>
+              <span className={styles.languageOptionShort}>{option.short}</span>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AccessibilityMenu({
   locale,
-  mobile = false,
   simpleView,
   highContrast,
   textSize,
   onToggleSimpleView,
   onToggleHighContrast,
   onAdjustTextSize,
-  className,
 }: {
   locale: Locale;
-  mobile?: boolean;
   simpleView: boolean;
   highContrast: boolean;
   textSize: number;
   onToggleSimpleView: () => void;
   onToggleHighContrast: () => void;
   onAdjustTextSize: (delta: number) => void;
-  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -132,7 +350,7 @@ function AccessibilityMenu({
 
   const panel = (
     <div
-      className={`${styles.accessPanel} ${mobile ? styles.accessPanelMobile : ""}`}
+      className={styles.accessPanel}
       role="group"
       aria-label={a11y("無障礙設定", "无障碍设置", "Accessibility settings")}
     >
@@ -189,30 +407,24 @@ function AccessibilityMenu({
   );
 
   return (
-    <div ref={rootRef} className={`${styles.accessMenu} ${className ?? ""}`}>
-      {mobile ? (
-        panel
-      ) : (
-        <>
-          <button
-            type="button"
-            className={`${styles.accessTrigger} ${open ? styles.accessTriggerOpen : ""}`}
-            aria-label={a11y("無障礙設定", "无障碍设置", "Accessibility settings")}
-            aria-haspopup="true"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            <Image
-              src="/assets/images/accessibility-symbol.png"
-              alt=""
-              width={250}
-              height={250}
-              className={styles.accessIcon}
-            />
-          </button>
-          {open ? panel : null}
-        </>
-      )}
+    <div ref={rootRef} className={styles.accessMenu}>
+      <button
+        type="button"
+        className={`${styles.accessTrigger} ${open ? styles.accessTriggerOpen : ""}`}
+        aria-label={a11y("無障礙設定", "无障碍设置", "Accessibility settings")}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Image
+          src="/assets/images/accessibility-symbol.png"
+          alt=""
+          width={250}
+          height={250}
+          className={styles.accessIcon}
+        />
+      </button>
+      {open ? panel : null}
     </div>
   );
 }
@@ -365,10 +577,16 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const portalPath = "/portal";
   const loginPath = pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
   const portalLabel = pick("My portal", "個人頁面", "个人页面");
-  const loginLabel = pick("Sign up / Login", "註冊 / 登入", "注册 / 登录");
+  const loginLabel = pick("Login", "登入", "登录");
+  const joinLabel = pick("Make a difference", "一起帶來改變", "一起带来改变");
   const signOutLabel = pick("Sign out", "登出", "退出登录");
   const signOutPendingLabel = pick("Signing out…", "登出中…", "退出中…");
   const volunteerPath = pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/");
+  const volunteerSignupPath = pick(
+    "/signup?role=volunteer",
+    "/zh/signup-hk/?role=volunteer",
+    "/cn/signup-hk/?role=volunteer",
+  );
   const volunteerLabel = pick("Volunteer", "做義工", "做义工");
   const donatePath = pick("/donate/", "/zh/donate-hk/", "/cn/donate/");
   const donateLabel = pick("Donate", "捐贈", "捐赠");
@@ -413,44 +631,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className={styles.headerActions}>
-            <AccessibilityMenu
-              locale={locale}
-              simpleView={simpleView}
-              highContrast={highContrast}
-              textSize={textSize}
-              onToggleSimpleView={toggleSimpleView}
-              onToggleHighContrast={toggleHighContrast}
-              onAdjustTextSize={adjustTextSize}
-              className={styles.accessHeader}
-            />
-
-            <div className={styles.languageLinks} aria-label="Language">
-              <Link
-                href={trio.en}
-                className={locale === "en" ? styles.languageActive : undefined}
-              >
-                EN
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.zh}
-                className={zh ? styles.languageActive : undefined}
-              >
-                繁
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.cn}
-                className={cn ? styles.languageActive : undefined}
-              >
-                简
-              </Link>
-            </div>
-
             {session ? (
               <>
                 <Link href={portalPath} className={styles.memberLogin}>
@@ -469,23 +649,16 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                 </Link>
               </>
             ) : (
-              <>
-                <Link href={loginPath} className={styles.memberLogin}>
-                  {loginLabel}
-                </Link>
-                <Link href={donatePath} className={styles.donatePill}>
-                  {donateLabel}
-                </Link>
-                <Link href={volunteerPath} className={styles.volunteerPill}>
-                  {volunteerLabel}
-                </Link>
-                <Link
-                  href={donatePath}
-                  className={`${styles.donatePill} ${styles.donatePillCompact}`}
-                >
-                  {donateLabel}
-                </Link>
-              </>
+              <JoinMenu
+                locale={locale}
+                loginPath={loginPath}
+                donatePath={donatePath}
+                volunteerPath={volunteerSignupPath}
+                loginLabel={loginLabel}
+                donateLabel={donateLabel}
+                volunteerLabel={volunteerLabel}
+                triggerLabel={joinLabel}
+              />
             )}
 
             <button
@@ -551,32 +724,28 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                   <Link href={donatePath} className={styles.mobileUtilityDonate}>
                     {donateLabel}
                   </Link>
-                  <Link href={volunteerPath} className={styles.volunteerPill}>
+                  <Link href={volunteerSignupPath} className={styles.volunteerPill}>
                     {volunteerLabel}
                   </Link>
                 </>
               )}
             </div>
-            <AccessibilityMenu
-              locale={locale}
-              mobile
-              simpleView={simpleView}
-              highContrast={highContrast}
-              textSize={textSize}
-              onToggleSimpleView={toggleSimpleView}
-              onToggleHighContrast={toggleHighContrast}
-              onAdjustTextSize={adjustTextSize}
-              className={styles.mobileAccess}
-            />
-            <Link
-              href={locale === "en" ? trio.zh : trio.en}
-              className={styles.mobileNavLink}
-            >
-              {locale === "en" ? "繁體中文 (繁)" : "English (EN)"}
-            </Link>
           </div>
         </nav>
       </header>
+
+      <div className={styles.floatingTools} aria-label={pick("Site tools", "網站工具", "网站工具")}>
+        <AccessibilityMenu
+          locale={locale}
+          simpleView={simpleView}
+          highContrast={highContrast}
+          textSize={textSize}
+          onToggleSimpleView={toggleSimpleView}
+          onToggleHighContrast={toggleHighContrast}
+          onAdjustTextSize={adjustTextSize}
+        />
+        <LanguageMenu locale={locale} paths={trio} />
+      </div>
 
       <main>{children}</main>
 

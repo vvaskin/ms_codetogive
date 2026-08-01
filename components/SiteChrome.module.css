@@ -144,40 +144,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  min-width: 42px;
-  min-height: 42px;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
-  border: 1.5px solid #cfc8c2;
-  border-radius: 50%;
-  background: var(--color-white);
-  color: var(--color-ink);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition:
-    border-color var(--motion-fast),
+    color var(--motion-fast),
     background-color var(--motion-fast);
 }
 
 .accessTrigger:hover,
 .accessTriggerOpen {
-  border-color: var(--color-pink);
+  color: var(--color-pink);
   background: var(--color-blush);
+}
+
+.accessTrigger:focus-visible {
+  outline: 3px solid rgba(24, 120, 242, 0.28);
+  outline-offset: 2px;
 }
 
 .accessIcon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-}
-
-.accessHeader {
-  display: none;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .accessPanel {
   position: absolute;
-  top: calc(100% + 0.5rem);
   right: 0;
+  bottom: calc(100% + 0.5rem);
   z-index: 200;
   display: grid;
   gap: 0.35rem;
@@ -187,13 +191,6 @@
   border-radius: var(--radius-md);
   background: var(--color-white);
   box-shadow: var(--shadow-card);
-}
-
-.accessPanelMobile {
-  position: static;
-  width: 100%;
-  margin-top: 0.35rem;
-  box-shadow: none;
 }
 
 .accessHeading {
@@ -295,37 +292,71 @@
 
 /* ── Language switcher ────────────────────────────────────────────────── */
 
-.languageLinks {
-  display: none;
+.languageMenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.languageIcon {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.languagePanel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.5rem);
+  z-index: 200;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 196px;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.languageOption {
+  display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: space-between;
+  gap: 1rem;
   min-height: 44px;
-  margin-right: 0.15rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--color-ink);
+  transition:
+    color var(--motion-fast),
+    background-color var(--motion-fast);
 }
 
-.languageLinks a,
-.languageSoon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.5rem;
-  min-height: 44px;
-  padding-inline: 0.1rem;
-  border-radius: var(--radius-sm);
-  color: inherit;
-  transition: color var(--motion-fast);
-}
-
-.languageLinks a:hover {
+.languageOption:hover {
   color: var(--color-pink);
+  background: var(--color-blush);
 }
 
-.languageActive {
-  color: var(--color-ink) !important;
+.languageOptionActive {
+  color: var(--color-pink);
+  background: var(--color-blush);
+}
+
+.languageOptionName {
+  text-align: left;
+}
+
+.languageOptionShort {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.languageOptionActive .languageOptionShort {
+  color: var(--color-pink);
 }
 
 .languageDivider {
@@ -333,13 +364,258 @@
   user-select: none;
 }
 
-.languageSoon {
-  color: var(--color-text-muted);
-  cursor: default;
-  opacity: 0.7;
+/* ── Floating accessibility + language tools ─────────────────────────── */
+
+.floatingTools {
+  position: fixed;
+  z-index: 90;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 253, 250, 0.94);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(10px);
 }
 
 /* ── Header CTAs ────────────────────────────────────────────────────── */
+
+.joinMenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.joinTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.45rem 1.15rem;
+  border: 1.5px solid var(--color-pink);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-pink);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    transform var(--motion-fast),
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.joinTrigger:hover,
+.joinTriggerOpen {
+  transform: translateY(-1px);
+  background: var(--color-blush);
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+  box-shadow: 0 4px 14px rgba(244, 7, 112, 0.14);
+}
+
+.joinTriggerLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+
+.joinInlineHeart {
+  display: block;
+  width: 1.05em;
+  height: 1.05em;
+  flex-shrink: 0;
+  color: currentColor;
+  transform: translateY(0.02em);
+}
+
+.joinPanel {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  animation: joinPanelIn 0.22s ease;
+}
+
+/* Invisible bridge so hover survives the gap between button and panel. */
+.joinPanel::before {
+  content: "";
+  position: absolute;
+  top: -0.5rem;
+  left: 0;
+  right: 0;
+  height: 0.5rem;
+}
+
+@keyframes joinPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.joinHearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.joinHeart {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  color: var(--color-pink);
+  opacity: 0;
+  animation: joinHeartIn 0.5s ease forwards;
+}
+
+.joinHeartOne {
+  top: -10px;
+  left: -12px;
+  width: 20px;
+  height: 20px;
+  transform: rotate(-14deg);
+}
+
+.joinHeartTwo {
+  top: 34%;
+  right: -14px;
+  color: #ff4f8d;
+  animation-delay: 0.08s;
+  transform: rotate(12deg);
+}
+
+.joinHeartThree {
+  bottom: -11px;
+  left: 22%;
+  width: 15px;
+  height: 15px;
+  color: #ff7aad;
+  animation-delay: 0.16s;
+  transform: rotate(-8deg);
+}
+
+.joinHeartFour {
+  top: -10px;
+  right: 18%;
+  width: 14px;
+  height: 14px;
+  color: #ff7aad;
+  animation-delay: 0.12s;
+  transform: rotate(10deg);
+}
+
+.joinHeartFive {
+  bottom: 28%;
+  left: -13px;
+  width: 15px;
+  height: 15px;
+  color: #ff4f8d;
+  animation-delay: 0.2s;
+  transform: rotate(-12deg);
+}
+
+.joinHeartSix {
+  bottom: -10px;
+  right: -11px;
+  width: 19px;
+  height: 19px;
+  animation-delay: 0.26s;
+  transform: rotate(14deg);
+}
+
+@keyframes joinHeartIn {
+  from {
+    opacity: 0;
+    translate: 0 -5px;
+    scale: 0.55;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+.joinOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: center;
+  transition:
+    transform var(--motion-fast),
+    filter var(--motion-fast);
+}
+
+.joinOptionLogin {
+  min-height: 32px;
+  margin-top: 0.1rem;
+  padding: 0.2rem 0.4rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.joinOptionLogin:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.joinOptionDonate {
+  border: 1.5px solid var(--color-pink);
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.joinOptionDonate:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.joinOptionVolunteer {
+  border: 1.5px solid var(--color-blue);
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.joinOptionVolunteer:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
 
 .memberLogin,
 .donatePill,
@@ -377,6 +653,9 @@
   border: 1.5px solid var(--color-pink);
   background: var(--color-pink);
   color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(244, 7, 112, 0.12),
+    0 0 16px rgba(244, 7, 112, 0.4);
 }
 
 .donatePill:hover {
@@ -389,6 +668,9 @@
   border: 1.5px solid var(--color-blue);
   background: var(--color-blue);
   color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(24, 120, 242, 0.12),
+    0 0 16px rgba(24, 120, 242, 0.4);
 }
 
 .volunteerPill:hover {
@@ -415,9 +697,8 @@
   opacity: 0.72;
 }
 
-.donatePillCompact,
 .memberLoginCompact {
-  display: inline-flex;
+  display: none;
   padding-inline: 0.95rem;
   font-size: 0.84rem;
 }
@@ -615,14 +896,13 @@
   border: 1.5px solid var(--color-pink);
   border-radius: var(--radius-pill);
   background: var(--color-pink);
+  box-shadow:
+    0 0 0 1px rgba(244, 7, 112, 0.12),
+    0 0 16px rgba(244, 7, 112, 0.4);
   color: #fff;
   font-family: var(--font-body);
   font-size: 0.88rem;
   font-weight: 800;
-}
-
-.mobileAccess {
-  width: 100%;
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
@@ -828,19 +1108,12 @@
     display: none;
   }
 
-  .languageLinks,
-  .accessHeader,
   .memberLogin,
   .volunteerPill,
   .signOutPill {
     display: inline-flex;
   }
 
-  .headerActions > .donatePill:not(.donatePillCompact) {
-    display: inline-flex;
-  }
-
-  .headerActions .donatePillCompact,
   .headerActions .memberLoginCompact {
     display: none;
   }
@@ -876,6 +1149,7 @@
     gap: 0.75rem;
   }
 
+  .joinTrigger,
   .memberLogin,
   .donatePill,
   .volunteerPill,
@@ -886,19 +1160,12 @@
 }
 
 @media (max-width: 1319px) {
-  .languageLinks,
-  .accessHeader,
   .memberLogin,
   .volunteerPill,
   .signOutPill {
     display: none;
   }
 
-  .headerActions > .donatePill:not(.donatePillCompact) {
-    display: none;
-  }
-
-  .headerActions .donatePillCompact,
   .headerActions .memberLoginCompact {
     display: inline-flex;
   }
@@ -916,9 +1183,29 @@
   .mobileNav,
   .mobileNavDropdown,
   .accessPanel,
+  .languagePanel,
+  .joinPanel,
+  .joinOption,
+  .joinTrigger,
   .mobileToggle span,
   .mobileNavGroupTrigger span,
   .donatePill {
     transition: none;
+  }
+
+  .joinOptionDonate:hover,
+  .joinOptionVolunteer:hover,
+  .joinTrigger:hover,
+  .joinTriggerOpen {
+    transform: none;
+  }
+
+  .joinPanel,
+  .joinHeart {
+    animation: none;
+  }
+
+  .joinHeart {
+    opacity: 1;
   }
 }
