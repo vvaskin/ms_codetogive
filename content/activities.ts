@@ -69,7 +69,7 @@ export const upcomingActivities: ActivityCard[] = august2026Events.slice(0, 6).m
 
 export const activitiesContent = {
   hero: {
-    eyebrow: { en: "Activities & calendar", zh: "活動與日曆", cn: "活动与日历" },
+    eyebrow: { en: "Events", zh: "活動", cn: "活动" },
     title: { en: "See what’s happening.", zh: "看看最近有甚麼活動。", cn: "看看最近有什么活动。" },
     accent: { en: "Then come be part of it.", zh: "一起參與吧。", cn: "一起参与吧。" },
     description: {

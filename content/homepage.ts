@@ -214,7 +214,7 @@ const routes = {
   contact: { en: "/contact-us/", zh: "/zh/contact-us-hk/", cn: "/cn/contact-us/" },
   volunteer: { en: "/our-volunteer/", zh: "/zh/our-volunteer-hk/", cn: "/cn/our-volunteer/" },
   donate: { en: "/donate/", zh: "/zh/donate-hk/", cn: "/cn/donate/" },
-  programmes: { en: "/our-programmes/", zh: "/zh/our-programmes-hk/", cn: "/cn/our-programmes/" },
+  programmes: { en: "/#what-we-do", zh: "/zh/#what-we-do", cn: "/cn/#what-we-do" },
   finance: { en: "/our-finance/", zh: "/zh/our-finance-hk/", cn: "/cn/our-finance/" },
   board: { en: "/board-of-directors/", zh: "/zh/board-of-directors-hk/", cn: "/cn/board-of-directors/" },
   media: { en: "/media/", zh: "/zh/media-hk/", cn: "/cn/media/" },

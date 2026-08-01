@@ -14,8 +14,7 @@ export type PageTemplate =
   | "contact"
   | "donate"
   | "account"
-  | "calendar"
-  | "join";
+  | "calendar";
 
 export interface MediaArticle {
   slug: string;
@@ -289,13 +288,6 @@ const enPages: SitePage[] = [
     title: "MEDIA",
   },
   {
-    path: "/join-us/",
-    locale: "en",
-    alternatePath: "/zh/join-us-hk/",
-    template: "join",
-    title: "INTERNSHIP OPPORTUNITIES",
-  },
-  {
     path: "/board-of-directors/",
     locale: "en",
     alternatePath: "/zh/board-of-directors-hk/",
@@ -315,13 +307,6 @@ const enPages: SitePage[] = [
     paragraphs: [
       "Love 21 Foundation is a registered charity under Section 88 of the Inland Revenue Ordinance in Hong Kong. It is our goal to provide the greatest support for the Down syndrome and autistic community through sport, nutrition and holistic programmes.",
     ],
-  },
-  {
-    path: "/our-programmes/",
-    locale: "en",
-    alternatePath: "/zh/our-programmes-hk/",
-    template: "programmes",
-    title: "OUR PROGRAMMES",
   },
   {
     path: "/events",
@@ -441,13 +426,6 @@ const zhPages: SitePage[] = [
     title: "媒體報導",
   },
   {
-    path: "/zh/join-us-hk/",
-    locale: "zh",
-    alternatePath: "/join-us/",
-    template: "join",
-    title: "實習機會",
-  },
-  {
     path: "/zh/board-of-directors-hk/",
     locale: "zh",
     alternatePath: "/board-of-directors/",
@@ -467,13 +445,6 @@ const zhPages: SitePage[] = [
     paragraphs: [
       "Love 21的工作人員透過運動、營養及全面支援計劃，為會員和家庭提供服務。",
     ],
-  },
-  {
-    path: "/zh/our-programmes-hk/",
-    locale: "zh",
-    alternatePath: "/our-programmes/",
-    template: "programmes",
-    title: "我們的計劃",
   },
   {
     path: "/zh/contact-us-hk/",
@@ -596,13 +567,6 @@ const cnPages: SitePage[] = [
     title: "媒体报道",
   },
   {
-    path: "/cn/join-us/",
-    locale: "cn",
-    alternatePath: "/join-us/",
-    template: "join",
-    title: "实习机会",
-  },
-  {
     path: "/cn/board-of-directors/",
     locale: "cn",
     alternatePath: "/board-of-directors/",
@@ -622,13 +586,6 @@ const cnPages: SitePage[] = [
     paragraphs: [
       "Love 21的工作人员通过运动、营养及全面支援计划，为会员和家庭提供服务。",
     ],
-  },
-  {
-    path: "/cn/our-programmes/",
-    locale: "cn",
-    alternatePath: "/our-programmes/",
-    template: "programmes",
-    title: "我们的计划",
   },
   {
     path: "/cn/contact-us/",
