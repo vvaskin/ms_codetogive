@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { alternatePaths, normalizePath } from "../content/site-data";
 import { useUser } from "../lib/supabase/use-user";
 import { BrandLockup } from "./ui/BrandLockup";
@@ -10,23 +11,52 @@ import styles from "./SiteChrome.module.css";
 
 const SIMPLE_VIEW_KEY = "simple-view";
 const SIMPLE_VIEW_EVENT = "love21-simple-view";
+const HIGH_CONTRAST_KEY = "high-contrast";
+const HIGH_CONTRAST_EVENT = "love21-high-contrast";
+const TEXT_SIZE_KEY = "text-size";
+const TEXT_SIZE_EVENT = "love21-text-size";
+const TEXT_SIZE_MAX = 2;
 
-function subscribeSimpleView(onStoreChange: () => void) {
+function subscribeLocalStorage(eventName: string, onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
-  window.addEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+  window.addEventListener(eventName, onStoreChange);
   return () => {
     window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener(SIMPLE_VIEW_EVENT, onStoreChange);
+    window.removeEventListener(eventName, onStoreChange);
   };
 }
 
-function getSimpleViewSnapshot() {
-  return window.localStorage.getItem(SIMPLE_VIEW_KEY) === "on";
+function getBoolSnapshot(key: string) {
+  return window.localStorage.getItem(key) === "on";
 }
 
-function getSimpleViewServerSnapshot() {
-  return false;
+function getNumberSnapshot(key: string, min: number, max: number) {
+  const value = Number(window.localStorage.getItem(key));
+  return Number.isFinite(value)
+    ? Math.min(max, Math.max(min, Math.round(value)))
+    : 0;
 }
+
+const simpleViewStore = {
+  subscribe: (onStoreChange: () => void) =>
+    subscribeLocalStorage(SIMPLE_VIEW_EVENT, onStoreChange),
+  getSnapshot: () => getBoolSnapshot(SIMPLE_VIEW_KEY),
+  getServerSnapshot: () => false,
+};
+
+const highContrastStore = {
+  subscribe: (onStoreChange: () => void) =>
+    subscribeLocalStorage(HIGH_CONTRAST_EVENT, onStoreChange),
+  getSnapshot: () => getBoolSnapshot(HIGH_CONTRAST_KEY),
+  getServerSnapshot: () => false,
+};
+
+const textSizeStore = {
+  subscribe: (onStoreChange: () => void) =>
+    subscribeLocalStorage(TEXT_SIZE_EVENT, onStoreChange),
+  getSnapshot: () => getNumberSnapshot(TEXT_SIZE_KEY, 0, TEXT_SIZE_MAX),
+  getServerSnapshot: () => 0,
+};
 
 const enAbout = [
   ["Our Story", "/our-story/"],
@@ -76,70 +106,183 @@ const zhInvolved = [
   ["參與我們", "/zh/get-involved-hk/"],
 ];
 
-function CalmModeToggle({
+function AccessibilityMenu({
   zh,
+  mobile = false,
   simpleView,
-  onToggle,
+  highContrast,
+  textSize,
+  onToggleSimpleView,
+  onToggleHighContrast,
+  onAdjustTextSize,
   className,
-  showLabel = true,
 }: {
   zh: boolean;
+  mobile?: boolean;
   simpleView: boolean;
-  onToggle: () => void;
+  highContrast: boolean;
+  textSize: number;
+  onToggleSimpleView: () => void;
+  onToggleHighContrast: () => void;
+  onAdjustTextSize: (delta: number) => void;
   className?: string;
-  showLabel?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  const contrastLabel = zh ? "高對比度" : "High contrast";
+  const textLabel = zh ? "文字大小" : "Text size";
   const calmLabel = zh ? "舒適模式" : "Calm mode";
 
-  return (
-    <button
-      type="button"
-      className={`${styles.calmToggle} ${simpleView ? styles.calmToggleOn : ""} ${className ?? ""}`}
-      aria-label={zh ? "切換舒適模式" : "Toggle calm mode"}
-      aria-pressed={simpleView}
-      title={calmLabel}
-      onClick={onToggle}
+  const panel = (
+    <div
+      className={`${styles.accessPanel} ${mobile ? styles.accessPanelMobile : ""}`}
+      role="group"
+      aria-label={zh ? "無障礙設定" : "Accessibility settings"}
     >
-      <span className={styles.calmIndicator} aria-hidden="true" />
-      {showLabel ? (
+      <p className={styles.accessHeading}>{zh ? "無障礙設定" : "Accessibility"}</p>
+
+      <div className={styles.accessRow}>
+        <span className={styles.accessLabel}>{contrastLabel}</span>
+        <button
+          type="button"
+          className={`${styles.accessToggle} ${highContrast ? styles.accessToggleOn : ""}`}
+          aria-pressed={highContrast}
+          onClick={onToggleHighContrast}
+        >
+          {highContrast ? (zh ? "已開啟" : "On") : zh ? "已關閉" : "Off"}
+        </button>
+      </div>
+
+      <div className={styles.accessRow}>
+        <span className={styles.accessLabel}>{textLabel}</span>
+        <span className={styles.accessTextSize}>
+          <button
+            type="button"
+            className={styles.accessTextBtn}
+            aria-label={zh ? "減小文字" : "Decrease text size"}
+            disabled={textSize === 0}
+            onClick={() => onAdjustTextSize(-1)}
+          >
+            A−
+          </button>
+          <button
+            type="button"
+            className={styles.accessTextBtn}
+            aria-label={zh ? "增大文字" : "Increase text size"}
+            disabled={textSize === TEXT_SIZE_MAX}
+            onClick={() => onAdjustTextSize(1)}
+          >
+            A+
+          </button>
+        </span>
+      </div>
+
+      <div className={styles.accessRow}>
+        <span className={styles.accessLabel}>{calmLabel}</span>
+        <button
+          type="button"
+          className={`${styles.accessToggle} ${simpleView ? styles.accessToggleOn : ""}`}
+          aria-pressed={simpleView}
+          onClick={onToggleSimpleView}
+        >
+          {simpleView ? (zh ? "已開啟" : "On") : zh ? "已關閉" : "Off"}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div ref={rootRef} className={`${styles.accessMenu} ${className ?? ""}`}>
+      {mobile ? (
+        panel
+      ) : (
         <>
-          <span className={styles.calmLabel}>
-            <span className={styles.calmLabelFull}>{calmLabel}</span>
-            <span className={styles.calmLabelShort}>{zh ? "舒適" : "Calm"}</span>
-          </span>
+          <button
+            type="button"
+            className={`${styles.accessTrigger} ${open ? styles.accessTriggerOpen : ""}`}
+            aria-label={zh ? "無障礙設定" : "Accessibility settings"}
+            aria-haspopup="true"
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+          >
+            <Image
+              src="/assets/images/accessibility-symbol.png"
+              alt=""
+              width={250}
+              height={250}
+              className={styles.accessIcon}
+            />
+          </button>
+          {open ? panel : null}
         </>
-      ) : null}
-    </button>
+      )}
+    </div>
   );
 }
 
 function MenuGroup({
+  zh,
   label,
+  href,
   items,
   open = false,
   onToggle,
   variant = "desktop",
 }: {
+  zh: boolean;
   label: string;
+  href: string;
   items: string[][];
   open?: boolean;
   onToggle?: () => void;
-  onOpen?: () => void;
-  onClose?: () => void;
   variant?: "desktop" | "mobile";
 }) {
   if (variant === "mobile") {
     return (
       <div className={`${styles.mobileNavGroup} ${open ? styles.mobileNavGroupOpen : ""}`}>
-        <button
-          className={styles.mobileNavGroupTrigger}
-          type="button"
-          aria-expanded={open}
-          onClick={onToggle}
-        >
-          {label}
-          <span aria-hidden="true">⌄</span>
-        </button>
+        <div className={styles.mobileNavGroupHeader}>
+          <Link href={href} className={styles.mobileNavGroupLink}>
+            {label}
+          </Link>
+          <button
+            type="button"
+            className={styles.mobileNavGroupTrigger}
+            aria-expanded={open}
+            aria-label={
+              open
+                ? zh
+                  ? "收起選單"
+                  : "Collapse menu"
+                : zh
+                  ? "展開選單"
+                  : "Expand menu"
+            }
+            onClick={onToggle}
+          >
+            <span aria-hidden="true">⌄</span>
+          </button>
+        </div>
         <div className={styles.mobileNavDropdown}>
           {items.map(([text, href]) => (
             <Link href={href} key={`${text}-${href}`}>
@@ -152,27 +295,10 @@ function MenuGroup({
   }
 
   return (
-    <div
-      className={styles.navGroup}
-      onMouseLeave={(event) => {
-        const active = document.activeElement;
-        if (
-          active instanceof HTMLElement &&
-          event.currentTarget.contains(active)
-        ) {
-          active.blur();
-        }
-      }}
-    >
-      <button
-        className={styles.navGroupTrigger}
-        type="button"
-        aria-expanded={false}
-        aria-haspopup="true"
-      >
+    <div className={styles.navGroup}>
+      <Link href={href} className={styles.navGroupLink}>
         {label}
-        <span aria-hidden="true">⌄</span>
-      </button>
+      </Link>
       <div className={styles.navDropdown}>
         {items.map(([text, href]) => (
           <Link href={href} key={`${text}-${href}`}>
@@ -191,14 +317,34 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const simpleView = useSyncExternalStore(
-    subscribeSimpleView,
-    getSimpleViewSnapshot,
-    getSimpleViewServerSnapshot,
+    simpleViewStore.subscribe,
+    simpleViewStore.getSnapshot,
+    simpleViewStore.getServerSnapshot,
+  );
+  const highContrast = useSyncExternalStore(
+    highContrastStore.subscribe,
+    highContrastStore.getSnapshot,
+    highContrastStore.getServerSnapshot,
+  );
+  const textSize = useSyncExternalStore(
+    textSizeStore.subscribe,
+    textSizeStore.getSnapshot,
+    textSizeStore.getServerSnapshot,
   );
 
   useEffect(() => {
     document.documentElement.classList.toggle("simple-view", simpleView);
   }, [simpleView]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("high-contrast", highContrast);
+  }, [highContrast]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("text-large", textSize === 1);
+    root.classList.toggle("text-largest", textSize === 2);
+  }, [textSize]);
 
   useEffect(() => {
     document.documentElement.lang = zh ? "zh-Hant" : "en";
@@ -208,6 +354,18 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     const next = !simpleView;
     window.localStorage.setItem(SIMPLE_VIEW_KEY, next ? "on" : "off");
     window.dispatchEvent(new Event(SIMPLE_VIEW_EVENT));
+  };
+
+  const toggleHighContrast = () => {
+    const next = !highContrast;
+    window.localStorage.setItem(HIGH_CONTRAST_KEY, next ? "on" : "off");
+    window.dispatchEvent(new Event(HIGH_CONTRAST_EVENT));
+  };
+
+  const adjustTextSize = (delta: number) => {
+    const next = Math.min(TEXT_SIZE_MAX, Math.max(0, textSize + delta));
+    window.localStorage.setItem(TEXT_SIZE_KEY, String(next));
+    window.dispatchEvent(new Event(TEXT_SIZE_EVENT));
   };
 
   const alternate = alternatePaths[pathname] || (zh ? "/" : "/zh/");
@@ -248,7 +406,12 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </div>
 
           <nav className={styles.primaryNav} aria-label="Primary">
-            <MenuGroup label={zh ? "關於" : "About"} items={aboutItems} />
+            <MenuGroup
+              zh={zh}
+              label={zh ? "關於" : "About"}
+              href={zh ? "/zh/our-story-hk/" : "/our-story/"}
+              items={aboutItems}
+            />
             <Link
               href={zh ? "/zh/our-programmes-hk/" : "/our-programmes/"}
               className={styles.navLink}
@@ -256,7 +419,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               {zh ? "我們的計劃" : "Our Programmes"}
             </Link>
             <MenuGroup
+              zh={zh}
               label={zh ? "活動與行事曆" : "Activities & Calendar"}
+              href={zh ? "/zh/events-hk/" : "/events"}
               items={activityItems}
             />
             <Link
@@ -271,11 +436,15 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className={styles.headerActions}>
-            <CalmModeToggle
+            <AccessibilityMenu
               zh={zh}
               simpleView={simpleView}
-              onToggle={toggleSimpleView}
-              className={styles.calmToggleHeader}
+              highContrast={highContrast}
+              textSize={textSize}
+              onToggleSimpleView={toggleSimpleView}
+              onToggleHighContrast={toggleHighContrast}
+              onAdjustTextSize={adjustTextSize}
+              className={styles.accessHeader}
             />
 
             <div className={styles.languageLinks} aria-label="Language">
@@ -351,7 +520,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           }}
         >
           <MenuGroup
+            zh={zh}
             label={zh ? "關於" : "About"}
+            href={zh ? "/zh/our-story-hk/" : "/our-story/"}
             items={aboutItems}
             open={openGroup === "about"}
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
@@ -364,7 +535,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             {zh ? "我們的計劃" : "Our Programmes"}
           </Link>
           <MenuGroup
+            zh={zh}
             label={zh ? "活動與行事曆" : "Activities & Calendar"}
+            href={zh ? "/zh/events-hk/" : "/events"}
             items={activityItems}
             open={openGroup === "activities"}
             onToggle={() =>
@@ -394,11 +567,16 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                 {volunteerLabel}
               </Link>
             </div>
-            <CalmModeToggle
+            <AccessibilityMenu
               zh={zh}
+              mobile
               simpleView={simpleView}
-              onToggle={toggleSimpleView}
-              className={styles.mobileCalmToggle}
+              highContrast={highContrast}
+              textSize={textSize}
+              onToggleSimpleView={toggleSimpleView}
+              onToggleHighContrast={toggleHighContrast}
+              onAdjustTextSize={adjustTextSize}
+              className={styles.mobileAccess}
             />
             <Link href={alternate} className={styles.mobileNavLink}>
               {zh ? "English (EN)" : "繁體中文 (繁)"}
