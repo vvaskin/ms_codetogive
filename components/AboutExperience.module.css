@@ -250,6 +250,36 @@
   line-height: 1.5;
 }
 
+.trustSection {
+  position: relative;
+}
+
+.trustIntro {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+  width: min(1120px, calc(100% - (var(--layout-gutter) * 2)));
+  margin: 0 auto clamp(2.5rem, 5vw, 4rem);
+}
+
+.trustIntro h2 {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.trustIntro p {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
 .governance {
   display: grid;
   gap: clamp(1.75rem, 4vw, 2.75rem);

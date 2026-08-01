@@ -68,71 +68,6 @@
   color: var(--color-pink);
 }
 
-/* ── Dropdown groups ────────────────────────────────────────────────── */
-
-.navGroup {
-  position: relative;
-}
-
-.navGroupLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0.35rem 0.45rem;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-ink);
-  white-space: nowrap;
-  transition: color var(--motion-fast);
-}
-
-.navGroupLink:hover,
-.navGroup:hover .navGroupLink {
-  color: var(--color-pink);
-}
-
-.navDropdown {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  z-index: 20;
-  display: none;
-  gap: 0.15rem;
-  min-width: 12.5rem;
-  /* Top padding bridges the trigger→menu gap so hover is not lost */
-  padding: 0.55rem 0.5rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-white);
-  background-clip: padding-box;
-  box-shadow: var(--shadow-soft);
-  transform: translateX(-50%);
-}
-
-.navGroup:hover .navDropdown {
-  display: grid;
-}
-
-.navDropdown a {
-  display: block;
-  min-height: 44px;
-  padding: 0.55rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-ink);
-  transition:
-    color var(--motion-fast),
-    background-color var(--motion-fast);
-}
-
-.navDropdown a:hover {
-  color: var(--color-pink);
-  background: var(--color-blush);
-}
-
 /* ── Accessibility menu ─────────────────────────────────────────────── */
 
 .accessMenu {
@@ -809,69 +744,6 @@
   visibility: visible;
 }
 
-.mobileNavGroup {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.mobileNavGroupHeader {
-  display: flex;
-  align-items: center;
-}
-
-.mobileNavGroupLink {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 0.65rem 0.25rem;
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--color-ink);
-}
-
-.mobileNavGroupLink:hover {
-  color: var(--color-pink);
-}
-
-.mobileNavGroupTrigger {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  min-height: 48px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--color-ink);
-  cursor: pointer;
-}
-
-.mobileNavGroupTrigger span {
-  font-size: 0.7rem;
-  transition: transform var(--motion-fast);
-}
-
-.mobileNavGroupOpen .mobileNavGroupTrigger span {
-  transform: rotate(180deg);
-}
-
-.mobileNavDropdown {
-  display: grid;
-  gap: 0.1rem;
-  max-height: 0;
-  overflow: hidden;
-  padding-left: 0.5rem;
-  transition: max-height var(--motion-base);
-}
-
-.mobileNavGroupOpen .mobileNavDropdown {
-  max-height: 20rem;
-  padding-bottom: 0.75rem;
-}
-
-.mobileNavDropdown a,
 .mobileNavLink {
   display: flex;
   align-items: center;
@@ -883,7 +755,6 @@
   transition: color var(--motion-fast);
 }
 
-.mobileNavDropdown a:hover,
 .mobileNavLink:hover {
   color: var(--color-pink);
 }
@@ -1166,8 +1037,7 @@
     padding-inline: 1.25rem;
   }
 
-  .navLink,
-  .navGroupLink {
+  .navLink {
     padding-inline: 0.6rem;
     font-size: 1rem;
   }
@@ -1206,16 +1076,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navDropdown,
   .mobileNav,
-  .mobileNavDropdown,
   .accessPanel,
   .languagePanel,
   .joinPanel,
   .joinOption,
   .joinTrigger,
   .mobileToggle span,
-  .mobileNavGroupTrigger span,
   .donatePill {
     transition: none;
   }

@@ -39,9 +39,9 @@ export const financeContent = {
   hero: {
     badge: { en: "Trust & transparency", zh: "信任與透明", cn: "信任与透明" } satisfies Localized,
     title: {
-      en: "Trust belongs on the screen, not hidden in a PDF",
-      zh: "信任應清晰呈現，而非藏在 PDF 裡",
-      cn: "信任应清晰呈现，而非藏在 PDF 里",
+      en: "Trust belongs on the screen, not hidden in a document",
+      zh: "信任應清晰呈現，而非藏在文件裡",
+      cn: "信任应清晰呈现，而非藏在文件里",
     } satisfies Localized,
     description: {
       en: "Governance, financial reports, and real impact numbers — the same figures our board sees, in plain language.",
@@ -131,22 +131,6 @@ export const financeContent = {
   },
   impact: {
     items: [
-      {
-        value: "490",
-        label: { en: "Families supported", zh: "受惠家庭", cn: "受惠家庭" } satisfies Localized,
-      },
-      {
-        value: "6,859",
-        label: { en: "Sessions delivered", zh: "活動節數", cn: "活动节数" } satisfies Localized,
-      },
-      {
-        value: "84",
-        label: {
-          en: "Activity types offered",
-          zh: "活動種類",
-          cn: "活动种类",
-        } satisfies Localized,
-      },
       {
         value: "HK$3.8M+",
         label: {

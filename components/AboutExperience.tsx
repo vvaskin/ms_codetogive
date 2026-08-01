@@ -6,6 +6,8 @@ import {
   t,
   type AboutLocale,
 } from "../content/about";
+import { financeContent } from "../content/finance";
+import { FinanceContent } from "./FinanceContent";
 import { StatusPill } from "./ui/StatusPill";
 import styles from "./AboutExperience.module.css";
 
@@ -85,6 +87,17 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className={styles.trustSection} aria-labelledby="about-trust-title">
+        <div className={styles.trustIntro}>
+          <StatusPill tone="blue">
+            {t(financeContent.hero.badge, locale)}
+          </StatusPill>
+          <h2 id="about-trust-title">{t(financeContent.hero.title, locale)}</h2>
+          <p>{t(financeContent.hero.description, locale)}</p>
+        </div>
+        <FinanceContent locale={locale} />
       </section>
 
       <section className={styles.governance} aria-labelledby="about-board-title">

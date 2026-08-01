@@ -60,21 +60,6 @@ const textSizeStore = {
   getServerSnapshot: () => 0,
 };
 
-const enAbout = [
-  ["Trust & Transparency", "/our-finance/"],
-  ["Media", "/media/"],
-];
-
-const zhAbout = [
-  ["信任與透明", "/zh/our-finance-hk/"],
-  ["媒體報導", "/zh/media-hk/"],
-];
-
-const cnAbout = [
-  ["信任与透明", "/cn/our-finance/"],
-  ["媒体报道", "/cn/media/"],
-];
-
 function GlobeIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -425,79 +410,6 @@ function AccessibilityMenu({
   );
 }
 
-function MenuGroup({
-  locale,
-  label,
-  href,
-  items,
-  open = false,
-  onToggle,
-  variant = "desktop",
-}: {
-  locale: Locale;
-  label: string;
-  href: string;
-  items: string[][];
-  open?: boolean;
-  onToggle?: () => void;
-  variant?: "desktop" | "mobile";
-}) {
-  if (variant === "mobile") {
-    return (
-      <div className={`${styles.mobileNavGroup} ${open ? styles.mobileNavGroupOpen : ""}`}>
-        <div className={styles.mobileNavGroupHeader}>
-          <Link href={href} className={styles.mobileNavGroupLink}>
-            {label}
-          </Link>
-          <button
-            type="button"
-            className={styles.mobileNavGroupTrigger}
-            aria-expanded={open}
-            aria-label={
-              open
-                ? locale === "zh"
-                  ? "收起選單"
-                  : locale === "cn"
-                    ? "收起选单"
-                    : "Collapse menu"
-                : locale === "zh"
-                  ? "展開選單"
-                  : locale === "cn"
-                    ? "展开选单"
-                    : "Expand menu"
-            }
-            onClick={onToggle}
-          >
-            <span aria-hidden="true">⌄</span>
-          </button>
-        </div>
-        <div className={styles.mobileNavDropdown}>
-          {items.map(([text, href]) => (
-            <Link href={href} key={`${text}-${href}`}>
-              {text}
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.navGroup}>
-      <Link href={href} className={styles.navGroupLink}>
-        {label}
-      </Link>
-      <div className={styles.navDropdown}>
-        {items.map(([text, href]) => (
-          <Link href={href} key={`${text}-${href}`}>
-            {text}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
   const locale: Locale = pathname.startsWith("/cn/")
@@ -514,7 +426,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isPortal = pathname.startsWith("/portal");
   const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const simpleView = useSyncExternalStore(
     simpleViewStore.subscribe,
     simpleViewStore.getSnapshot,
@@ -569,7 +480,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   };
 
   const trio = localePaths(pathname);
-  const aboutItems = cn ? cnAbout : zh ? zhAbout : enAbout;
+  const aboutPath = pick("/about/", "/zh/about-hk/", "/cn/about/");
+  const aboutLabel = pick("About", "關於", "关于");
   const contactPath = pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
   const eventsPath = pick("/events", "/zh/events-hk/", "/cn/events");
   const storiesPath = pick("/stories/", "/zh/stories-hk/", "/cn/stories/");
@@ -600,7 +512,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   const closeMobileNav = () => {
     setMobileOpen(false);
-    setOpenGroup(null);
   };
 
   // Portal routes render their own chrome (PortalShell); the site header and
@@ -619,12 +530,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
           {!isPortal && (
           <nav className={styles.primaryNav} aria-label="Primary">
-            <MenuGroup
-              locale={locale}
-              label={pick("About", "關於", "关于")}
-              href={pick("/about/", "/zh/about-hk/", "/cn/about/")}
-              items={aboutItems}
-            />
+            <Link href={aboutPath} className={styles.navLink}>
+              {aboutLabel}
+            </Link>
             <Link href={eventsPath} className={styles.navLink}>
               {eventsLabel}
             </Link>
@@ -692,15 +600,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             }
           }}
         >
-          <MenuGroup
-            locale={locale}
-            label={pick("About", "關於", "关于")}
-            href={pick("/about/", "/zh/about-hk/", "/cn/about/")}
-            items={aboutItems}
-            open={openGroup === "about"}
-            onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
-            variant="mobile"
-          />
+          <Link href={aboutPath} className={styles.mobileNavLink}>
+            {aboutLabel}
+          </Link>
           <Link href={eventsPath} className={styles.mobileNavLink}>
             {eventsLabel}
           </Link>
@@ -776,11 +678,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <span className={styles.footerSubheading}>
                 {pick("About Us", "關於我們", "关于我们")}
               </span>
-              {aboutItems.map(([text, href]) => (
-                <Link key={href} href={href}>
-                  {text}
-                </Link>
-              ))}
+              <Link href={aboutPath}>{aboutLabel}</Link>
               <Link href={eventsPath}>{eventsLabel}</Link>
               <Link href={storiesPath}>{storiesLabel}</Link>
             </div>
