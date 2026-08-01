@@ -18,8 +18,7 @@
 .sectionHeading { max-width: 720px; }
 .sectionHeading h2 { font-size: clamp(2rem, 4.3vw, 3.4rem); }
 .sectionHeading > p:last-child { margin-inline: 0; }
-.calendarLayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); margin-top: var(--space-6); transition: grid-template-columns var(--motion-base); }
-.calendarLayout.calendarSelected { grid-template-columns: minmax(0, 1fr) minmax(340px, 390px); }
+.calendarLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 390px); gap: var(--space-5); margin-top: var(--space-6); }
 .calendarCard, .dayPanel { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-white); box-shadow: var(--shadow-soft); }
 .calendarCard { padding: clamp(1rem, 3vw, 1.75rem); }
 .calendarHeader, .panelHeading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
@@ -68,7 +67,7 @@
 .wrapped time { color: var(--color-pink); font-weight: 800; }.wrapped em { color: var(--color-text-muted); font-size: .9rem; font-style: normal; }
 .volunteerCta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-6); align-items: center; }.volunteerCta h2 { font-size: clamp(2rem, 4vw, 3.2rem); }.volunteerCta p { margin-left: 0; }.volunteerCta > div:last-child { justify-content: flex-end; margin-top: 0; }
 .zh .eyebrow { font-family: var(--font-body); font-size: 1rem; }.zh h1, .zh h2 { letter-spacing: 0; }
-@media (max-width: 900px) { .calendarLayout.calendarSelected, .volunteerCta { grid-template-columns: 1fr; }.volunteerCta > div:last-child { justify-content: flex-start; }.quickGrid, .activityGrid, .programmeGrid { grid-template-columns: repeat(2, 1fr); }.programmeCard:last-child { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .calendarLayout, .volunteerCta { grid-template-columns: 1fr; }.volunteerCta > div:last-child { justify-content: flex-start; }.quickGrid, .activityGrid, .programmeGrid { grid-template-columns: repeat(2, 1fr); }.programmeCard:last-child { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .quickGrid, .activityGrid, .programmeGrid { grid-template-columns: 1fr; }.programmeCard:last-child { grid-column: auto; }.calendarCard { padding: .8rem; }.weekdays { font-size: .7rem; }.dayButton { min-height: 42px; font-size: .9rem; }.wrapped li { grid-template-columns: 62px 1fr; }.wrapped em { grid-column: 2; }.heroActions, .volunteerCta > div:last-child { justify-content: flex-start; } }
-@media (prefers-reduced-motion: reduce) { .calendarLayout, .quickCard { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .quickCard { transition: none; } }
 :global(html.high-contrast) .page .programmeCard { border: 2px solid currentColor; }

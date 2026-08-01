@@ -48,9 +48,10 @@ export function ActivitiesExperience({
   registeredEventIds?: number[];
 }) {
   const today = hongKongDateKey();
+  const nextEventDate =
+    events.find((event) => event.date >= today)?.date ?? events.at(-1)?.date ?? null;
   const [visibleMonth, setVisibleMonth] = useState(() => {
-    const nextEvent = events.find((event) => event.date >= today);
-    return (nextEvent ?? events.at(-1))?.date.slice(0, 7) ?? today.slice(0, 7);
+    return (nextEventDate ?? today).slice(0, 7);
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ActivityCategory | "all">("all");
@@ -86,7 +87,8 @@ export function ActivitiesExperience({
       }, {}),
     [events],
   );
-  const selectedEvents = selectedDate ? eventsByDate[selectedDate] ?? [] : [];
+  const panelDate = selectedDate ?? nextEventDate;
+  const panelEvents = panelDate ? eventsByDate[panelDate] ?? [] : [];
   const upcomingEvents = events.filter((event) => event.date >= today);
   const filteredActivities = upcomingEvents
     .filter(
@@ -151,9 +153,9 @@ export function ActivitiesExperience({
         <div className={styles.sectionHeading}>
           <p className={styles.eyebrow}>{pick("Activity calendar", "活動日曆", "活动日历")}</p>
           <h2>{pick("Pick a date. See what’s on.", "選擇日期，查看當日活動。", "选择日期，查看当日活动。")}</h2>
-          <p>{pick("Days with coloured dots have activities. Select the same day again, or clear your selection, to return to the full calendar.", "有彩色圓點的日期代表有活動。按相同日期或清除選擇可回到完整日曆。", "有彩色圆点的日期代表有活动。按相同日期或清除选择可回到完整日历。")}</p>
+          <p>{pick("The next activity is previewed on the right. Select any date with coloured dots to see that day’s schedule.", "右方顯示下一個活動。選擇有彩色圓點的日期可查看當日活動。", "右侧显示下一个活动。选择有彩色圆点的日期可查看当日活动。")}</p>
         </div>
-        <div className={`${styles.calendarLayout} ${selectedDate ? styles.calendarSelected : ""}`}>
+        <div className={styles.calendarLayout}>
           <div className={styles.calendarCard}>
             <div className={styles.calendarHeader}>
               <h3>{monthLabel}</h3>
@@ -176,7 +178,7 @@ export function ActivitiesExperience({
                 </button>
                 {selectedDate && (
                   <button type="button" className={styles.clearSelection} onClick={() => setSelectedDate(null)}>
-                    {pick("Clear selection", "清除選擇", "清除选择")}
+                    {pick("Show next event", "顯示下一個活動", "显示下一个活动")}
                   </button>
                 )}
               </div>
@@ -190,7 +192,7 @@ export function ActivitiesExperience({
                 const day = index + 1;
                 const key = dateKey(visibleMonth, day);
                 const dayEvents = eventsByDate[key] ?? [];
-                const isSelected = selectedDate === key;
+                const isActive = panelDate === key;
                 const dateLabel = new Intl.DateTimeFormat(intlLocale, {
                   weekday: "long",
                   month: "long",
@@ -200,9 +202,9 @@ export function ActivitiesExperience({
                   <button
                     type="button"
                     key={key}
-                    className={`${styles.dayButton} ${isSelected ? styles.daySelected : ""}`}
-                    onClick={() => setSelectedDate(isSelected ? null : key)}
-                    aria-pressed={isSelected}
+                    className={`${styles.dayButton} ${isActive ? styles.daySelected : ""}`}
+                    onClick={() => setSelectedDate(isActive ? null : key)}
+                    aria-pressed={isActive}
                     aria-label={`${dateLabel}${dayEvents.length ? `, ${dayEvents.length} ${pick(dayEvents.length === 1 ? "activity" : "activities", "項活動", "项活动")}` : ""}`}
                   >
                     <span>{day}</span>
@@ -219,18 +221,20 @@ export function ActivitiesExperience({
             </div>
           </div>
 
-          {selectedDate && (
+          {panelDate && (
             <aside className={styles.dayPanel} aria-live="polite">
               <div className={styles.panelHeading}>
                 <div>
-                  <p>{pick("Selected date", "已選日期", "已选日期")}</p>
-                  <h3>{new Intl.DateTimeFormat(intlLocale, { month: "long", day: "numeric" }).format(new Date(`${selectedDate}T12:00:00`))}</h3>
+                  <p>{selectedDate ? pick("Selected date", "已選日期", "已选日期") : pick("Next up", "下一個活動", "下一个活动")}</p>
+                  <h3>{new Intl.DateTimeFormat(intlLocale, { month: "long", day: "numeric" }).format(new Date(`${panelDate}T12:00:00`))}</h3>
                 </div>
-                <button type="button" onClick={() => setSelectedDate(null)} aria-label={pick("Close selected day events", "關閉已選日期活動", "关闭已选日期活动")}>×</button>
+                {selectedDate && (
+                  <button type="button" onClick={() => setSelectedDate(null)} aria-label={pick("Back to the next event", "返回下一個活動", "返回下一个活动")}>×</button>
+                )}
               </div>
-              {selectedEvents.length ? (
+              {panelEvents.length ? (
                 <ul className={styles.dayEvents}>
-                  {selectedEvents.map((event) => (
+                  {panelEvents.map((event) => (
                     <li key={event.id}>
                       <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === event.category)?.color }}>
                         {activityText(activityCategories.find((item) => item.id === event.category)!.label, locale)}
