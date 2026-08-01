@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureAccount } from "@/lib/server/ensure-account";
-import type { DonationFrequency, DonationKind } from "@/lib/supabase/types";
+import type { DonationFrequency, DonationKind } from "@/lib/supabase/table-types";
 
 export interface RecordDonationInput {
   amountCents: number;

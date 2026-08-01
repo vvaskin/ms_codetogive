@@ -2,26 +2,34 @@
 
 import { FormEvent, useState } from "react";
 import { registerForEvent } from "@/app/actions/registrations";
-import { formatWeekdayDayMonth } from "@/lib/format-date";
+import type { Locale } from "@/content/site-data";
+import { formatEventTime, formatWeekdayDayMonthAt } from "@/lib/format-date";
+import { pickLocalized } from "@/lib/localized";
 import styles from "./VolunteerEventsFeed.module.css";
 
 type FeedEvent = {
   id: number;
   title: string;
-  date: string;
-  type: "sport" | "nutrition" | "family_support";
+  title_zh: string | null;
+  title_cn: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  type: "sport" | "nutrition" | "family_support" | null;
   subtype: string | null;
   location: string | null;
+  location_zh: string | null;
+  location_cn: string | null;
   location_link: string | null;
+  status: "published" | "cancelled";
 };
 
-const typeLabels: Record<FeedEvent["type"], string> = {
+const typeLabels: Record<NonNullable<FeedEvent["type"]>, string> = {
   sport: "Sport",
   nutrition: "Nutrition",
   family_support: "Family",
 };
 
-const typeColors: Record<FeedEvent["type"], string> = {
+const typeColors: Record<NonNullable<FeedEvent["type"]>, string> = {
   sport: "var(--color-blue, #2a78d6)",
   nutrition: "var(--color-teal, #1baf7a)",
   family_support: "var(--color-pink, #eb6834)",
@@ -42,9 +50,11 @@ type CardStatus =
 export function VolunteerEventsFeed({
   events,
   isGuest,
+  locale,
 }: {
   events: FeedEvent[];
   isGuest: boolean;
+  locale: Locale;
 }) {
   return (
     <section className={styles.page}>
@@ -65,7 +75,12 @@ export function VolunteerEventsFeed({
       ) : (
         <div className={styles.grid}>
           {events.map((event) => (
-            <EventCard key={event.id} event={event} isGuest={isGuest} />
+            <EventCard
+              key={event.id}
+              event={event}
+              isGuest={isGuest}
+              locale={locale}
+            />
           ))}
         </div>
       )}
@@ -76,11 +91,15 @@ export function VolunteerEventsFeed({
 function EventCard({
   event,
   isGuest,
+  locale,
 }: {
   event: FeedEvent;
   isGuest: boolean;
+  locale: Locale;
 }) {
   const [status, setStatus] = useState<CardStatus>({ state: "idle" });
+  const title = pickLocalized(event, "title", locale) ?? event.title;
+  const location = pickLocalized(event, "location", locale) ?? event.location;
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -110,26 +129,32 @@ function EventCard({
     <article className={styles.card}>
       <div className={styles.cardTop}>
         <time className={styles.date}>
-          {formatWeekdayDayMonth(event.date)}
+          {formatWeekdayDayMonthAt(event.starts_at)}
+          <span className={styles.time}>
+            {" · "}
+            {formatEventTime(event.starts_at, event.ends_at)}
+          </span>
         </time>
-        <span
-          className={styles.tag}
-          style={{ backgroundColor: typeColors[event.type] }}
-        >
-          {event.subtype
-            ? capitalize(event.subtype)
-            : typeLabels[event.type]}
-        </span>
+        {event.type && (
+          <span
+            className={styles.tag}
+            style={{ backgroundColor: typeColors[event.type] }}
+          >
+            {event.subtype
+              ? capitalize(event.subtype)
+              : typeLabels[event.type]}
+          </span>
+        )}
       </div>
-      <h3>{event.title}</h3>
-      {event.location && (
+      <h3>{title}</h3>
+      {location && (
         <p className={styles.location}>
           {event.location_link ? (
             <a href={event.location_link} target="_blank" rel="noreferrer">
-              {event.location}
+              {location}
             </a>
           ) : (
-            event.location
+            location
           )}
         </p>
       )}

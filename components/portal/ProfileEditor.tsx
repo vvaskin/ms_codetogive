@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { UserRow } from "@/lib/supabase/types";
+import type { UserRow } from "@/lib/supabase/table-types";
 
 const MAX_IMAGE_BYTES = 2_000_000; // 2 MB
 

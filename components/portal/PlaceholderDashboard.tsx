@@ -22,6 +22,11 @@ const roleContent: Record<
     placeholder:
       "Volunteer opportunities and event information will appear here.",
   },
+  // TODO: staff admin console. For now, staff falls through to the member view.
+  staff: {
+    intro: "Your Love 21 staff space.",
+    placeholder: "Admin tools will appear here.",
+  },
 };
 
 export function PlaceholderDashboard({

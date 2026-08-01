@@ -18,45 +18,40 @@ const roleLabels: Record<UserRole, string> = {
   member: "Member",
   donor: "Donor",
   volunteer: "Volunteer",
+  staff: "Staff",
 };
 
 const consoleLabels: Record<UserRole, string> = {
   member: "Member Console",
   donor: "Donor Console",
   volunteer: "Volunteer Console",
+  // TODO: staff admin console — falls through to member's flat nav for now.
+  staff: "Staff Console",
 };
 
 type NavItem = { href: string; label: string; icon: string; external?: boolean };
-type NavSection = { label: string; items: NavItem[] };
 
-// Only items we actually have routes for. Matches the Figma design's
-// MY LOVE 21 / ADMIN grouping.
-function navSectionsFor(role: UserRole): NavSection[] {
-  const primary: NavItem[] = [{ href: "/portal", label: "Home", icon: "🏠" }];
+// Flat nav list per role. Only routes we actually have.
+function navItemsFor(role: UserRole): NavItem[] {
+  const items: NavItem[] = [
+    { href: "/portal", label: "Home", icon: "🏠" },
+  ];
 
   if (role === "donor") {
-    primary.push(
+    items.push(
       { href: "/portal/impact", label: "Impact", icon: "✦" },
-      { href: "/events", label: "Events", icon: "📅", external: true },
+      { href: "/portal/events", label: "Events", icon: "📅" },
       { href: "/portal/donate", label: "Donate", icon: "♡" },
     );
   } else if (role === "volunteer") {
-    primary.push(
-      { href: "/events", label: "Events", icon: "📅", external: true },
-      { href: "/volunteer-events", label: "Sign-Ups", icon: "🙌", external: true },
-    );
+    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
   } else {
-    primary.push({ href: "/events", label: "Events", icon: "📅", external: true });
+    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
   }
 
-  const admin: NavItem[] = [
-    { href: "/portal/profile", label: "Profile", icon: "☺" },
-  ];
+  items.push({ href: "/portal/profile", label: "Profile", icon: "☺" });
 
-  return [
-    { label: "My Love 21", items: primary },
-    { label: "Admin", items: admin },
-  ];
+  return items;
 }
 
 function initials(name: string): string {
@@ -76,7 +71,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
   const router = useRouter();
   const pathname = usePathname();
   const [signingOut, setSigningOut] = useState(false);
-  const sections = navSectionsFor(user.role);
+  const items = navItemsFor(user.role);
 
   async function signOut() {
     setSigningOut(true);
@@ -99,27 +94,22 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
       </Link>
 
       <nav className={styles.nav} aria-label="Portal sections">
-        {sections.map((section) => (
-          <div className={styles.navSection} key={section.label}>
-            <p className={styles.sectionLabel}>{section.label}</p>
-            {section.items.map((item) => {
-              const active = isItemActive(pathname, item);
-              return (
-                <Link
-                  key={`${section.label}-${item.href}-${item.label}`}
-                  href={item.href}
-                  className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <span className={styles.navIcon} aria-hidden="true">
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {items.map((item) => {
+          const active = isItemActive(pathname, item);
+          return (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <span className={styles.navIcon} aria-hidden="true">
+                {item.icon}
+              </span>
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className={styles.footer}>

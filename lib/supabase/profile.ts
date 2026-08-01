@@ -1,5 +1,6 @@
+import type { UserRole } from "@/lib/roles";
 import { createClient } from "./server";
-import type { UserRole, UserRow } from "./types";
+import type { UserRow } from "./table-types";
 
 export interface SessionProfile {
   id: string;
