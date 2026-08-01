@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { localePaths, normalizePath, type Locale } from "../content/site-data";
 import { useUser } from "../lib/supabase/use-user";
+import { SignOutButton } from "./SignOutButton";
 import { BrandLockup } from "./ui/BrandLockup";
 import styles from "./SiteChrome.module.css";
 
@@ -77,57 +78,6 @@ const cnAbout = [
   ["信任与透明", "/cn/our-finance/"],
   ["管理层与员工", "/cn/leadership/"],
   ["媒体报道", "/cn/media/"],
-];
-
-const enProgrammes = [
-  ["Sport", "/our-programmes/#sport"],
-  ["Nutrition", "/our-programmes/#nutrition"],
-  ["Family", "/our-programmes/#family"],
-  ["CSR", "/our-programmes/#csr"],
-];
-
-const zhProgrammes = [
-  ["體育", "/zh/our-programmes-hk/#sport"],
-  ["飲食與營養", "/zh/our-programmes-hk/#nutrition"],
-  ["家庭", "/zh/our-programmes-hk/#family"],
-  ["企業社會責任", "/zh/our-programmes-hk/#csr"],
-];
-
-const cnProgrammes = [
-  ["体育", "/cn/our-programmes/#sport"],
-  ["饮食与营养", "/cn/our-programmes/#nutrition"],
-  ["家庭", "/cn/our-programmes/#family"],
-  ["企业社会责任", "/cn/our-programmes/#csr"],
-];
-
-const enActivities = [
-  ["Activity Schedule", "/events"],
-  ["Member Stories", "/stories/"],
-  ["How Families Join", "/join-us/"],
-];
-
-const zhActivities = [
-  ["活動時間表", "/zh/events-hk/"],
-  ["會員故事", "/zh/stories-hk/"],
-  ["如何加入", "/zh/join-us-hk/"],
-];
-
-const cnActivities = [
-  ["活动时间表", "/cn/events"],
-  ["会员故事", "/cn/stories/"],
-  ["如何加入", "/cn/join-us/"],
-];
-
-const enInvolved = [
-  ["Get Involved", "/get-involved/"],
-];
-
-const zhInvolved = [
-  ["參與我們", "/zh/get-involved-hk/"],
-];
-
-const cnInvolved = [
-  ["参与我们", "/cn/get-involved/"],
 ];
 
 function AccessibilityMenu({
@@ -409,18 +359,21 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   const trio = localePaths(pathname);
   const aboutItems = cn ? cnAbout : zh ? zhAbout : enAbout;
-  const programmeItems = cn ? cnProgrammes : zh ? zhProgrammes : enProgrammes;
-  const activityItems = cn ? cnActivities : zh ? zhActivities : enActivities;
-  const involvedItems = cn ? cnInvolved : zh ? zhInvolved : enInvolved;
   const contactPath = pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
-  const loginPath = session ? "/portal" : pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
-  const memberLabel = session
-    ? pick("My portal", "個人頁面", "个人页面")
-    : pick("Sign up / Login", "註冊 / 登入", "注册 / 登录");
+  const eventsPath = pick("/events", "/zh/events-hk/", "/cn/events");
+  const storiesPath = pick("/stories/", "/zh/stories-hk/", "/cn/stories/");
+  const portalPath = "/portal";
+  const loginPath = pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
+  const portalLabel = pick("My portal", "個人頁面", "个人页面");
+  const loginLabel = pick("Sign up / Login", "註冊 / 登入", "注册 / 登录");
+  const signOutLabel = pick("Sign out", "登出", "退出登录");
+  const signOutPendingLabel = pick("Signing out…", "登出中…", "退出中…");
   const volunteerPath = pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/");
   const volunteerLabel = pick("Volunteer", "做義工", "做义工");
   const donatePath = pick("/donate/", "/zh/donate-hk/", "/cn/donate/");
   const donateLabel = pick("Donate", "捐贈", "捐赠");
+  const eventsLabel = pick("Events", "活動", "活动");
+  const storiesLabel = pick("Member Stories", "會員故事", "会员故事");
   const homePath = cn ? "/cn/" : zh ? "/zh/" : "/";
   const missionLine = cn
     ? "通过运动、营养及全面支援，为唐氏综合症和自闭症社群带来机会与包容。"
@@ -448,23 +401,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               href={pick("/our-story/", "/zh/our-story-hk/", "/cn/our-story/")}
               items={aboutItems}
             />
-            <Link
-              href={pick("/our-programmes/", "/zh/our-programmes-hk/", "/cn/our-programmes/")}
-              className={styles.navLink}
-            >
-              {pick("Our Programmes", "我們的計劃", "我们的计划")}
+            <Link href={eventsPath} className={styles.navLink}>
+              {eventsLabel}
             </Link>
-            <MenuGroup
-              locale={locale}
-              label={pick("Activities & Calendar", "活動與行事曆", "活动与日历")}
-              href={pick("/events", "/zh/events-hk/", "/cn/events")}
-              items={activityItems}
-            />
-            <Link
-              href={pick("/get-involved/", "/zh/get-involved-hk/", "/cn/get-involved/")}
-              className={styles.navLink}
-            >
-              {pick("Get Involved", "參與我們", "参与我们")}
+            <Link href={storiesPath} className={styles.navLink}>
+              {storiesLabel}
             </Link>
             <Link href={contactPath} className={styles.navLink}>
               {pick("Contact Us", "聯絡我們", "联系我们")}
@@ -510,24 +451,42 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
 
-            <Link href={loginPath} className={styles.memberLogin}>
-              {memberLabel}
-            </Link>
-
-            <Link href={donatePath} className={styles.donatePill}>
-              {donateLabel}
-            </Link>
-
-            <Link href={volunteerPath} className={styles.volunteerPill}>
-              {volunteerLabel}
-            </Link>
-
-            <Link
-              href={donatePath}
-              className={`${styles.donatePill} ${styles.donatePillCompact}`}
-            >
-              {donateLabel}
-            </Link>
+            {session ? (
+              <>
+                <Link href={portalPath} className={styles.memberLogin}>
+                  {portalLabel}
+                </Link>
+                <SignOutButton
+                  className={styles.signOutPill}
+                  label={signOutLabel}
+                  pendingLabel={signOutPendingLabel}
+                />
+                <Link
+                  href={portalPath}
+                  className={`${styles.memberLogin} ${styles.memberLoginCompact}`}
+                >
+                  {portalLabel}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href={loginPath} className={styles.memberLogin}>
+                  {loginLabel}
+                </Link>
+                <Link href={donatePath} className={styles.donatePill}>
+                  {donateLabel}
+                </Link>
+                <Link href={volunteerPath} className={styles.volunteerPill}>
+                  {volunteerLabel}
+                </Link>
+                <Link
+                  href={donatePath}
+                  className={`${styles.donatePill} ${styles.donatePillCompact}`}
+                >
+                  {donateLabel}
+                </Link>
+              </>
+            )}
 
             <button
               type="button"
@@ -561,28 +520,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
             variant="mobile"
           />
-          <Link
-            href={pick("/our-programmes/", "/zh/our-programmes-hk/", "/cn/our-programmes/")}
-            className={styles.mobileNavLink}
-          >
-            {pick("Our Programmes", "我們的計劃", "我们的计划")}
+          <Link href={eventsPath} className={styles.mobileNavLink}>
+            {eventsLabel}
           </Link>
-          <MenuGroup
-            locale={locale}
-            label={pick("Activities & Calendar", "活動與行事曆", "活动与日历")}
-            href={pick("/events", "/zh/events-hk/", "/cn/events")}
-            items={activityItems}
-            open={openGroup === "activities"}
-            onToggle={() =>
-              setOpenGroup(openGroup === "activities" ? null : "activities")
-            }
-            variant="mobile"
-          />
-          <Link
-            href={pick("/get-involved/", "/zh/get-involved-hk/", "/cn/get-involved/")}
-            className={styles.mobileNavLink}
-          >
-            {pick("Get Involved", "參與我們", "参与我们")}
+          <Link href={storiesPath} className={styles.mobileNavLink}>
+            {storiesLabel}
           </Link>
           <Link href={contactPath} className={styles.mobileNavLink}>
             {pick("Contact Us", "聯絡我們", "联系我们")}
@@ -590,15 +532,30 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
           <div className={styles.mobileUtility}>
             <div className={styles.mobileUtilityRow}>
-              <Link href={loginPath} className={styles.memberLogin}>
-                {memberLabel}
-              </Link>
-              <Link href={donatePath} className={styles.mobileUtilityDonate}>
-                {donateLabel}
-              </Link>
-              <Link href={volunteerPath} className={styles.volunteerPill}>
-                {volunteerLabel}
-              </Link>
+              {session ? (
+                <>
+                  <Link href={portalPath} className={styles.memberLogin}>
+                    {portalLabel}
+                  </Link>
+                  <SignOutButton
+                    className={styles.signOutPill}
+                    label={signOutLabel}
+                    pendingLabel={signOutPendingLabel}
+                  />
+                </>
+              ) : (
+                <>
+                  <Link href={loginPath} className={styles.memberLogin}>
+                    {loginLabel}
+                  </Link>
+                  <Link href={donatePath} className={styles.mobileUtilityDonate}>
+                    {donateLabel}
+                  </Link>
+                  <Link href={volunteerPath} className={styles.volunteerPill}>
+                    {volunteerLabel}
+                  </Link>
+                </>
+              )}
             </div>
             <AccessibilityMenu
               locale={locale}
@@ -646,34 +603,15 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                   {text}
                 </Link>
               ))}
-              <span className={styles.footerSubheading}>
-                {pick("Our Programmes", "我們的計劃", "我们的计划")}
-              </span>
-              {programmeItems.map(([text, href]) => (
-                <Link key={href} href={href}>
-                  {text}
-                </Link>
-              ))}
-              <span className={styles.footerSubheading}>
-                {pick("Activities & Calendar", "活動與行事曆", "活动与日历")}
-              </span>
-              {activityItems.map(([text, href]) => (
-                <Link key={href} href={href}>
-                  {text}
-                </Link>
-              ))}
+              <Link href={eventsPath}>{eventsLabel}</Link>
+              <Link href={storiesPath}>{storiesLabel}</Link>
             </div>
 
             <div className={styles.footerColumn}>
               <strong className={styles.footerColumnTitle}>
-                {pick("Get Involved", "參與", "参与")}
+                {pick("Support", "支持", "支持")}
               </strong>
-              {involvedItems.map(([text, href]) => (
-                <Link key={href} href={href}>
-                  {text}
-                </Link>
-              ))}
-              <Link href={loginPath}>{volunteerLabel}</Link>
+              <Link href={volunteerPath}>{volunteerLabel}</Link>
               <Link href={donatePath}>{donateLabel}</Link>
             </div>
 

@@ -54,7 +54,6 @@ export const aboutContent = {
       zh: "四個方向，每週陪伴我們的社群。",
       cn: "四个方向，每周陪伴我们的社群。",
     } satisfies Localized,
-    href: { en: "/our-programmes/", zh: "/zh/our-programmes-hk/", cn: "/cn/our-programmes/" },
     items: [
       {
         key: "sport",

@@ -182,10 +182,10 @@ export function ActivitiesExperience({ locale }: { locale: Locale }) {
           {c.quickStart.items.map((item, index) => {
             const href =
               index === 0
-                ? pick("/join-us/", "/zh/join-us-hk/", "/cn/join-us/")
+                ? pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/")
                 : index === 1
-                  ? pick("/get-involved/#opportunities", "/zh/get-involved-hk/#opportunities", "/cn/get-involved/#opportunities")
-                  : pick("/get-involved/#corporate", "/zh/get-involved-hk/#corporate", "/cn/get-involved/#corporate");
+                  ? pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/")
+                  : pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
             return <Link href={href} className={styles.quickCard} key={item.title.en}><strong>{activityText(item.title, locale)}</strong><span>{activityText(item.copy, locale)}</span><b aria-hidden="true">→</b></Link>;
           })}
         </div>

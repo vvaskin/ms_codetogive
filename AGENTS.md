@@ -59,9 +59,11 @@ Presentational only (no API, persistence, or business rules):
 - Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`
 - About: `content/about.ts` + `AboutExperience` (`template: "about"`)
 - Finance / Trust & Transparency: `content/finance.ts` + `FinanceExperience` (`template: "reports"`); annual PDFs under `public/assets/reports/`
-- Activities & Calendar: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for activity schedule and volunteer-calendar routes. The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
+- Primary nav: About (dropdown), Events (`/events` — no dropdown), Member Stories (`/stories/`), Contact Us. Get Involved remains routable but is not linked in chrome.
+- Events: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for `/events` and volunteer-calendar routes. The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
 - News & Media: `content/media.ts` + `MediaExperience` (`template: "media-index"`) for bilingual media and member-story routes. The "From our feeds" grid mixes presentational feed cards with live Instagram posts served by `InstagramFeed` (data from `/api/instagram-webhook`, persisted to gitignored `data/instagram-posts.json`); external social links are the Love 21 Facebook and Instagram URLs.
-- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) for `/get-involved/` (and `/zh/get-involved-hk/`). Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), calendar/events, donate, and contact.
+- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) kept for `/get-involved/` (and locale variants) but omitted from primary nav/footer. Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), events, donate, and contact.
+- Programmes experience code remains (`ProgrammesExperience`, `content/programmes.ts`) but is not routed; Our Programmes and How Families Join pages were removed.
 - Other templates: `PageRenderer.module.css`
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
 - Portal presentation: `app/portal/page.module.css`

@@ -343,7 +343,8 @@
 
 .memberLogin,
 .donatePill,
-.volunteerPill {
+.volunteerPill,
+.signOutPill {
   display: none;
   align-items: center;
   justify-content: center;
@@ -396,7 +397,26 @@
   transform: translateY(-1px);
 }
 
-.donatePillCompact {
+.signOutPill {
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-ink);
+  color: #fff;
+  cursor: pointer;
+}
+
+.signOutPill:hover:not(:disabled) {
+  background: #3d342f;
+  border-color: #3d342f;
+  transform: translateY(-1px);
+}
+
+.signOutPill:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.donatePillCompact,
+.memberLoginCompact {
   display: inline-flex;
   padding-inline: 0.95rem;
   font-size: 0.84rem;
@@ -577,6 +597,7 @@
 
 .mobileUtilityRow .memberLogin,
 .mobileUtilityRow .volunteerPill,
+.mobileUtilityRow .signOutPill,
 .mobileUtilityRow .mobileUtilityDonate {
   display: inline-flex;
   flex: 1 1 calc(50% - 0.5rem);
@@ -810,7 +831,8 @@
   .languageLinks,
   .accessHeader,
   .memberLogin,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     display: inline-flex;
   }
 
@@ -818,7 +840,8 @@
     display: inline-flex;
   }
 
-  .headerActions .donatePillCompact {
+  .headerActions .donatePillCompact,
+  .headerActions .memberLoginCompact {
     display: none;
   }
 
@@ -855,7 +878,8 @@
 
   .memberLogin,
   .donatePill,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     padding-inline: 1.1rem;
     font-size: 0.9rem;
   }
@@ -865,7 +889,8 @@
   .languageLinks,
   .accessHeader,
   .memberLogin,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     display: none;
   }
 
@@ -873,12 +898,14 @@
     display: none;
   }
 
-  .headerActions .donatePillCompact {
+  .headerActions .donatePillCompact,
+  .headerActions .memberLoginCompact {
     display: inline-flex;
   }
 
   .mobileUtility .memberLogin,
-  .mobileUtility .volunteerPill {
+  .mobileUtility .volunteerPill,
+  .mobileUtility .signOutPill {
     display: inline-flex;
     flex: 1 1 auto;
   }

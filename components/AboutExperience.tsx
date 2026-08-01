@@ -12,7 +12,6 @@ import styles from "./AboutExperience.module.css";
 export function AboutExperience({ locale }: { locale: AboutLocale }) {
   const c = aboutContent;
   const board = aboutBoardDirectory();
-  const programmesHref = c.programmes.href[locale];
   const storiesHref = c.mission.storiesLink.href[locale];
   const financeHref = c.governance.financeLink.href[locale];
   const boardHref = c.governance.boardHref[locale];
@@ -67,15 +66,14 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
         </div>
         <div className={styles.programmeGrid}>
           {c.programmes.items.map((item) => (
-            <Link
+            <article
               key={item.key}
-              href={`${programmesHref}#${item.key === "sport" ? "sport" : item.key}`}
               className={`${styles.programmeCard} ${styles[`tone_${item.tone}`]}`}
             >
               <span className={styles.programmeIcon} aria-hidden="true" />
               <h3>{t(item.title, locale)}</h3>
               <p>{t(item.description, locale)}</p>
-            </Link>
+            </article>
           ))}
         </div>
       </section>

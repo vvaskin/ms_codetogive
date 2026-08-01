@@ -4,7 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignOutButton() {
+export function SignOutButton({
+  className = "portal-sign-out",
+  label = "Log out",
+  pendingLabel = "Logging out…",
+}: {
+  className?: string;
+  label?: string;
+  pendingLabel?: string;
+}) {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -18,12 +26,12 @@ export function SignOutButton() {
 
   return (
     <button
-      className="portal-sign-out"
+      className={className}
       type="button"
       onClick={signOut}
       disabled={isSigningOut}
     >
-      {isSigningOut ? "Logging out…" : "Log out"}
+      {isSigningOut ? pendingLabel : label}
     </button>
   );
 }
