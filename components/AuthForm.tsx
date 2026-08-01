@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { VOLUNTEER_SIGNUP_DRAFT_KEY } from "@/lib/volunteer-signup-draft";
 import { createClient } from "@/lib/supabase/client";
 import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
@@ -193,9 +194,20 @@ export function AuthForm({
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
+    const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const supabase = createClient();
+
+    if (isSignup && role === "volunteer") {
+      window.sessionStorage.setItem(
+        VOLUNTEER_SIGNUP_DRAFT_KEY,
+        JSON.stringify({ name, email, password }),
+      );
+      router.push("/signup/volunteer");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       if (isSignup) {
@@ -382,7 +394,9 @@ export function AuthForm({
             ? lang.creatingAccount
             : lang.loggingIn
           : isSignup
-            ? lang.createAccount
+            ? role === "volunteer"
+              ? "Continue"
+              : lang.createAccount
             : lang.logIn}
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
