@@ -23,6 +23,8 @@ const copy = {
     password: "Password",
     passwordHelp: "Use at least 8 characters.",
     accountType: "Account type",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     roles: {
       member: {
         label: "Member",
@@ -60,6 +62,8 @@ const copy = {
     password: "密碼",
     passwordHelp: "請使用至少 8 個字元。",
     accountType: "帳戶類型",
+    showPassword: "顯示密碼",
+    hidePassword: "隱藏密碼",
     roles: {
       member: {
         label: "會員",
@@ -123,6 +127,7 @@ export function AuthForm({
   const router = useRouter();
   const lang: Copy = locale === "zh" ? copy.zh : copy.en;
   const [role, setRole] = useState<UserRole>("member");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSignup = mode === "signup";
@@ -208,15 +213,59 @@ export function AuthForm({
 
       <label>
         {lang.password}
-        <input
-          name="password"
-          type="password"
-          autoComplete={isSignup ? "new-password" : "current-password"}
-          minLength={8}
-          required
-          disabled={isSubmitting}
-          aria-describedby={isSignup ? "password-help" : undefined}
-        />
+        <div className={styles.passwordField}>
+          <input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            minLength={8}
+            required
+            disabled={isSubmitting}
+            aria-describedby={isSignup ? "password-help" : undefined}
+          />
+          <button
+            type="button"
+            className={styles.passwordToggle}
+            onClick={() => setShowPassword((value) => !value)}
+            disabled={isSubmitting}
+            aria-pressed={showPassword}
+            aria-label={showPassword ? lang.hidePassword : lang.showPassword}
+            title={showPassword ? lang.hidePassword : lang.showPassword}
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.4 5.2A9.3 9.3 0 0112 5c5 0 9 4.5 9 7a12 12 0 01-2.4 3.3M6.1 6.1A12 12 0 003 12c0 2.5 4 7 9 7a9 9 0 003.9-.9"
+                />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
       </label>
 
       {isSignup && (
