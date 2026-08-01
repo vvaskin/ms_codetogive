@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   activitiesContent,
   activityCategories,
@@ -55,6 +55,7 @@ export function ActivitiesExperience({
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ActivityCategory | "all">("all");
+  const carouselRef = useRef<HTMLDivElement>(null);
   const zh = locale === "zh" || locale === "cn";
   const intlLocale = locale === "cn" ? "zh-CN" : locale === "zh" ? "zh-HK" : "en-HK";
   const pick = (en: string, zht: string, zhc: string) =>
@@ -79,6 +80,16 @@ export function ActivitiesExperience({
     return () => window.removeEventListener("keydown", clearOnEscape);
   }, []);
 
+  useEffect(() => {
+    carouselRef.current?.scrollTo({ left: 0 });
+  }, [activeCategory]);
+
+  function scrollCarousel(direction: 1 | -1) {
+    const row = carouselRef.current;
+    if (!row) return;
+    row.scrollBy({ left: row.clientWidth * direction, behavior: "smooth" });
+  }
+
   const eventsByDate = useMemo(
     () =>
       events.reduce<Record<string, ActivityEvent[]>>((groups, event) => {
@@ -90,11 +101,9 @@ export function ActivitiesExperience({
   const panelDate = selectedDate ?? nextEventDate;
   const panelEvents = panelDate ? eventsByDate[panelDate] ?? [] : [];
   const upcomingEvents = events.filter((event) => event.date >= today);
-  const filteredActivities = upcomingEvents
-    .filter(
-      (activity) => activeCategory === "all" || activity.category === activeCategory,
-    )
-    .slice(0, 6);
+  const filteredActivities = upcomingEvents.filter(
+    (activity) => activeCategory === "all" || activity.category === activeCategory,
+  );
   const visibleCategories = activityCategories.filter((category) =>
     upcomingEvents.some((event) => event.category === category.id),
   );
@@ -244,6 +253,16 @@ export function ActivitiesExperience({
                       {activityText(event.summary, locale) && (
                         <p>{activityText(event.summary, locale)}</p>
                       )}
+                      {event.dbId ? (
+                        <EventSignupButton
+                          eventId={event.dbId}
+                          locale={locale}
+                          sessionRole={sessionRole}
+                          signedUp={registeredEventIds.includes(event.dbId)}
+                        />
+                      ) : (
+                        <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -284,29 +303,52 @@ export function ActivitiesExperience({
           {visibleCategories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id}>{activityText(category.label, locale)}</button>)}
         </div>
         {filteredActivities.length > 0 ? (
-          <div className={styles.activityGrid}>
-            {filteredActivities.map((activity) => (
-              <article className={styles.activityCard} key={activity.id}>
-                <span className={styles.cardDate}>{new Intl.DateTimeFormat(intlLocale, { month: "short", day: "numeric" }).format(new Date(`${activity.date}T12:00:00`))}</span>
-                <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
-                <h3>{activityText(activity.title, locale)}</h3>
-                <p>{activity.time} · {activityText(activity.location, locale)}</p>
-                {activity.dbId ? (
-                  <EventSignupButton
-                    eventId={activity.dbId}
-                    locale={locale}
-                    sessionRole={sessionRole}
-                    signedUp={registeredEventIds.includes(activity.dbId)}
-                  />
-                ) : (
-                  <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
-                )}
-              </article>
-            ))}
+          <div className={styles.upcomingCarousel}>
+            <button
+              type="button"
+              className={`${styles.carouselArrow} ${styles.carouselPrev}`}
+              onClick={() => scrollCarousel(-1)}
+              aria-label={pick("Previous activities", "上一頁活動", "上一页活动")}
+            >
+              ‹
+            </button>
+            <div className={styles.carouselRow} ref={carouselRef}>
+              {filteredActivities.map((activity) => (
+                <article className={`${styles.activityCard} ${styles.carouselCard}`} key={activity.id}>
+                  <span className={styles.cardDate}>{new Intl.DateTimeFormat(intlLocale, { month: "short", day: "numeric" }).format(new Date(`${activity.date}T12:00:00`))}</span>
+                  <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
+                  <h3>{activityText(activity.title, locale)}</h3>
+                  <p>{activity.time} · {activityText(activity.location, locale)}</p>
+                  {activity.dbId ? (
+                    <EventSignupButton
+                      eventId={activity.dbId}
+                      locale={locale}
+                      sessionRole={sessionRole}
+                      signedUp={registeredEventIds.includes(activity.dbId)}
+                    />
+                  ) : (
+                    <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+                  )}
+                </article>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={`${styles.carouselArrow} ${styles.carouselNext}`}
+              onClick={() => scrollCarousel(1)}
+              aria-label={pick("Next activities", "下一頁活動", "下一页活动")}
+            >
+              ›
+            </button>
           </div>
         ) : (
           <p className={styles.emptyActivities}>{pick("No upcoming published activities yet.", "暫時沒有即將舉行的已發佈活動。", "暂时没有即将举行的已发布活动。")}</p>
         )}
+        <div className={styles.viewAll}>
+          <ButtonLink href={pick("/volunteer-events", "/volunteer-events?lang=zh", "/volunteer-events?lang=cn")} variant="pink">
+            {pick("View all events", "查看所有活動", "查看所有活动")}
+          </ButtonLink>
+        </div>
       </SectionShell>
 
       <SectionShell tone="white" className={styles.wrapped}>
