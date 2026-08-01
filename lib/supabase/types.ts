@@ -5,7 +5,6 @@ import type { Database as GeneratedDatabase } from "./types.generated";
 export type Database = GeneratedDatabase;
 export type UserRole = Database["public"]["Enums"]["user_role"];
 export type EventType = Database["public"]["Enums"]["event_type"];
-export type EventAudience = Database["public"]["Enums"]["event_audience"];
 export type EventStatus = Database["public"]["Enums"]["event_status"];
 export type ParticipationStatus =
   Database["public"]["Enums"]["participation_status"];

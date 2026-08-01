@@ -8,12 +8,12 @@ import {
 } from "@/lib/supabase/admin";
 import type {
   Database,
-  EventAudience,
   EventStatus,
+  EventType,
 } from "@/lib/supabase/types";
 
-const EVENT_AUDIENCES = ["members", "volunteers", "everyone"] as const;
 const EVENT_STATUSES = ["draft", "published", "cancelled"] as const;
+const EVENT_TYPES = ["sport", "nutrition", "family_support"] as const;
 
 type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
 
@@ -76,11 +76,11 @@ function parseDateTime(value: string, required: boolean) {
   return date;
 }
 
-function parseAudience(value: string): EventAudience {
-  if (!EVENT_AUDIENCES.includes(value as EventAudience)) {
-    throw new Error("Invalid event audience.");
+function parseEventType(value: string): EventType {
+  if (!EVENT_TYPES.includes(value as EventType)) {
+    throw new Error("Invalid event type.");
   }
-  return value as EventAudience;
+  return value as EventType;
 }
 
 function parseStatus(value: string): EventStatus {
@@ -98,6 +98,9 @@ async function requireStaff() {
 
 function revalidateEventPages() {
   revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath("/zh/events-hk");
+  revalidatePath("/cn/events");
 }
 
 function eventValues(
@@ -114,13 +117,13 @@ function eventValues(
   return {
     title: limitedText(formData, "title", 120, true)!,
     title_zh: limitedText(formData, "titleZh", 120),
-    description: limitedText(formData, "description", 2000),
-    description_zh: limitedText(formData, "descriptionZh", 2000),
     location: limitedText(formData, "location", 200, true),
     location_zh: limitedText(formData, "locationZh", 200),
+    date: textValue(formData, "startsAt").slice(0, 10),
+    type: parseEventType(textValue(formData, "type")),
+    subtype: limitedText(formData, "subtype", 120),
     starts_at: startsAt.toISOString(),
     ends_at: endsAt?.toISOString() ?? null,
-    audience: parseAudience(textValue(formData, "audience")),
     status: statusOverride ?? parseStatus(textValue(formData, "status")),
   };
 }

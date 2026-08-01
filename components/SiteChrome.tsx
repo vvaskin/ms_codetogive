@@ -344,6 +344,7 @@ function MenuGroup({
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
   const locale: Locale = pathname.startsWith("/cn/")
     ? "cn"
     : pathname.startsWith("/zh/")
@@ -390,6 +391,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     document.documentElement.lang =
       locale === "zh" ? "zh-Hant" : locale === "cn" ? "zh-Hans" : "en";
   }, [locale]);
+
+  useEffect(() => {
+    document.body.classList.toggle("admin-view", isAdminRoute);
+    return () => document.body.classList.remove("admin-view");
+  }, [isAdminRoute]);
+
+  if (isAdminRoute) return <>{children}</>;
 
   const toggleSimpleView = () => {
     const next = !simpleView;

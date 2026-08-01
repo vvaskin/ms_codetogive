@@ -25,6 +25,12 @@ async function requireAdmin() {
   return user;
 }
 
+const directoryPaths: Record<UserRole, string> = {
+  member: "/admin/people/members",
+  volunteer: "/admin/people/volunteers",
+  donor: "/admin/people/donors",
+};
+
 async function removeUserStorage(
   admin: ReturnType<typeof createAdminClient>,
   bucket: "avatars" | "certificates",
@@ -91,5 +97,5 @@ export async function deleteUser(formData: FormData) {
     console.error("Account deleted, but one or more storage files remain.");
   }
 
-  redirect(`/admin?view=${currentView}`);
+  redirect(directoryPaths[currentView]);
 }

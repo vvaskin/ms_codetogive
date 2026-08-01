@@ -218,6 +218,7 @@
 }
 
 .eventComposer {
+  scroll-margin-top: 90px;
   margin: var(--space-5) 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -299,6 +300,13 @@
   border-color: var(--color-blue);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue) 14%, transparent);
   outline: none;
+}
+
+.eventForm input:focus-visible,
+.eventForm select:focus-visible,
+.eventForm textarea:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .fullField {

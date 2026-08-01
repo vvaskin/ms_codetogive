@@ -1,0 +1,477 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  padding: clamp(var(--space-5), 3vw, var(--space-6));
+  border: 1px solid color-mix(in srgb, var(--color-pink) 10%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 92% 5%, rgba(114, 87, 244, 0.11), transparent 40%),
+    radial-gradient(circle at 8% 95%, rgba(244, 7, 112, 0.09), transparent 38%),
+    color-mix(in srgb, var(--color-blush) 70%, var(--color-white));
+}
+
+.pageHeaderCopy {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.eyebrow {
+  color: var(--color-pink);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.pageHeader h1 {
+  max-width: 22ch;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
+.pageDescription {
+  max-width: 62ch;
+  color: var(--color-text-muted);
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.pageActions,
+.panelActions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.metricCard {
+  --metric-accent: var(--color-pink);
+  --metric-soft: var(--color-blush);
+  position: relative;
+  display: grid;
+  min-height: 190px;
+  align-content: start;
+  gap: var(--space-3);
+  overflow: hidden;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 100% 0, var(--metric-soft), transparent 46%),
+    var(--color-white);
+  box-shadow: var(--shadow-soft);
+  color: var(--color-ink);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    transform var(--motion-fast);
+}
+
+a.metricCard:hover {
+  border-color: color-mix(in srgb, var(--metric-accent) 38%, var(--color-border));
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+.metricCard::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--metric-accent);
+  content: "";
+}
+
+.metricPink {
+  --metric-accent: var(--color-pink);
+  --metric-soft: rgba(244, 7, 112, 0.1);
+}
+
+.metricBlue {
+  --metric-accent: var(--color-blue);
+  --metric-soft: rgba(24, 120, 242, 0.1);
+}
+
+.metricTeal {
+  --metric-accent: var(--color-teal);
+  --metric-soft: rgba(32, 184, 143, 0.12);
+}
+
+.metricPurple {
+  --metric-accent: var(--color-purple);
+  --metric-soft: rgba(114, 87, 244, 0.11);
+}
+
+.metricYellow {
+  --metric-accent: var(--color-yellow);
+  --metric-soft: rgba(255, 198, 46, 0.17);
+}
+
+.metricCoral {
+  --metric-accent: var(--color-coral);
+  --metric-soft: rgba(255, 79, 69, 0.11);
+}
+
+.metricTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.metricLabel {
+  color: var(--color-text-muted);
+  font-size: 0.79rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.metricIcon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--metric-soft);
+  color: var(--metric-accent);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.metricValue {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.metricDescription {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.metricLinkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: auto;
+  color: var(--metric-accent);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.statusBadge {
+  --status-ink: var(--color-text-muted);
+  --status-surface: #efeae6;
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--status-surface);
+  color: var(--status-ink);
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.statusPending,
+.statusWaitlisted {
+  --status-ink: #805900;
+  --status-surface: #fff2c7;
+}
+
+.statusApproved,
+.statusActive,
+.statusPublished,
+.statusRegistered,
+.statusAttended {
+  --status-ink: #0d7b5e;
+  --status-surface: #d7f5ec;
+}
+
+.statusRejected,
+.statusCancelled,
+.statusNoShow {
+  --status-ink: #c62f28;
+  --status-surface: #ffe2df;
+}
+
+.statusInactive {
+  --status-ink: var(--color-text-muted);
+  --status-surface: #efeae6;
+}
+
+.statusDraft {
+  --status-ink: var(--color-blue-dark);
+  --status-surface: #dcebff;
+}
+
+.statusCompleted,
+.statusDemo {
+  --status-ink: #5b43c7;
+  --status-surface: #ebe4ff;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.panelWhite {
+  background: var(--color-white);
+}
+
+.panelBlush {
+  background: color-mix(in srgb, var(--color-blush) 65%, var(--color-white));
+}
+
+.panelSky {
+  background: color-mix(in srgb, var(--color-sky) 65%, var(--color-white));
+}
+
+.panelMint {
+  background: color-mix(in srgb, var(--color-mint) 65%, var(--color-white));
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panelHeader > div:first-child {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.panelHeader h2 {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.panelDescription {
+  max-width: 68ch;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.panelBody {
+  min-width: 0;
+  padding: var(--space-5);
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: clamp(var(--space-6), 6vw, var(--space-8)) var(--space-5);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.emptyIcon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-blush);
+  color: var(--color-pink);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.emptyState h3 {
+  color: var(--color-ink);
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+
+.emptyState p {
+  max-width: 48ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.emptyAction {
+  margin-top: var(--space-2);
+}
+
+.demoNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-purple) 25%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, #ebe4ff 58%, var(--color-white));
+  color: var(--color-ink);
+}
+
+.demoMark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-purple);
+  color: var(--color-white);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.demoNotice > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.demoNotice strong {
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.demoNotice p {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.loadingState,
+.errorState {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 220px;
+  padding: clamp(var(--space-5), 4vw, var(--space-7));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+}
+
+.loadingState > div,
+.errorState > div {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.loadingState p,
+.errorState p {
+  max-width: 52ch;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.loadingMark,
+.errorState > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.loadingMark {
+  border: 5px solid var(--color-blush);
+  border-top-color: var(--color-pink);
+  animation: admin-loading-spin 0.9s linear infinite;
+}
+
+.errorState > span {
+  background: #ffe2df;
+  color: #bd332c;
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.errorState h1 {
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+}
+
+.errorState button {
+  width: fit-content;
+  min-height: 44px;
+  margin-top: var(--space-2);
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--color-pink);
+  border-radius: var(--radius-pill);
+  background: var(--color-pink);
+  color: var(--color-white);
+  font: inherit;
+  font-weight: 850;
+}
+
+.errorState button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@keyframes admin-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+  .pageHeader,
+  .panelHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pageActions,
+  .panelActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .panelBody,
+  .panelHeader {
+    padding: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metricCard {
+    transition: none;
+  }
+
+  a.metricCard:hover {
+    transform: none;
+  }
+
+  .loadingMark {
+    animation: none;
+  }
+}

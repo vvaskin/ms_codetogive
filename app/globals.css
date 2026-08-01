@@ -22,6 +22,10 @@
   pointer-events: none;
 }
 
+body.admin-view .development-ribbon {
+  display: none;
+}
+
 @media (max-width: 760px) {
   .development-ribbon {
     display: none;
