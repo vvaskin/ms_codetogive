@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ProfileEditor } from "@/components/portal/ProfileEditor";
-import { auth } from "@/lib/auth";
+import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
   title: "My profile",
@@ -10,14 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const profile = await getSessionProfile();
 
-  if (!session) redirect("/login?next=/portal/profile");
-
-  const user = session.user as typeof session.user & {
-    phone?: string | null;
-    address?: string | null;
-  };
+  if (!profile) redirect("/login?next=/portal/profile");
 
   return (
     <div className="portal-subpage">
@@ -29,11 +23,12 @@ export default async function ProfilePage() {
 
       <ProfileEditor
         initial={{
-          name: user.name,
-          email: user.email,
-          image: user.image ?? null,
-          phone: user.phone ?? null,
-          address: user.address ?? null,
+          userId: profile.id,
+          name: profile.name,
+          email: profile.email,
+          avatarUrl: profile.avatarUrl,
+          phone: profile.phoneNumber,
+          address: profile.address,
         }}
       />
     </div>

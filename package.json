@@ -10,27 +10,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:push": "npx supabase db push",
+    "db:types": "npx supabase gen types typescript --linked > lib/supabase/types.generated.ts.tmp && mv lib/supabase/types.generated.ts.tmp lib/supabase/types.generated.ts",
+    "staff:promote": "node scripts/promote-staff.mjs"
   },
   "dependencies": {
-    "@better-auth/drizzle-adapter": "^1.6.25",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
-    "better-auth": "^1.6.25",
-    "better-sqlite3": "^12.11.1",
-    "drizzle-orm": "^0.45.2",
     "next": "^16.2.12",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "drizzle-kit": "^0.31.10",
     "eslint": "9.39.4",
     "eslint-config-next": "^16.2.12",
     "typescript": "5.9.3"

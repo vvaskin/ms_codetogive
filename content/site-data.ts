@@ -1,4 +1,4 @@
-export type Locale = "en" | "zh";
+export type Locale = "en" | "zh" | "cn";
 
 export type PageTemplate =
   | "standard"
@@ -14,8 +14,7 @@ export type PageTemplate =
   | "contact"
   | "donate"
   | "account"
-  | "calendar"
-  | "join";
+  | "calendar";
 
 export interface MediaArticle {
   slug: string;
@@ -289,13 +288,6 @@ const enPages: SitePage[] = [
     title: "MEDIA",
   },
   {
-    path: "/join-us/",
-    locale: "en",
-    alternatePath: "/zh/join-us-hk/",
-    template: "join",
-    title: "INTERNSHIP OPPORTUNITIES",
-  },
-  {
     path: "/board-of-directors/",
     locale: "en",
     alternatePath: "/zh/board-of-directors-hk/",
@@ -315,13 +307,6 @@ const enPages: SitePage[] = [
     paragraphs: [
       "Love 21 Foundation is a registered charity under Section 88 of the Inland Revenue Ordinance in Hong Kong. It is our goal to provide the greatest support for the Down syndrome and autistic community through sport, nutrition and holistic programmes.",
     ],
-  },
-  {
-    path: "/our-programmes/",
-    locale: "en",
-    alternatePath: "/zh/our-programmes-hk/",
-    template: "programmes",
-    title: "OUR PROGRAMMES",
   },
   {
     path: "/events",
@@ -368,7 +353,7 @@ const enPages: SitePage[] = [
   {
     path: "/leadership/",
     locale: "en",
-    alternatePath: "/zh/管理層與員工/",
+    alternatePath: "/zh/leadership-hk/",
     template: "people-index",
     title: "LEADERSHIP & STAFF",
     paragraphs: [
@@ -378,7 +363,7 @@ const enPages: SitePage[] = [
   {
     path: "/stories/",
     locale: "en",
-    alternatePath: "/zh/會員故事/",
+    alternatePath: "/zh/stories-hk/",
     template: "media-index",
     title: "MEMBER STORIES",
   },
@@ -392,29 +377,11 @@ const enPages: SitePage[] = [
       "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
   },
   {
-    path: "/volunteer/",
-    locale: "en",
-    alternatePath: "/zh/volunteer-hk/",
-    template: "get-involved",
-    title: "Get Involved",
-    description:
-      "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
-  },
-  {
     path: "/volunteer/calendar/",
     locale: "en",
     alternatePath: "/zh/volunteer-calendar-hk/",
     template: "calendar",
     title: "VOLUNTEER CALENDAR",
-  },
-  {
-    path: "/corporate/",
-    locale: "en",
-    alternatePath: "/zh/corporate-hk/",
-    template: "get-involved",
-    title: "Corporate Partnerships",
-    description:
-      "Plan a corporate day with Love 21 — shared activity, facilitation, and human connection.",
   },
 ];
 
@@ -459,13 +426,6 @@ const zhPages: SitePage[] = [
     title: "媒體報導",
   },
   {
-    path: "/zh/join-us-hk/",
-    locale: "zh",
-    alternatePath: "/join-us/",
-    template: "join",
-    title: "實習機會",
-  },
-  {
     path: "/zh/board-of-directors-hk/",
     locale: "zh",
     alternatePath: "/board-of-directors/",
@@ -485,13 +445,6 @@ const zhPages: SitePage[] = [
     paragraphs: [
       "Love 21的工作人員透過運動、營養及全面支援計劃，為會員和家庭提供服務。",
     ],
-  },
-  {
-    path: "/zh/our-programmes-hk/",
-    locale: "zh",
-    alternatePath: "/our-programmes/",
-    template: "programmes",
-    title: "我們的計劃",
   },
   {
     path: "/zh/contact-us-hk/",
@@ -565,40 +518,206 @@ const zhPages: SitePage[] = [
     description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
   },
   {
-    path: "/zh/volunteer-hk/",
-    locale: "zh",
-    alternatePath: "/volunteer/",
-    template: "get-involved",
-    title: "參與我們",
-    description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
-  },
-  {
     path: "/zh/volunteer-calendar-hk/",
     locale: "zh",
     alternatePath: "/volunteer/calendar/",
     template: "calendar",
     title: "義工日曆",
   },
+];
+
+const cnPages: SitePage[] = [
   {
-    path: "/zh/corporate-hk/",
-    locale: "zh",
-    alternatePath: "/corporate/",
+    path: "/cn/our-story/",
+    locale: "cn",
+    alternatePath: "/our-story/",
+    template: "about",
+    title: "关于我们",
+    image: images.story,
+    paragraphs: [
+      "Love 21旨在通过运动、营养及其他全面活动，让唐氏综合症和自闭症人士获得充分发挥潜力的机会。",
+      "我们是在香港的慈善机构，希望通过不同活动改善会员及其家庭的生活。",
+    ],
+  },
+  {
+    path: "/cn/our-finance/",
+    locale: "cn",
+    alternatePath: "/our-finance/",
+    template: "reports",
+    title: "信任与透明",
+    paragraphs: [
+      "Love 21 Foundation是香港《税务条例》第88条下的注册慈善机构。",
+      "我们致力于以负责任和透明的方式，支持唐氏综合症、自闭症及神经多样性社群。",
+    ],
+  },
+  {
+    path: "/cn/our-volunteer/",
+    locale: "cn",
+    alternatePath: "/our-volunteer/",
+    template: "volunteer",
+    title: "我们的义工团队",
+    image: images.story,
+    paragraphs: ["Love 21衷心感谢每一位充满爱心和热诚的义工！"],
+  },
+  {
+    path: "/cn/media/",
+    locale: "cn",
+    alternatePath: "/media/",
+    template: "media-index",
+    title: "媒体报道",
+  },
+  {
+    path: "/cn/board-of-directors/",
+    locale: "cn",
+    alternatePath: "/board-of-directors/",
+    template: "people-index",
+    title: "我们的董事",
+    paragraphs: [
+      "董事会成员来自香港不同专业背景，以各自的才能和热诚支持Love 21的发展。",
+    ],
+  },
+  {
+    path: "/cn/staff/",
+    locale: "cn",
+    alternatePath: "/staff/",
+    template: "standard",
+    title: "工作人员",
+    image: "/assets/images/staff-leadership.jpg",
+    paragraphs: [
+      "Love 21的工作人员通过运动、营养及全面支援计划，为会员和家庭提供服务。",
+    ],
+  },
+  {
+    path: "/cn/contact-us/",
+    locale: "cn",
+    alternatePath: "/contact-us/",
+    template: "contact",
+    title: "联系我们",
+  },
+  {
+    path: "/cn/donate/",
+    locale: "cn",
+    alternatePath: "/donate/",
+    template: "donate",
+    title: "捐赠",
+  },
+  {
+    path: "/cn/login-hk/",
+    locale: "cn",
+    alternatePath: "/login/",
+    template: "account",
+    title: "登录 / 注册",
+  },
+  {
+    path: "/cn/signup-hk/",
+    locale: "cn",
+    alternatePath: "/signup/",
+    template: "account",
+    title: "创建账户",
+  },
+  {
+    path: "/cn/events",
+    locale: "cn",
+    alternatePath: "/events",
+    template: "calendar",
+    title: "活动时间表",
+  },
+  {
+    path: "/cn/raffle2025/",
+    locale: "cn",
+    alternatePath: "/raffle2025-2/",
+    template: "article",
+    title: "Love 21 Foundation 慈善奖券 2025",
+    image: "/assets/images/media-raffle.png",
+    paragraphs: [
+      "支持神经多样性社群的同时赢取丰富奖品。善款将支持Love 21中心的营运及各项活动和服务。",
+    ],
+  },
+  {
+    path: "/cn/leadership/",
+    locale: "cn",
+    alternatePath: "/leadership/",
+    template: "people-index",
+    title: "管理层与员工",
+    paragraphs: [
+      "董事会成员来自香港不同专业背景，以各自的才能和热诚支持Love 21的发展。",
+    ],
+  },
+  {
+    path: "/cn/stories/",
+    locale: "cn",
+    alternatePath: "/stories/",
+    template: "media-index",
+    title: "会员故事",
+  },
+  {
+    path: "/cn/get-involved/",
+    locale: "cn",
+    alternatePath: "/get-involved/",
     template: "get-involved",
-    title: "企業夥伴",
-    description: "與 Love 21 規劃企業日 — 共同活動、引導與真實連繫。",
+    title: "参与我们",
+    description: "做义工、企业合作或捐助 — 在 Love 21 找到你的位置。",
+  },
+  {
+    path: "/cn/volunteer/calendar/",
+    locale: "cn",
+    alternatePath: "/volunteer/calendar/",
+    template: "calendar",
+    title: "义工日历",
   },
 ];
 
-export const pages = [...enPages, ...zhPages];
+export const pages = [...enPages, ...zhPages, ...cnPages];
 
 export const alternatePaths: Record<string, string> = Object.fromEntries(
   pages.map((page) => [page.path, page.alternatePath]),
 );
 
+export interface LocalePaths {
+  en: string;
+  zh: string;
+  cn: string;
+}
+
+const enKeyed: Record<string, Partial<LocalePaths>> = {};
+for (const page of pages) {
+  const key = page.locale === "en" ? page.path : page.alternatePath;
+  (enKeyed[key] ??= {})[page.locale] = page.path;
+}
+
+export function localePaths(path: string): LocalePaths {
+  const normalized = normalizePath(path);
+  if (normalized === "/" || normalized === "/zh/" || normalized === "/cn/") {
+    return { en: "/", zh: "/zh/", cn: "/cn/" };
+  }
+  const direct = enKeyed[normalized];
+  if (direct) {
+    return {
+      en: direct.en ?? "",
+      zh: direct.zh ?? "",
+      cn: direct.cn ?? "",
+    };
+  }
+  const alternate = getPage(normalized)?.alternatePath;
+  if (alternate) {
+    const trio = enKeyed[alternate] ?? enKeyed[normalizePath(alternate)];
+    if (trio) {
+      return {
+        en: trio.en ?? "",
+        zh: trio.zh ?? "",
+        cn: trio.cn ?? "",
+      };
+    }
+  }
+  return { en: "/", zh: "/zh/", cn: "/cn/" };
+}
+
 export function normalizePath(path: string) {
   if (path === "/") return "/";
   const normalized = `/${path.replace(/^\/|\/$/g, "")}/`;
-  return normalized === "/events/" ? "/events" : normalized;
+  if (normalized === "/events/") return "/events";
+  if (normalized === "/cn/events/") return "/cn/events";
+  return normalized;
 }
 
 export function getPage(path: string): SitePage | undefined {

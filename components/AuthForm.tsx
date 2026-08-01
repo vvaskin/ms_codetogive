@@ -6,10 +6,12 @@ import { FormEvent, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { USER_ROLES, type UserRole } from "@/lib/db/schema";
 import { VOLUNTEER_SIGNUP_DRAFT_KEY } from "@/lib/volunteer-signup-draft";
+import { createClient } from "@/lib/supabase/client";
+import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
-type Locale = "en" | "zh";
+type Locale = "en" | "zh" | "cn";
 
 const copy = {
   en: {
@@ -43,6 +45,8 @@ const copy = {
     genericError: "Something went wrong. Please try again.",
     invalidCredentials: "The email or password is incorrect.",
     emailExists: "An account with this email already exists.",
+    emailNotConfirmed:
+      "Please confirm your email address first — check your inbox for the link.",
     networkError:
       "We could not reach the authentication service. Please try again.",
     loggingIn: "Logging in…",
@@ -82,6 +86,7 @@ const copy = {
     genericError: "發生錯誤，請再試一次。",
     invalidCredentials: "電郵或密碼不正確。",
     emailExists: "此電郵已註冊帳戶。",
+    emailNotConfirmed: "請先確認您的電郵地址——請查看收件箱中的連結。",
     networkError: "無法連接驗證服務，請再試一次。",
     loggingIn: "登入中…",
     creatingAccount: "建立帳戶中…",
@@ -89,6 +94,48 @@ const copy = {
     createAccount: "建立帳戶",
     alreadyHaveAccount: "已有帳戶？",
     newToPortal: "新用戶？",
+  },
+  cn: {
+    eyebrow: "LOVE 21 会员平台",
+    welcomeBack: "欢迎回来",
+    createYourAccount: "创建账户",
+    loginIntro: "登录以继续前往您的个人页面。",
+    signupIntro: "请选择最能描述您与 Love 21 关系的账户类型。",
+    fullName: "姓名",
+    emailAddress: "电邮地址",
+    password: "密码",
+    passwordHelp: "请使用至少 8 个字符。",
+    accountType: "账户类型",
+    showPassword: "显示密码",
+    hidePassword: "隐藏密码",
+    roles: {
+      member: {
+        label: "会员",
+        description: "以唐氏综合症人士身份加入 Love 21。",
+      },
+      donor: {
+        label: "捐赠者",
+        description: "通过捐赠支持 Love 21 及其社群。",
+      },
+      volunteer: {
+        label: "义工",
+        description: "协助课堂、活动及项目。",
+      },
+    },
+    genericError: "发生错误，请再试一次。",
+    invalidCredentials: "电邮或密码不正确。",
+    emailExists: "此电邮已注册账户。",
+    emailNotConfirmed: "请先确认您的电邮地址——请查看收件箱中的连结。",
+    networkError: "无法连接验证服务，请再试一次。",
+    checkInboxTitle: "请查看您的电邮",
+    checkInboxBody:
+      "我们已向 {email} 发送确认连结。请点击连结启用账户，然后登录。",
+    loggingIn: "登录中…",
+    creatingAccount: "创建账户中…",
+    logIn: "登录",
+    createAccount: "创建账户",
+    alreadyHaveAccount: "已有账户？",
+    newToPortal: "新用户？",
   },
 };
 
@@ -100,10 +147,15 @@ function readableError(message: string | undefined, lang: Copy) {
   const normalized = message.toLowerCase();
 
   if (
+    normalized.includes("invalid login credentials") ||
     normalized.includes("invalid email or password") ||
     normalized.includes("invalid credentials")
   ) {
     return lang.invalidCredentials;
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return lang.emailNotConfirmed;
   }
 
   if (
@@ -120,13 +172,16 @@ export function AuthForm({
   mode,
   redirectTo = "/portal",
   locale = "en",
+  showAccountSwitch = true,
 }: {
   mode: AuthMode;
   redirectTo?: string;
   locale?: Locale;
+  showAccountSwitch?: boolean;
 }) {
   const router = useRouter();
-  const lang: Copy = locale === "zh" ? copy.zh : copy.en;
+  const lang: Copy =
+    locale === "zh" ? copy.zh : locale === "cn" ? copy.cn : copy.en;
   const [role, setRole] = useState<UserRole>("member");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +197,7 @@ export function AuthForm({
     const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const supabase = createClient();
 
     if (isSignup && role === "volunteer") {
       window.sessionStorage.setItem(
@@ -154,22 +210,32 @@ export function AuthForm({
     }
 
     try {
-      const result = isSignup
-        ? await authClient.signUp.email({
-            name,
-            email,
-            password,
-            role,
-          })
-        : await authClient.signIn.email({
-            email,
-            password,
-            rememberMe: true,
-          });
+      if (isSignup) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            // Consumed by the handle_new_user() trigger to build the profile.
+            data: { name: String(formData.get("name") ?? "").trim(), role },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+          },
+        });
 
-      if (result.error) {
-        setError(readableError(result.error.message, lang));
-        return;
+        if (signUpError) {
+          setError(readableError(signUpError.message, lang));
+          return;
+        }
+
+        // Email confirmation is disabled, so signup returns a session and we
+        // fall through to the redirect below.
+      } else {
+        const { error: signInError } =
+          await supabase.auth.signInWithPassword({ email, password });
+
+        if (signInError) {
+          setError(readableError(signInError.message, lang));
+          return;
+        }
       }
 
       router.replace(redirectTo);
@@ -186,9 +252,13 @@ export function AuthForm({
       ? isSignup
         ? "/zh/login-hk/"
         : "/zh/signup-hk/"
-      : isSignup
-        ? "/login"
-        : "/signup";
+      : locale === "cn"
+        ? isSignup
+          ? "/cn/login-hk/"
+          : "/cn/signup-hk/"
+        : isSignup
+          ? "/login"
+          : "/signup";
 
   return (
     <form className={styles.authForm} method="post" onSubmit={onSubmit}>
@@ -331,12 +401,14 @@ export function AuthForm({
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
 
-      <p className={styles.authSwitch}>
-        {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
-        <Link href={switchHref}>
-          {isSignup ? lang.logIn : lang.createAccount}
-        </Link>
-      </p>
+      {showAccountSwitch && (
+        <p className={styles.authSwitch}>
+          {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
+          <Link href={switchHref}>
+            {isSignup ? lang.logIn : lang.createAccount}
+          </Link>
+        </p>
+      )}
     </form>
   );
 }

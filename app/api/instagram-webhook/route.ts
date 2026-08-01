@@ -73,12 +73,15 @@ export async function POST(request: Request) {
   };
 
   const existing = await readInstagramPosts();
-  const byId = new Map(existing.map((item) => [item.id, item]));
-  const added = !byId.has(post.id);
-  byId.set(post.id, post);
-  const merged = [...byId.values()].sort((a, b) =>
-    b.timestamp.localeCompare(a.timestamp),
-  );
+  const index = existing.findIndex((item) => item.id === post.id);
+  const added = index === -1;
+  let merged: InstagramPost[];
+  if (index === -1) {
+    merged = [post, ...existing];
+  } else {
+    merged = existing.slice();
+    merged[index] = post;
+  }
   await saveInstagramPosts(merged);
 
   return NextResponse.json({ ok: true, added, total: merged.length });

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
-import { auth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "建立帳戶",
@@ -11,9 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default async function SignupHkPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session) redirect("/portal");
+  if (user) redirect("/portal");
 
   return (
     <AuthPage

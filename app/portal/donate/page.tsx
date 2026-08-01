@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DonationForm } from "@/components/portal/DonationForm";
-import { auth } from "@/lib/auth";
-import type { UserRole } from "@/lib/db/schema";
+import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
   title: "Donation",
@@ -11,10 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function DonatePage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const profile = await getSessionProfile();
 
-  if (!session) redirect("/login?next=/portal/donate");
-  if ((session.user.role as UserRole) !== "donor") redirect("/portal");
+  if (!profile) redirect("/login?next=/portal/donate");
+  if (profile.role !== "donor") redirect("/portal");
 
   return (
     <div className="portal-subpage">
@@ -24,7 +22,7 @@ export default async function DonatePage() {
         <p>Give once or set up recurring support for our programmes.</p>
       </header>
 
-      <DonationForm />
+      <DonationForm guest={false} />
     </div>
   );
 }

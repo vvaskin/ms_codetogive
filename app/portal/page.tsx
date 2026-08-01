@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DonorDashboard } from "@/components/portal/DonorDashboard";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
-import { auth } from "@/lib/auth";
-import type { UserRole } from "@/lib/db/schema";
-import styles from "./page.module.css";
+import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
   title: "Your portal",
@@ -13,15 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default async function PortalPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const profile = await getSessionProfile();
 
-  if (!session) redirect("/login?next=/portal");
+  if (!profile) redirect("/login?next=/portal");
 
-  const role = session.user.role as UserRole;
-
-  if (role === "donor") {
-    return <DonorDashboard name={session.user.name} />;
+  if (profile.role === "donor") {
+    return <DonorDashboard name={profile.name} />;
   }
 
-  return <PlaceholderDashboard name={session.user.name} role={role} />;
+  const portalRole = profile.role === "staff" ? "member" : profile.role;
+  return <PlaceholderDashboard name={profile.name} role={portalRole} />;
 }

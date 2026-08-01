@@ -74,32 +74,23 @@
   position: relative;
 }
 
-.navGroupTrigger {
+.navGroupLink {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
   min-height: 44px;
   padding: 0.35rem 0.45rem;
-  border: none;
   border-radius: var(--radius-sm);
-  background: transparent;
   font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-ink);
-  cursor: pointer;
   white-space: nowrap;
   transition: color var(--motion-fast);
 }
 
-.navGroupTrigger:hover,
-.navGroup:hover .navGroupTrigger {
+.navGroupLink:hover,
+.navGroup:hover .navGroupLink {
   color: var(--color-pink);
-  background: transparent;
-}
-
-.navGroupTrigger span {
-  display: none;
 }
 
 .navDropdown {
@@ -142,101 +133,164 @@
   background: var(--color-blush);
 }
 
-/* ── Calm mode toggle ───────────────────────────────────────────────── */
+/* ── Accessibility menu ─────────────────────────────────────────────── */
 
-.calmToggle {
+.accessMenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.accessTrigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 44px;
-  padding: 0.3rem 0.85rem 0.3rem 0.4rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-white);
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    border-color var(--motion-fast),
-    background-color var(--motion-fast),
-    color var(--motion-fast),
-    box-shadow var(--motion-fast);
-}
-
-.calmToggle:hover {
-  border-color: var(--color-pink);
-  color: var(--color-ink);
-}
-
-.calmToggleOn {
-  border-color: color-mix(in srgb, var(--color-pink) 35%, var(--color-border));
-  background: var(--color-blush);
-  color: var(--color-ink);
-}
-
-.calmIndicator {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--color-border);
-  box-shadow: inset 0 -2px 4px rgba(41, 35, 32, 0.08);
-  transition:
-    background-color var(--motion-base),
-    box-shadow var(--motion-base),
-    transform var(--motion-base);
-}
-
-.calmToggleOn .calmIndicator {
-  background: var(--color-yellow);
-  box-shadow:
-    0 0 0 3px rgba(255, 198, 46, 0.28),
-    inset 0 -2px 4px rgba(41, 35, 32, 0.06);
-  transform: scale(1.05);
-}
-
-.calmLabel {
-  line-height: 1.2;
-}
-
-.calmLabelShort {
-  display: none;
-}
-
-.calmToggleHeader {
-  display: none;
-  gap: 0.35rem;
+  justify-content: center;
   width: 42px;
   min-width: 42px;
   min-height: 42px;
   padding: 0;
-  justify-content: center;
   border: 1.5px solid #cfc8c2;
+  border-radius: 50%;
   background: var(--color-white);
   color: var(--color-ink);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    background-color var(--motion-fast);
 }
 
-.calmToggleHeader .calmLabel {
+.accessTrigger:hover,
+.accessTriggerOpen {
+  border-color: var(--color-pink);
+  background: var(--color-blush);
+}
+
+.accessIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.accessHeader {
   display: none;
 }
 
-.calmToggleHeader .calmIndicator {
-  width: 18px;
-  height: 18px;
-  background: #e8e2dc;
+.accessPanel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 200;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 248px;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
 }
 
-.calmToggleHeader.calmToggleOn {
-  border-color: color-mix(in srgb, var(--color-yellow) 55%, #cfc8c2);
-  background: #fff8e8;
+.accessPanelMobile {
+  position: static;
+  width: 100%;
+  margin-top: 0.35rem;
+  box-shadow: none;
+}
+
+.accessHeading {
+  margin: 0;
+  padding: 0.15rem 0.5rem 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accessRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.accessRow:hover {
+  background: var(--color-canvas);
+}
+
+.accessLabel {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--color-ink);
 }
 
-.calmToggleHeader.calmToggleOn .calmIndicator {
-  background: var(--color-yellow);
+.accessToggle {
+  flex-shrink: 0;
+  min-height: 32px;
+  min-width: 64px;
+  padding: 0.25rem 0.75rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.accessToggle:hover {
+  border-color: var(--color-pink);
+}
+
+.accessToggleOn {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.accessTextSize {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.accessTextBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 44px;
+  padding: 0.25rem 0.7rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.accessTextBtn:hover:not(:disabled) {
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+}
+
+.accessTextBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ── Language switcher ────────────────────────────────────────────────── */
@@ -289,7 +343,8 @@
 
 .memberLogin,
 .donatePill,
-.volunteerPill {
+.volunteerPill,
+.signOutPill {
   display: none;
   align-items: center;
   justify-content: center;
@@ -342,7 +397,26 @@
   transform: translateY(-1px);
 }
 
-.donatePillCompact {
+.signOutPill {
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-ink);
+  color: #fff;
+  cursor: pointer;
+}
+
+.signOutPill:hover:not(:disabled) {
+  background: #3d342f;
+  border-color: #3d342f;
+  transform: translateY(-1px);
+}
+
+.signOutPill:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.donatePillCompact,
+.memberLoginCompact {
   display: inline-flex;
   padding-inline: 0.95rem;
   font-size: 0.84rem;
@@ -431,21 +505,39 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.mobileNavGroupTrigger {
+.mobileNavGroupHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+}
+
+.mobileNavGroupLink {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
   min-height: 48px;
   padding: 0.65rem 0.25rem;
-  border: none;
-  background: transparent;
   font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-ink);
+}
+
+.mobileNavGroupLink:hover {
+  color: var(--color-pink);
+}
+
+.mobileNavGroupTrigger {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-ink);
   cursor: pointer;
-  text-align: left;
 }
 
 .mobileNavGroupTrigger span {
@@ -505,6 +597,7 @@
 
 .mobileUtilityRow .memberLogin,
 .mobileUtilityRow .volunteerPill,
+.mobileUtilityRow .signOutPill,
 .mobileUtilityRow .mobileUtilityDonate {
   display: inline-flex;
   flex: 1 1 calc(50% - 0.5rem);
@@ -528,45 +621,8 @@
   font-weight: 800;
 }
 
-.mobileCalmToggle {
-  composes: calmToggle;
+.mobileAccess {
   width: 100%;
-  justify-content: flex-start;
-}
-
-/* ── Floating donate (desktop only) ───────────────────────────────────── */
-
-.floatingDonate {
-  position: fixed;
-  right: clamp(0.75rem, 2vw, 1.25rem);
-  bottom: clamp(0.75rem, 2vw, 1.25rem);
-  z-index: 90;
-  display: none;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 48px;
-  padding: 0.65rem 1.25rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-pink);
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #fff;
-  box-shadow: var(--shadow-lift);
-  transition:
-    background-color var(--motion-fast),
-    transform var(--motion-fast);
-}
-
-.floatingDonate:hover {
-  background: var(--color-pink-dark);
-  transform: translateY(-2px);
-}
-
-.floatingDonateArrow {
-  font-size: 1rem;
-  line-height: 1;
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
@@ -773,9 +829,10 @@
   }
 
   .languageLinks,
-  .calmToggleHeader,
+  .accessHeader,
   .memberLogin,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     display: inline-flex;
   }
 
@@ -783,12 +840,9 @@
     display: inline-flex;
   }
 
-  .headerActions .donatePillCompact {
+  .headerActions .donatePillCompact,
+  .headerActions .memberLoginCompact {
     display: none;
-  }
-
-  .floatingDonate {
-    display: inline-flex;
   }
 
   .footerColumns {
@@ -813,7 +867,7 @@
   }
 
   .navLink,
-  .navGroupTrigger {
+  .navGroupLink {
     padding-inline: 0.6rem;
     font-size: 1rem;
   }
@@ -822,27 +876,10 @@
     gap: 0.75rem;
   }
 
-  .calmToggleHeader {
-    width: auto;
-    min-width: 0;
-    padding: 0.3rem 0.85rem 0.3rem 0.4rem;
-  }
-
-  .calmToggleHeader .calmLabel {
-    display: inline;
-  }
-
-  .calmToggleHeader .calmLabelShort {
-    display: inline;
-  }
-
-  .calmToggleHeader .calmLabelFull {
-    display: none;
-  }
-
   .memberLogin,
   .donatePill,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     padding-inline: 1.1rem;
     font-size: 0.9rem;
   }
@@ -850,9 +887,10 @@
 
 @media (max-width: 1319px) {
   .languageLinks,
-  .calmToggleHeader,
+  .accessHeader,
   .memberLogin,
-  .volunteerPill {
+  .volunteerPill,
+  .signOutPill {
     display: none;
   }
 
@@ -860,12 +898,14 @@
     display: none;
   }
 
-  .headerActions .donatePillCompact {
+  .headerActions .donatePillCompact,
+  .headerActions .memberLoginCompact {
     display: inline-flex;
   }
 
   .mobileUtility .memberLogin,
-  .mobileUtility .volunteerPill {
+  .mobileUtility .volunteerPill,
+  .mobileUtility .signOutPill {
     display: inline-flex;
     flex: 1 1 auto;
   }
@@ -875,11 +915,10 @@
   .navDropdown,
   .mobileNav,
   .mobileNavDropdown,
-  .calmIndicator,
+  .accessPanel,
   .mobileToggle span,
-  .navGroupTrigger span,
-  .donatePill,
-  .floatingDonate {
+  .mobileNavGroupTrigger span,
+  .donatePill {
     transition: none;
   }
 }

@@ -6,6 +6,7 @@ import {
   getPage,
   SitePage,
 } from "../content/site-data";
+import { getPublishedCalendarEvents } from "../lib/supabase/calendar-events";
 import {
   AccountForm,
   VolunteerForm,
@@ -46,6 +47,12 @@ function StandardPage({ page }: { page: SitePage }) {
 
 function PeopleIndex({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
+  const cn = page.locale === "cn";
+  const boardHref = zh
+    ? "/zh/board-of-directors-hk/"
+    : cn
+      ? "/cn/board-of-directors/"
+      : undefined;
   return (
     <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
@@ -56,7 +63,7 @@ function PeopleIndex({ page }: { page: SitePage }) {
         {boardMembers.map((person) => (
           <Link
             key={person.slug}
-            href={zh ? "/zh/board-of-directors-hk/" : `/board-of-directors/${person.slug}/`}
+            href={boardHref ?? `/board-of-directors/${person.slug}/`}
             className={styles.personCard}
           >
             <div>
@@ -96,7 +103,7 @@ function PersonPage({ page }: { page: SitePage }) {
 }
 
 function VolunteerPage({ page }: { page: SitePage }) {
-  const zh = page.locale === "zh";
+  const locale = page.locale;
   return (
     <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
@@ -108,13 +115,15 @@ function VolunteerPage({ page }: { page: SitePage }) {
       <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
-      <VolunteerForm zh={zh} />
+      <VolunteerForm locale={locale} />
       <div className={styles.handsonBlock}>
         <Image src="/assets/images/handson.png" width={180} height={180} unoptimized alt="HandsOn Hong Kong" />
         <p>
-          {zh
+          {locale === "zh"
             ? "Love 21亦與HandsOn Hong Kong合作，義工可透過其平台查看活動。"
-            : "We are also partnered with HandsOn Hong Kong. Visit their website to view the volunteering schedule and register through their dashboard."}
+            : locale === "cn"
+              ? "Love 21 亦与 HandsOn Hong Kong 合作，义工可透过其平台查看活动。"
+              : "We are also partnered with HandsOn Hong Kong. Visit their website to view the volunteering schedule and register through their dashboard."}
         </p>
         <a
           href="https://www.handsonhongkong.org/project-calendar"
@@ -129,44 +138,10 @@ function VolunteerPage({ page }: { page: SitePage }) {
 }
 
 function DonatePage({ page }: { page: SitePage }) {
-  const locale = page.locale === "zh" ? "zh" : "en";
-  return <DonateExperience locale={locale} />;
+  return <DonateExperience locale={page.locale === "en" ? "en" : "zh"} />;
 }
 
-function JoinPage({ zh }: { zh: boolean }) {
-  return (
-    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
-      <PageHeading>{zh ? "實習機會" : "INTERNSHIP OPPORTUNITIES"}</PageHeading>
-      <div className={styles.prose}>
-        <p>
-          {zh
-            ? "我們歡迎相關學科的學生申請Love 21實習。"
-            : "We welcome students majoring in related fields to apply for an internship at Love 21. Interns gain first-hand experience in the operations and management of a growing NGO."}
-        </p>
-        <h2>{zh ? "實習工作可能包括" : "Roles may include"}</h2>
-        <ul>
-          <li>Devising a sports programme for our community</li>
-          <li>Managing the operations of Love 21 Space</li>
-          <li>Proposal writing and programme reporting</li>
-          <li>Refining and executing the nutrition programme</li>
-          <li>Administrative, marketing and design work</li>
-        </ul>
-        <h2>{zh ? "要求" : "Requirements"}</h2>
-        <ul>
-          <li>Fluent English and Chinese, written and spoken</li>
-          <li>Currently enrolled in university</li>
-          <li>Flexible, compassionate and proactive</li>
-        </ul>
-        <p>
-          For interested parties, contact Jeff at jeff@love21foundation.com and
-          Maggie at maggie@love21foundation.com.
-        </p>
-      </div>
-    </article>
-  );
-}
-
-export function PageRenderer({ path }: { path: string }) {
+export async function PageRenderer({ path }: { path: string }) {
   const page = getPage(path);
   if (!page) notFound();
 
@@ -175,15 +150,11 @@ export function PageRenderer({ path }: { path: string }) {
     case "article":
       return <StandardPage page={page} />;
     case "about":
-      return (
-        <AboutExperience locale={page.locale === "zh" ? "zh" : "en"} />
-      );
+      return <AboutExperience locale={page.locale} />;
     case "programmes":
       return <ProgrammesExperience locale={page.locale} />;
     case "reports":
-      return (
-        <FinanceExperience locale={page.locale === "zh" ? "zh" : "en"} />
-      );
+      return <FinanceExperience locale={page.locale} />;
     case "media-index":
       return <MediaExperience locale={page.locale} />;
     case "people-index":
@@ -192,17 +163,8 @@ export function PageRenderer({ path }: { path: string }) {
       return <PersonPage page={page} />;
     case "volunteer":
       return <VolunteerPage page={page} />;
-    case "get-involved": {
-      const initialSection = page.path.includes("corporate")
-        ? ("corporate" as const)
-        : undefined;
-      return (
-        <GetInvolvedExperience
-          locale={page.locale === "zh" ? "zh" : "en"}
-          initialSection={initialSection}
-        />
-      );
-    }
+    case "get-involved":
+      return <GetInvolvedExperience locale={page.locale} />;
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":
@@ -211,12 +173,15 @@ export function PageRenderer({ path }: { path: string }) {
       return (
         <article className={`${styles.contentPage} ${styles.accountPage}`}>
           <PageHeading>{page.title}</PageHeading>
-          <AccountForm title={page.title} zh={page.locale === "zh"} />
+          <AccountForm title={page.title} locale={page.locale} />
         </article>
       );
     case "calendar":
-      return <ActivitiesExperience locale={page.locale} />;
-    case "join":
-      return <JoinPage zh={page.locale === "zh"} />;
+      return (
+        <ActivitiesExperience
+          locale={page.locale}
+          events={await getPublishedCalendarEvents()}
+        />
+      );
   }
 }

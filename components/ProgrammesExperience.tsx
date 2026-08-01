@@ -8,7 +8,7 @@ import styles from "./ProgrammesExperience.module.css";
 
 export function ProgrammesExperience({ locale }: { locale: Locale }) {
   const c = programmesContent;
-  const isChinese = locale === "zh";
+  const isChinese = locale !== "en";
 
   return (
     <article className={`${styles.page} ${isChinese ? styles.zh : ""}`}>

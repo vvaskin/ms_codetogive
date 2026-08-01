@@ -2,14 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
+import type { UserRow } from "@/lib/supabase/types";
 
-const MAX_IMAGE_BYTES = 1_000_000; // ~1 MB
+const MAX_IMAGE_BYTES = 2_000_000; // 2 MB
 
 export interface ProfileValues {
+  userId: string;
   name: string;
   email: string;
-  image: string | null;
+  /** Public URL of the current avatar, or null. */
+  avatarUrl: string | null;
   phone: string | null;
   address: string | null;
 }
@@ -19,24 +22,25 @@ export function ProfileEditor({ initial }: { initial: ProfileValues }) {
   const [name, setName] = useState(initial.name);
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [address, setAddress] = useState(initial.address ?? "");
-  const [image, setImage] = useState<string | null>(initial.image);
+  // Preview shows either the saved avatar or the locally-picked file.
+  const [preview, setPreview] = useState<string | null>(initial.avatarUrl);
+  const [file, setFile] = useState<File | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
 
   function onPickImage(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_IMAGE_BYTES) {
-      setError("Please choose an image smaller than 1 MB.");
+    const picked = event.target.files?.[0];
+    if (!picked) return;
+    if (picked.size > MAX_IMAGE_BYTES) {
+      setError("Please choose an image smaller than 2 MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(typeof reader.result === "string" ? reader.result : null);
-      setError(null);
-      setStatus("idle");
-    };
-    reader.readAsDataURL(file);
+    setFile(picked);
+    setRemoveAvatar(false);
+    setPreview(URL.createObjectURL(picked));
+    setError(null);
+    setStatus("idle");
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -44,19 +48,43 @@ export function ProfileEditor({ initial }: { initial: ProfileValues }) {
     setStatus("saving");
     setError(null);
 
-    const result = await authClient.updateUser({
+    const supabase = createClient();
+    const update: Partial<UserRow> = {
       name: name.trim(),
-      image: image ?? "",
-      phone: phone.trim(),
-      address: address.trim(),
-    });
+      phone_number: phone.trim() || null,
+      address: address.trim() || null,
+    };
 
-    if (result.error) {
-      setError(result.error.message ?? "Could not save your profile.");
+    // Upload a newly picked avatar into this user's own folder.
+    if (file) {
+      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${initial.userId}/avatar-${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) {
+        setError(uploadError.message);
+        setStatus("idle");
+        return;
+      }
+      update.profile_image = path;
+    } else if (removeAvatar) {
+      update.profile_image = null;
+    }
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update(update)
+      .eq("id", initial.userId);
+
+    if (updateError) {
+      setError(updateError.message);
       setStatus("idle");
       return;
     }
 
+    setFile(null);
     setStatus("saved");
     router.refresh();
   }
@@ -65,9 +93,9 @@ export function ProfileEditor({ initial }: { initial: ProfileValues }) {
     <form className="profile-form" onSubmit={onSubmit}>
       <div className="profile-photo">
         <div className="portal-avatar portal-avatar-lg">
-          {image ? (
+          {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt={name} />
+            <img src={preview} alt={name} />
           ) : (
             <span aria-hidden="true">{name.slice(0, 1).toUpperCase()}</span>
           )}
@@ -75,19 +103,16 @@ export function ProfileEditor({ initial }: { initial: ProfileValues }) {
         <div className="profile-photo-actions">
           <label className="profile-photo-upload">
             Change photo
-            <input
-              type="file"
-              accept="image/*"
-              onChange={onPickImage}
-              hidden
-            />
+            <input type="file" accept="image/*" onChange={onPickImage} hidden />
           </label>
-          {image && (
+          {preview && (
             <button
               type="button"
               className="profile-photo-remove"
               onClick={() => {
-                setImage(null);
+                setPreview(null);
+                setFile(null);
+                setRemoveAvatar(true);
                 setStatus("idle");
               }}
             >

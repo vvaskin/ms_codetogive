@@ -70,12 +70,12 @@ export function HomeDonatePreview({
 
   const amountDisplay =
     selectedAmount == null
-      ? locale === "zh"
-        ? "—"
-        : "—"
+      ? "—"
       : locale === "zh"
         ? `港幣 ${selectedAmount.toLocaleString("en-HK")} 元`
-        : `HK$${selectedAmount.toLocaleString("en-HK")}`;
+        : locale === "cn"
+          ? `港币 ${selectedAmount.toLocaleString("en-HK")} 元`
+          : `HK$${selectedAmount.toLocaleString("en-HK")}`;
 
   return (
     <section
