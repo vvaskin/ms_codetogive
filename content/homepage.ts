@@ -1,1179 +1,686 @@
-import { images, mediaArticles, type Locale } from "./site-data";
-
-export type StoryStatus = "existing" | "placeholder";
-
-export type ProgrammePillarKey = "sports" | "nutrition" | "family";
-
-export type DonationFrequency = "one-time" | "monthly";
-
-export type DonationProgramme = "most-needed" | ProgrammePillarKey;
+import { images, type Locale } from "./site-data";
 
 export interface LocalizedString {
-  en: string;
-  zh: string;
-  cn: string;
+  readonly en: string;
+  readonly zh: string;
+  readonly cn: string;
 }
 
 export interface HomepageLink {
-  label: LocalizedString;
-  href: LocalizedString;
+  readonly label: LocalizedString;
+  readonly href: LocalizedString;
 }
 
 export interface HomepageMetric {
-  value: string;
-  label: LocalizedString;
+  readonly value: string;
+  readonly label: LocalizedString;
+  readonly source?: LocalizedString;
 }
 
-export interface ProgrammeChip {
-  label: LocalizedString;
-  href: LocalizedString;
+export interface HomepageImpactShowcase {
+  readonly eyebrow: LocalizedString;
+  readonly value: string;
+  readonly title: LocalizedString;
+  readonly description: LocalizedString;
+  readonly programmeLabels: readonly LocalizedString[];
 }
 
-export interface AbilityStory {
-  id: string;
-  status: StoryStatus;
-  image: string;
-  imageAlt: LocalizedString;
-  category: LocalizedString;
-  achievement: LocalizedString;
-  summary: LocalizedString;
-  milestones: LocalizedString[];
-  shortMilestones: LocalizedString[];
-  supportingProgramme: LocalizedString;
-  action: HomepageLink;
-  source?: {
-    label: LocalizedString;
-    href?: string;
-  };
-  placeholderBadge?: LocalizedString;
+export interface HomepageFeaturedStory {
+  readonly eyebrow: LocalizedString;
+  readonly title: LocalizedString;
+  readonly image: string;
+  readonly imageAlt: LocalizedString;
+  readonly panelLabel: LocalizedString;
+  readonly panelTitle: LocalizedString;
+  readonly context: LocalizedString;
+  readonly quote: LocalizedString;
+  readonly milestones: readonly LocalizedString[];
+  readonly familyOutcome: LocalizedString;
+  readonly action: HomepageLink;
+  readonly attribution: LocalizedString;
 }
 
-export interface ProgrammePillar {
-  key: ProgrammePillarKey;
-  title: LocalizedString;
-  image: string;
-  imageAlt: LocalizedString;
-  explanation: LocalizedString;
-  example: LocalizedString;
-  href: LocalizedString;
+export type HomepageCardTone = "pink" | "sky" | "mint" | "yellow";
+
+export interface HomepageStoryCard {
+  readonly id: string;
+  readonly tone: HomepageCardTone;
+  readonly image: string;
+  readonly imageAlt: LocalizedString;
+  readonly category: LocalizedString;
+  readonly title: LocalizedString;
+  readonly summary: LocalizedString;
+  readonly meta: LocalizedString;
+  readonly href: string;
 }
 
-export interface DonationAmountOption {
-  value: number;
-  label: LocalizedString;
+export interface HomepageConversationItem {
+  readonly id: string;
+  readonly side: "left" | "right";
+  readonly label: LocalizedString;
+  readonly message: LocalizedString;
 }
 
-export interface DonationImpactMessage {
-  frequency: DonationFrequency;
-  programme: DonationProgramme;
-  message: LocalizedString;
+export interface HomepageFeedCard {
+  readonly id: string;
+  readonly tone: HomepageCardTone;
+  readonly network: LocalizedString;
+  readonly date: string;
+  readonly image: string;
+  readonly imageAlt: LocalizedString;
+  readonly title: LocalizedString;
+  readonly href: string;
 }
 
-export interface HelpAction {
-  id: string;
-  status: "live" | "planned";
-  title: LocalizedString;
-  description: LocalizedString;
-  action: HomepageLink;
+export interface HomepageCtaBand {
+  readonly eyebrow?: LocalizedString;
+  readonly title: LocalizedString;
+  readonly description: LocalizedString;
+  readonly primary: HomepageLink;
+  readonly secondary?: HomepageLink;
 }
 
-export interface TrustLink {
-  label: LocalizedString;
-  href: LocalizedString;
+interface HomepagePillar {
+  readonly id: "sports" | "nutrition" | "family";
+  readonly title: LocalizedString;
+  readonly description: LocalizedString;
 }
 
-export interface CommunityUpdate {
-  slug: string;
-  title: string;
-  date: string;
-  summary: LocalizedString;
-  image?: string;
+interface HomepageEducationPoint {
+  readonly value: string;
+  readonly description: LocalizedString;
 }
 
 export interface HomepageContent {
-  locale: Locale;
-  hero: {
-    eyebrow: LocalizedString;
-    headline: LocalizedString;
-    supporting: LocalizedString;
-    image: string;
-    imageAlt: LocalizedString;
-    caption: LocalizedString;
-    stickers: LocalizedString[];
-    primaryCta: HomepageLink;
-    secondaryCta: HomepageLink;
-    metrics: HomepageMetric[];
-  };
-  stakeholderPaths: {
-    label: LocalizedString;
-    items: HomepageLink[];
-  };
-  journey: {
-    label: LocalizedString;
-    steps: LocalizedString[];
-  };
-  stories: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    lead: LocalizedString;
-    previousLabel: LocalizedString;
-    nextLabel: LocalizedString;
-    tabLabel: LocalizedString;
-    items: AbilityStory[];
-  };
-  model: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    detailsLabel: LocalizedString;
-    centre: {
-      title: LocalizedString;
-      description: LocalizedString;
-    };
-    pillars: ProgrammePillar[];
-    programmeChips: ProgrammeChip[];
-  };
-  opportunities: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    lead: LocalizedString;
-    demoNote: LocalizedString;
-    filterLabel: LocalizedString;
-    emptyBadge: LocalizedString;
-    emptyTitle: LocalizedString;
-    emptyDescription: LocalizedString;
-    volunteerCta: HomepageLink;
-    contactCta: HomepageLink;
-    activities: {
-      id: string;
-      title: LocalizedString;
-      role: LocalizedString;
-      day: string;
-      month: LocalizedString;
-      time: LocalizedString;
-      location: LocalizedString;
-      image: string;
-      imageAlt: LocalizedString;
-      badge?: LocalizedString;
-      action: HomepageLink;
+  readonly locale: Locale;
+  readonly hero: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly description: LocalizedString;
+    readonly primary: HomepageLink;
+    readonly secondary: HomepageLink;
+    readonly note: LocalizedString;
+    readonly photos: readonly {
+      readonly image: string;
+      readonly alt: LocalizedString;
+      readonly caption: LocalizedString;
     }[];
   };
-  donatePreview: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    description: LocalizedString;
-    frequencyLabel: LocalizedString;
-    oneTimeLabel: LocalizedString;
-    monthlyLabel: LocalizedString;
-    amountLabel: LocalizedString;
-    customAmountLabel: LocalizedString;
-    customAmountPlaceholder: LocalizedString;
-    customAmountError: LocalizedString;
-    programmeLabel: LocalizedString;
-    programmeOptions: { value: DonationProgramme; label: LocalizedString }[];
-    amounts: DonationAmountOption[];
-    impactMessages: DonationImpactMessage[];
-    defaultImpact: LocalizedString;
-    supportLabel: LocalizedString;
-    cta: HomepageLink;
-    note: LocalizedString;
+  readonly impactShowcase: HomepageImpactShowcase;
+  readonly featuredStory: HomepageFeaturedStory;
+  readonly model: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly pillars: readonly HomepagePillar[];
   };
-  help: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    description: LocalizedString;
-    plannedLabel: LocalizedString;
-    actions: HelpAction[];
+  readonly impactStats: {
+    readonly label: LocalizedString;
+    readonly items: readonly HomepageMetric[];
   };
-  trust: {
-    id: string;
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    section88: LocalizedString;
-    dignityStatement: LocalizedString;
-    dignityBadge: LocalizedString;
-    metrics: HomepageMetric[];
-    links: TrustLink[];
-    communityLabel: LocalizedString;
-    partnersLabel: LocalizedString;
-    partners: { src: string; alt: LocalizedString; width: number; height: number }[];
-    updates: CommunityUpdate[];
+  readonly featuredStories: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly action: HomepageLink;
+    readonly items: readonly HomepageStoryCard[];
   };
-  finalCta: {
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    actions: HomepageLink[];
+  readonly abilityConversation: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly action: HomepageLink;
+    readonly panelEyebrow: LocalizedString;
+    readonly panelTitle: LocalizedString;
+    readonly panelDescription: LocalizedString;
+    readonly chatTitle: LocalizedString;
+    readonly chatStatus: LocalizedString;
+    readonly items: readonly HomepageConversationItem[];
+    readonly readAction: HomepageLink;
   };
+  readonly education: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly description: LocalizedString;
+    readonly points: readonly HomepageEducationPoint[];
+    readonly factsTitle: LocalizedString;
+    readonly facts: readonly HomepageMetric[];
+    readonly source: LocalizedString;
+    readonly action: HomepageLink;
+  };
+  readonly socialFeed: {
+    readonly eyebrow: LocalizedString;
+    readonly title: LocalizedString;
+    readonly facebook: HomepageLink;
+    readonly instagram: HomepageLink;
+    readonly items: readonly HomepageFeedCard[];
+  };
+  readonly volunteerCta: HomepageCtaBand;
+  readonly donateCta: HomepageCtaBand;
 }
 
 const routes = {
-  contact: { en: "/contact-us/", zh: "/zh/contact-us-hk/", cn: "/cn/contact-us/" },
-  volunteer: { en: "/our-volunteer/", zh: "/zh/our-volunteer-hk/", cn: "/cn/our-volunteer/" },
   donate: { en: "/donate/", zh: "/zh/donate-hk/", cn: "/cn/donate/" },
-  programmes: { en: "/#what-we-do", zh: "/zh/#what-we-do", cn: "/cn/#what-we-do" },
-  finance: { en: "/our-finance/", zh: "/zh/our-finance-hk/", cn: "/cn/our-finance/" },
-  board: { en: "/board-of-directors/", zh: "/zh/board-of-directors-hk/", cn: "/cn/board-of-directors/" },
-  media: { en: "/media/", zh: "/zh/media-hk/", cn: "/cn/media/" },
+  donateItems: {
+    en: "/donate/?mode=items",
+    zh: "/zh/donate-hk/?mode=items",
+    cn: "/cn/donate/?mode=items",
+  },
+  volunteer: {
+    en: "/our-volunteer/",
+    zh: "/zh/our-volunteer-hk/",
+    cn: "/cn/our-volunteer/",
+  },
+  stories: { en: "/stories/", zh: "/zh/stories-hk/", cn: "/cn/stories/" },
+  ourStory: {
+    en: "/our-story/",
+    zh: "/zh/our-story-hk/",
+    cn: "/cn/our-story/",
+  },
 } as const;
-
-const proofPoints: HomepageMetric[] = [
-  {
-    value: "600+",
-    label: {
-      en: "members and families",
-      zh: "會員及家庭",
-      cn: "会员及家庭",
-    },
-  },
-  {
-    value: "≈1,000",
-    label: {
-      en: "monthly activities",
-      zh: "每月活動節數",
-      cn: "每月活动节数",
-    },
-  },
-  {
-    value: "HK$0",
-    label: {
-      en: "charged to families",
-      zh: "不向家庭收費",
-      cn: "不向家庭收费",
-    },
-  },
-];
-
-const curatedUpdates: CommunityUpdate[] = [
-  {
-    slug: mediaArticles[0].slug,
-    title: mediaArticles[0].title,
-    date: mediaArticles[0].date,
-    image: mediaArticles[0].image,
-    summary: {
-      en: "Tables open for the Beyond Limits Banquet.",
-      zh: "Beyond Limits 晚宴座位現已開放。",
-      cn: "Beyond Limits 晚宴座位现已开放。",
-    },
-  },
-  {
-    slug: mediaArticles[1].slug,
-    title: mediaArticles[1].title,
-    date: mediaArticles[1].date,
-    image: mediaArticles[1].image,
-    summary: {
-      en: "Charity raffle proceeds support Love 21 Space.",
-      zh: "慈善抽獎收益支援 Love 21 Space。",
-      cn: "慈善抽奖收益支援 Love 21 Space。",
-    },
-  },
-  {
-    slug: mediaArticles[4].slug,
-    title: mediaArticles[4].title,
-    date: mediaArticles[4].date,
-    image: mediaArticles[4].image,
-    summary: {
-      en: "Healthy activity and community support in focus.",
-      zh: "聚焦健康活動與社群支援。",
-      cn: "聚焦健康活动与社群支援。",
-    },
-  },
-];
 
 export const homepageContent: HomepageContent = {
   locale: "en",
   hero: {
     eyebrow: {
-      en: "Love 21 Foundation · Hong Kong",
-      zh: "Love 21 Foundation · 香港",
-      cn: "Love 21 Foundation · 香港",
-    },
-    headline: {
-      en: "Our community trains, cooks and grows together.",
-      zh: "我們的社群一起訓練、烹飪、成長。",
-      cn: "我们的社群一起训练、烹饪、成长。",
-    },
-    supporting: {
-      en: "Free sport, nutrition and family support for people with Down syndrome and autism — and the families beside them.",
-      zh: "為唐氏綜合症及自閉症人士與家人，提供免費的體育、營養與家庭支援。",
-      cn: "为唐氏综合症及自闭症人士与家人，提供免费的体育、营养与家庭支援。",
-    },
-    image: images.hero,
-    imageAlt: {
-      en: "Love 21 members moving together in a ribbon class",
-      zh: "Love 21 會員在絲帶課堂中一起活動",
-      cn: "Love 21 会员在丝带课堂中一起活动",
-    },
-    caption: {
-      en: "Saturday movement class",
-      zh: "星期六運動課堂",
-      cn: "星期六运动课堂",
-    },
-    stickers: [
-      { en: "JOY", zh: "喜悅", cn: "喜悦" },
-      { en: "SKILL", zh: "技能", cn: "技能" },
-      { en: "BELONGING", zh: "歸屬", cn: "归属" },
-    ],
-    primaryCta: {
-      label: { en: "Meet the community", zh: "認識社群", cn: "认识社群" },
-      href: { en: "#stories", zh: "#stories", cn: "#stories" },
-    },
-    secondaryCta: {
-      label: { en: "Get involved", zh: "參與其中", cn: "参与其中" },
-      href: { en: "/get-involved/", zh: "/zh/get-involved-hk/", cn: "/cn/get-involved/" },
-    },
-    metrics: proofPoints,
-  },
-  stakeholderPaths: {
-    label: {
-      en: "I want to…",
-      zh: "我想…",
-      cn: "我想…",
-    },
-    items: [
-      {
-        label: { en: "Support my family", zh: "支援我家", cn: "支援我家" },
-        href: routes.contact,
-      },
-      {
-        label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-        href: { en: "#opportunities", zh: "#opportunities", cn: "#opportunities" },
-      },
-      {
-        label: { en: "Donate", zh: "捐助", cn: "捐助" },
-        href: { en: "#donate-preview", zh: "#donate-preview", cn: "#donate-preview" },
-      },
-      {
-        label: { en: "Partner with us", zh: "成為夥伴", cn: "成为伙伴" },
-        href: routes.contact,
-      },
-    ],
-  },
-  journey: {
-    label: {
-      en: "On this page",
-      zh: "本頁導覽",
-      cn: "本页导览",
-    },
-    steps: [
-      { en: "Moments", zh: "時刻", cn: "时刻" },
-      { en: "Programmes", zh: "計劃", cn: "计划" },
-      { en: "Volunteer", zh: "義工", cn: "义工" },
-      { en: "Give", zh: "捐助", cn: "捐助" },
-    ],
-  },
-  stories: {
-    id: "stories",
-    eyebrow: {
-      en: "02 · Community",
-      zh: "02 · 社群",
-      cn: "02 · 社群",
+      en: "real people · real ability · Love 21",
+      zh: "真實的人 · 真實的能力 · Love 21",
+      cn: "真实的人 · 真实的能力 · Love 21",
     },
     title: {
-      en: "On the pitch. In the kitchen. With family.",
-      zh: "在球場。在廚房。與家人一起。",
-      cn: "在球场。在厨房。与家人一起。",
+      en: "See what our community can do.",
+      zh: "看見我們社群的能力。",
+      cn: "看见我们社群的能力。",
     },
-    lead: {
-      en: "",
-      zh: "",
-      cn: "",
+    description: {
+      en: "Love 21 empowers Hong Kong’s Down syndrome, autistic and neurodiverse community through free sport, nutrition and holistic family support.",
+      zh: "Love 21 透過免費體育、營養及全人家庭支援，為香港唐氏綜合症、自閉症及神經多樣性社群創造機會。",
+      cn: "Love 21 通过免费体育、营养及全人家庭支援，为香港唐氏综合症、自闭症及神经多样性社群创造机会。",
     },
-    previousLabel: { en: "Previous story", zh: "上一個故事", cn: "上一个故事" },
-    nextLabel: { en: "Next story", zh: "下一個故事", cn: "下一个故事" },
-    tabLabel: { en: "Show story", zh: "顯示故事", cn: "显示故事" },
-    items: [
+    primary: {
+      label: { en: "Donate", zh: "捐助", cn: "捐助" },
+      href: routes.donate,
+    },
+    secondary: {
+      label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
+      href: routes.volunteer,
+    },
+    note: {
+      en: "Meet us in person — opportunity looks different up close.",
+      zh: "親身相遇，近距離看見不一樣的可能。",
+      cn: "亲身相遇，近距离看见不一样的可能。",
+    },
+    photos: [
       {
-        id: "sports-team",
-        status: "existing",
-        image: images.sports,
-        imageAlt: {
-          en: "Love 21 sports team outdoors after training",
-          zh: "Love 21 體育隊伍戶外訓練後合照",
-          cn: "Love 21 体育队伍户外训练后合照",
-        },
-        category: {
-          en: "Sports",
-          zh: "體育",
-          cn: "体育",
-        },
-        achievement: {
-          en: "Weekly training became a team.",
-          zh: "每週訓練，練成一支隊伍。",
-          cn: "每周训练，练成一支队伍。",
-        },
-        summary: {
-          en: "Members practise together, week after week — then take that confidence onto the field.",
-          zh: "會員每週一起練習，再把自信帶到場上。",
-          cn: "会员每周一起练习，再把自信带到场上。",
-        },
-        shortMilestones: [
-          { en: "First class", zh: "第一次課堂", cn: "第一次课堂" },
-          { en: "Weekly drills", zh: "每週練習", cn: "每周练习" },
-          { en: "Match day", zh: "比賽日", cn: "比赛日" },
-        ],
-        milestones: [
-          {
-            en: "Members join regular sports classes.",
-            zh: "會員參與常規體育課堂。",
-            cn: "会员参与常规体育课堂。",
-          },
-          {
-            en: "Coaches and volunteers train alongside them.",
-            zh: "教練與義工並肩訓練。",
-            cn: "教练与义工并肩训练。",
-          },
-          {
-            en: "The team competes and celebrates together.",
-            zh: "隊伍一起比賽、一起慶祝。",
-            cn: "队伍一起比赛、一起庆祝。",
-          },
-        ],
-        supportingProgramme: {
-          en: "Sports programme",
-          zh: "體育計劃",
-          cn: "体育计划",
-        },
-        action: {
-          label: { en: "Sports programmes", zh: "體育計劃", cn: "体育计划" },
-          href: routes.programmes,
-        },
-        source: {
-          label: {
-            en: "Love 21 programme photography",
-            zh: "Love 21 計劃影像",
-            cn: "Love 21 计划影像",
-          },
-        },
-      },
-      {
-        id: "nutrition-cooking",
-        status: "existing",
-        image: images.nutrition,
-        imageAlt: {
-          en: "Love 21 members cooking together in the kitchen",
-          zh: "Love 21 會員在廚房一起烹飪",
-          cn: "Love 21 会员在厨房一起烹饪",
-        },
-        category: {
-          en: "Nutrition",
-          zh: "營養",
-          cn: "营养",
-        },
-        achievement: {
-          en: "They cook the meal they planned.",
-          zh: "他們煮出自己計劃的一餐。",
-          cn: "他们煮出自己计划的一餐。",
-        },
-        summary: {
-          en: "Nutrition guidance moves from advice to chopping boards, recipes and shared meals.",
-          zh: "營養指導從建議走進砧板、食譜與共享一餐。",
-          cn: "营养指导从建议走进砧板、食谱与共享一餐。",
-        },
-        shortMilestones: [
-          { en: "Plan", zh: "計劃", cn: "计划" },
-          { en: "Cook", zh: "烹飪", cn: "烹饪" },
-          { en: "Share", zh: "分享", cn: "分享" },
-        ],
-        milestones: [
-          {
-            en: "Families receive practical nutrition guidance.",
-            zh: "家庭獲得實用營養指導。",
-            cn: "家庭获得实用营养指导。",
-          },
-          {
-            en: "Members cook together in class.",
-            zh: "會員在課堂一起烹飪。",
-            cn: "会员在课堂一起烹饪。",
-          },
-          {
-            en: "Healthier habits carry into daily life.",
-            zh: "更健康的習慣走進日常生活。",
-            cn: "更健康的习惯走进日常生活。",
-          },
-        ],
-        supportingProgramme: {
-          en: "Nutrition programme",
-          zh: "營養計劃",
-          cn: "营养计划",
-        },
-        action: {
-          label: { en: "Nutrition programmes", zh: "營養計劃", cn: "营养计划" },
-          href: routes.programmes,
-        },
-        source: {
-          label: {
-            en: "Love 21 programme photography",
-            zh: "Love 21 計劃影像",
-            cn: "Love 21 计划影像",
-          },
-        },
-      },
-      {
-        id: "practice-to-stage",
-        status: "placeholder",
         image: images.hero,
-        imageAlt: {
-          en: "Love 21 members practising movement with ribbons",
-          zh: "Love 21 會員練習絲帶動作",
-          cn: "Love 21 会员练习丝带动作",
+        alt: {
+          en: "Love 21 members moving together in a ribbon class",
+          zh: "Love 21 會員在絲帶課堂中一起活動",
+          cn: "Love 21 会员在丝带课堂中一起活动",
         },
-        category: {
-          en: "Performance",
-          zh: "表演",
-          cn: "表演",
+        caption: { en: "movement day!", zh: "活力滿滿的一天！", cn: "活力满满的一天！" },
+      },
+      {
+        image: images.sports,
+        alt: {
+          en: "Love 21 members taking part in a sports programme",
+          zh: "Love 21 會員參與體育計劃",
+          cn: "Love 21 会员参与体育计划",
         },
-        achievement: {
-          en: "Practice became a performance.",
-          zh: "練習，走到了舞台。",
-          cn: "练习，走到了舞台。",
+        caption: { en: "stronger together", zh: "一起變得更強", cn: "一起变得更强" },
+      },
+      {
+        image: images.nutrition,
+        alt: {
+          en: "Love 21 members cooking together",
+          zh: "Love 21 會員一起烹飪",
+          cn: "Love 21 会员一起烹饪",
         },
-        summary: {
-          en: "A placeholder for a consent-approved story of weekly practice leading to a shared stage moment.",
-          zh: "佔位內容：經同意後可替換為「每週練習走到舞台」的真實故事。",
-          cn: "占位内容：经同意后可替换为「每周练习走到舞台」的真实故事。",
-        },
-        shortMilestones: [
-          { en: "Practice", zh: "練習", cn: "练习" },
-          { en: "Rehearse", zh: "綵排", cn: "彩排" },
-          { en: "Perform", zh: "演出", cn: "演出" },
-        ],
-        milestones: [
-          {
-            en: "Weekly practice builds skill and confidence.",
-            zh: "每週練習建立技能與自信。",
-            cn: "每周练习建立技能与自信。",
-          },
-          {
-            en: "Family and volunteers walk the journey.",
-            zh: "家人與義工一路同行。",
-            cn: "家人与义工一路同行。",
-          },
-          {
-            en: "A shared performance marks the progress.",
-            zh: "共享演出標記進步。",
-            cn: "共享演出标记进步。",
-          },
-        ],
-        supportingProgramme: {
-          en: "Family support",
-          zh: "家庭支援",
-          cn: "家庭支援",
-        },
-        action: {
-          label: { en: "Support Love 21", zh: "支持 Love 21", cn: "支持 Love 21" },
-          href: routes.donate,
-        },
-        placeholderBadge: {
-          en: "Placeholder — replace with approved story",
-          zh: "佔位 — 請替換為核准故事",
-          cn: "占位 — 请替换为核准故事",
-        },
+        caption: { en: "cooking together", zh: "一起下廚", cn: "一起下厨" },
       },
     ],
+  },
+  impactShowcase: {
+    eyebrow: {
+      en: "our impact, by the numbers",
+      zh: "以數字看我們的影響",
+      cn: "以数字看我们的影响",
+    },
+    value: "≈1,000",
+    title: {
+      en: "classes and activities, every single month",
+      zh: "每月約一千節課堂與活動",
+      cn: "每月约一千节课堂与活动",
+    },
+    description: {
+      en: "An entire world of opportunity across sport, nutrition, family care and inclusive partnerships.",
+      zh: "涵蓋體育、營養、家庭支援及共融夥伴計劃，帶來一整個機會世界。",
+      cn: "涵盖体育、营养、家庭支援及共融伙伴计划，带来一整个机会世界。",
+    },
+    programmeLabels: [
+      { en: "⚽ Sport", zh: "⚽ 體育", cn: "⚽ 体育" },
+      { en: "🥗 Nutrition", zh: "🥗 營養", cn: "🥗 营养" },
+      { en: "👪 Family", zh: "👪 家庭", cn: "👪 家庭" },
+      { en: "♥ CSR", zh: "♥ 企業夥伴", cn: "♥ 企业伙伴" },
+    ],
+  },
+  featuredStory: {
+    eyebrow: { en: "01 · Crystal’s story", zh: "01 · Crystal 的故事", cn: "01 · Crystal 的故事" },
+    title: {
+      en: "Planks. Bocce. So much pride.",
+      zh: "平板支撐。硬地滾球。滿滿自豪。",
+      cn: "平板支撑。硬地滚球。满满自豪。",
+    },
+    image: "/assets/images/crystal-fitness.jpg",
+    imageAlt: {
+      en: "Crystal taking part in a Love 21 movement activity",
+      zh: "Crystal 參與 Love 21 運動活動",
+      cn: "Crystal 参与 Love 21 运动活动",
+    },
+    panelLabel: { en: "Crystal’s story", zh: "Crystal 的故事", cn: "Crystal 的故事" },
+    panelTitle: {
+      en: "Steady. Strong. Smiling.",
+      zh: "穩健。堅強。笑容滿面。",
+      cn: "稳健。坚强。笑容满面。",
+    },
+    context: {
+      en: "Crystal trains every week through Love 21’s fitness and nutrition programmes—completing planks, push-ups and wall sits before taking on bocce competitions.",
+      zh: "Crystal 每週參與 Love 21 的健身及營養計劃，完成平板支撐、掌上壓及無影櫈，再踏上硬地滾球比賽場。",
+      cn: "Crystal 每周参与 Love 21 的健身及营养计划，完成平板支撑、俯卧撑及靠墙静蹲，再踏上硬地滚球比赛场。",
+    },
+    quote: {
+      en: "I am very proud of how steadily she performs.",
+      zh: "我為她的穩定表現深感驕傲！",
+      cn: "我为她的稳定表现深感骄傲！",
+    },
+    milestones: [
+      {
+        en: "Shows up and completes every task",
+        zh: "每週投入訓練，完成每項任務",
+        cn: "每周投入训练，完成每项任务",
+      },
+      {
+        en: "Builds balance, coordination and thinking skills through play",
+        zh: "透過遊戲提升平衡、協調及思考能力",
+        cn: "通过游戏提升平衡、协调及思考能力",
+      },
+      {
+        en: "Trains and competes steadily in bocce",
+        zh: "穩定練習硬地滾球並參加比賽",
+        cn: "稳定练习硬地滚球并参加比赛",
+      },
+    ],
+    familyOutcome: {
+      en: "Her mother also sees a more mature, cheerful Crystal—and more shared time and conversation at home.",
+      zh: "媽媽也看見 Crystal 變得更懂事、更開朗；爸爸參與更多，一家人在家中的共同話題也增加了。",
+      cn: "妈妈也看见 Crystal 变得更懂事、更开朗；爸爸参与更多，一家人在家中的共同话题也增加了。",
+    },
+    action: {
+      label: {
+        en: "Help more members thrive",
+        zh: "支持更多會員茁壯成長",
+        cn: "支持更多会员茁壮成长",
+      },
+      href: routes.donate,
+    },
+    attribution: {
+      en: "Crystal’s mother · FY2024–25 Annual Report",
+      zh: "Crystal 媽媽 · 2024–25 年度報告",
+      cn: "Crystal 妈妈 · 2024–25 年度报告",
+    },
   },
   model: {
-    id: "what-we-do",
     eyebrow: {
-      en: "01 · What we run",
-      zh: "01 · 我們的計劃",
-      cn: "01 · 我们的计划",
+      en: "one holistic model",
+      zh: "一套全人發展模式",
+      cn: "一套全人发展模式",
     },
     title: {
-      en: "Sport. Nutrition. Family support.",
-      zh: "體育。營養。家庭支援。",
-      cn: "体育。营养。家庭支援。",
-    },
-    detailsLabel: {
-      en: "Learn more",
-      zh: "了解更多",
-      cn: "了解更多",
-    },
-    centre: {
-      title: {
-        en: "Built around members and families",
-        zh: "以會員與家庭為本",
-        cn: "以会员与家庭为本",
-      },
-      description: {
-        en: "Three programmes work as one — free for every Love 21 family.",
-        zh: "三項計劃一體運作 — 每位 Love 21 家庭均可免費參與。",
-        cn: "三项计划一体运作 — 每位 Love 21 家庭均可免费参与。",
-      },
+      en: "We don’t give one class. We develop the whole person.",
+      zh: "我們不只提供一堂課，而是培育完整的人。",
+      cn: "我们不只提供一堂课，而是培育完整的人。",
     },
     pillars: [
       {
-        key: "sports",
+        id: "sports",
         title: { en: "Sports", zh: "體育", cn: "体育" },
-        image: images.sports,
-        imageAlt: {
-          en: "Members in a Love 21 sports session",
-          zh: "會員參與 Love 21 體育課堂",
-          cn: "会员参与 Love 21 体育课堂",
+        description: {
+          en: "Weekly classes, team sports and movement for every level build skill, confidence and belonging.",
+          zh: "恆常課堂、團隊運動及不同程度的體能活動，建立技能、自信與歸屬感。",
+          cn: "恒常课堂、团队运动及不同程度的体能活动，建立技能、自信与归属感。",
         },
-        explanation: {
-          en: "Weekly classes, team sports and movement for every level.",
-          zh: "每週課堂、團隊運動，適合不同程度。",
-          cn: "每周课堂、团队运动，适合不同程度。",
-        },
-        example: {
-          en: "Football, climbing, boxing and ribbon class.",
-          zh: "足球、攀石、拳擊與絲帶課堂。",
-          cn: "足球、攀岩、拳击与丝带课堂。",
-        },
-        href: routes.programmes,
       },
       {
-        key: "nutrition",
+        id: "nutrition",
         title: { en: "Nutrition", zh: "營養", cn: "营养" },
-        image: images.nutrition,
-        imageAlt: {
-          en: "Love 21 cooking and nutrition session",
-          zh: "Love 21 烹飪與營養課堂",
-          cn: "Love 21 烹饪与营养课堂",
+        description: {
+          en: "One-to-one guidance and hands-on cooking help families build healthier routines for daily life.",
+          zh: "一對一營養指導及動手烹飪，協助家庭建立更健康的日常習慣。",
+          cn: "一对一营养指导及动手烹饪，协助家庭建立更健康的日常习惯。",
         },
-        explanation: {
-          en: "One-to-one guidance plus hands-on cooking.",
-          zh: "一對一指導，加上動手烹飪。",
-          cn: "一对一指导，加上动手烹饪。",
-        },
-        example: {
-          en: "Meal planning, kitchen skills and healthier habits.",
-          zh: "餐單規劃、廚房技能與健康習慣。",
-          cn: "菜单规划、厨房技能与健康习惯。",
-        },
-        href: routes.programmes,
       },
       {
-        key: "family",
-        title: { en: "Family support", zh: "家庭支援", cn: "家庭支援" },
-        image: images.family,
-        imageAlt: {
-          en: "Families connected through Love 21",
-          zh: "透過 Love 21 連繫的家庭",
-          cn: "透过 Love 21 连系的家庭",
+        id: "family",
+        title: { en: "Family Care", zh: "家庭支援", cn: "家庭支援" },
+        description: {
+          en: "Counselling and peer support strengthen parents, carers, siblings and the whole household.",
+          zh: "輔導及同儕支援陪伴家長、照顧者、兄弟姊妹及整個家庭。",
+          cn: "辅导及同伴支援陪伴家长、照顾者、兄弟姐妹及整个家庭。",
         },
-        explanation: {
-          en: "Counselling and community for parents and carers.",
-          zh: "為家長與照顧者提供輔導與社群。",
-          cn: "为家长与照顾者提供辅导与社群。",
-        },
-        example: {
-          en: "Support that strengthens the whole household.",
-          zh: "強化整個家庭的支援。",
-          cn: "强化整个家庭的支援。",
-        },
-        href: routes.programmes,
-      },
-    ],
-    programmeChips: [
-      {
-        label: { en: "Football", zh: "足球", cn: "足球" },
-        href: routes.programmes,
-      },
-      {
-        label: { en: "Climbing", zh: "攀石", cn: "攀岩" },
-        href: routes.programmes,
-      },
-      {
-        label: { en: "Cooking", zh: "烹飪", cn: "烹饪" },
-        href: routes.programmes,
-      },
-      {
-        label: { en: "Counselling", zh: "輔導", cn: "辅导" },
-        href: routes.programmes,
       },
     ],
   },
-  opportunities: {
-    id: "opportunities",
-    eyebrow: {
-      en: "04 · Volunteer",
-      zh: "04 · 義工",
-      cn: "04 · 义工",
-    },
-    title: {
-      en: "Come for a Saturday. Stay for the community.",
-      zh: "來一個星期六，留下一份社群。",
-      cn: "来一个星期六，留下一份社群。",
-    },
-    lead: {
-      en: "",
-      zh: "",
-      cn: "",
-    },
-    demoNote: {
-      en: "Demo dates — not live bookings.",
-      zh: "示範日期 — 非真實預約。",
-      cn: "示范日期 — 非真实预约。",
-    },
-    filterLabel: {
-      en: "This month",
-      zh: "本月",
-      cn: "本月",
-    },
-    emptyBadge: {
-      en: "Coming soon",
-      zh: "即將開放",
-      cn: "即将开放",
-    },
-    emptyTitle: {
-      en: "New sessions will appear here.",
-      zh: "新課堂將顯示於此。",
-      cn: "新课堂将显示于此。",
-    },
-    emptyDescription: {
-      en: "Register interest and we will help you find a role.",
-      zh: "請登記興趣，我們會協助你找到合適角色。",
-      cn: "请登记兴趣，我们会协助你找到合适角色。",
-    },
-    volunteerCta: {
-      label: { en: "Volunteer info", zh: "義工資訊", cn: "义工资讯" },
-      href: routes.volunteer,
-    },
-    contactCta: {
-      label: { en: "Corporate volunteering", zh: "企業義工", cn: "企业义工" },
-      href: { en: "/get-involved/#corporate", zh: "/zh/get-involved-hk/#corporate", cn: "/cn/get-involved/#corporate" },
-    },
-    activities: [
+  impactStats: {
+    label: { en: "Love 21 impact statistics", zh: "Love 21 影響力數據", cn: "Love 21 影响力数据" },
+    items: [
       {
-        id: "saturday-movement",
-        title: {
-          en: "Saturday movement crew",
-          zh: "星期六運動小組",
-          cn: "星期六运动小组",
-        },
-        role: {
-          en: "Cheer on, join in, keep the class moving.",
-          zh: "打氣、一起參與、協助課堂流暢。",
-          cn: "打气、一起参与、协助课堂流畅。",
-        },
-        day: "08",
-        month: { en: "AUG", zh: "8月", cn: "8月" },
-        time: {
-          en: "10:00–12:00",
-          zh: "10:00–12:00",
-          cn: "10:00–12:00",
-        },
-        location: {
-          en: "Love 21 Space",
-          zh: "Love 21 Space",
-          cn: "Love 21 Space",
-        },
-        image: images.hero,
-        imageAlt: {
-          en: "Love 21 movement class with ribbons",
-          zh: "Love 21 絲帶運動課堂",
-          cn: "Love 21 丝带运动课堂",
-        },
-        badge: {
-          en: "First-timer friendly",
-          zh: "適合新手",
-          cn: "适合新手",
-        },
-        action: {
-          label: { en: "Reserve a spot", zh: "預留名額", cn: "预留名额" },
-          href: routes.volunteer,
-        },
+        value: "490",
+        label: { en: "families supported", zh: "個受惠家庭", cn: "个受惠家庭" },
+        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
       },
       {
-        id: "climbing-confidence",
-        title: {
-          en: "Climbing session",
-          zh: "攀石課堂",
-          cn: "攀岩课堂",
-        },
-        role: {
-          en: "Help with warm-up, kit and high-fives.",
-          zh: "協助熱身、器材與打氣。",
-          cn: "协助热身、器材与打气。",
-        },
-        day: "15",
-        month: { en: "AUG", zh: "8月", cn: "8月" },
-        time: {
-          en: "14:00–16:30",
-          zh: "14:00–16:30",
-          cn: "14:00–16:30",
-        },
-        location: {
-          en: "Kowloon",
-          zh: "九龍",
-          cn: "九龙",
-        },
+        value: "6,859",
+        label: { en: "sessions delivered", zh: "節活動", cn: "节活动" },
+        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
+      },
+      {
+        value: "84",
+        label: { en: "activity types offered", zh: "種活動類型", cn: "种活动类型" },
+        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
+      },
+      {
+        value: "600+",
+        label: { en: "members and families", zh: "會員及家庭", cn: "会员及家庭" },
+      },
+      {
+        value: "90%+",
+        label: { en: "of donations reach families", zh: "捐款用於服務家庭", cn: "捐款用于服务家庭" },
+      },
+    ],
+  },
+  featuredStories: {
+    eyebrow: { en: "featured stories", zh: "精選故事", cn: "精选故事" },
+    title: {
+      en: "Moments that say #somuchability",
+      zh: "每個時刻，都看見無限能力",
+      cn: "每个时刻，都看见无限能力",
+    },
+    action: {
+      label: { en: "See more stories", zh: "查看更多故事", cn: "查看更多故事" },
+      href: routes.stories,
+    },
+    items: [
+      {
+        id: "sports-team",
+        tone: "pink",
         image: images.sports,
-        imageAlt: {
-          en: "Love 21 sports programme activity",
-          zh: "Love 21 體育計劃活動",
-          cn: "Love 21 体育计划活动",
+        imageAlt: { en: "Love 21 sports programme", zh: "Love 21 體育計劃", cn: "Love 21 体育计划" },
+        category: { en: "Programme story", zh: "計劃故事", cn: "计划故事" },
+        title: { en: "Weekly Training Became a Team", zh: "每週訓練，練成一支隊伍", cn: "每周训练，练成一支队伍" },
+        summary: {
+          en: "Members practise together week after week, then bring that confidence onto the field.",
+          zh: "會員每週一起練習，再把自信帶到場上。",
+          cn: "会员每周一起练习，再把自信带到场上。",
         },
-        action: {
-          label: { en: "Reserve a spot", zh: "預留名額", cn: "预留名额" },
-          href: routes.volunteer,
-        },
+        meta: { en: "Sports programme", zh: "體育計劃", cn: "体育计划" },
+        href: "/stories/",
       },
       {
-        id: "community-kitchen",
-        title: {
-          en: "Community kitchen",
-          zh: "社區廚房",
-          cn: "社区厨房",
+        id: "dragon-boat",
+        tone: "sky",
+        image: "/assets/images/media-dragonboat.png",
+        imageAlt: { en: "Love 21 dragon-boating feature", zh: "Love 21 龍舟活動報導", cn: "Love 21 龙舟活动报道" },
+        category: { en: "Real partnership", zh: "共融夥伴", cn: "共融伙伴" },
+        title: { en: "Dragon Boat Season With the Yacht Club", zh: "與遊艇會一起划龍舟", cn: "与游艇会一起划龙舟" },
+        summary: {
+          en: "A media feature covering an inclusive dragon-boating experience created with our community.",
+          zh: "媒體報導 Love 21 社群參與共融龍舟體驗。",
+          cn: "媒体报道 Love 21 社群参与共融龙舟体验。",
         },
-        role: {
-          en: "Prep stations and cook with members.",
-          zh: "準備工作站，與會員一起煮。",
-          cn: "准备工作站，与会员一起煮。",
+        meta: { en: "Media feature", zh: "媒體報導", cn: "媒体报道" },
+        href: "/hong-kong-yacht-club-and-charity-team-up-to-help-special-needs-teens-learn-dragon-boating/",
+      },
+      {
+        id: "healthy-life",
+        tone: "mint",
+        image: "/assets/images/media-secret.png",
+        imageAlt: { en: "Love 21 healthy-living feature", zh: "Love 21 健康生活報導", cn: "Love 21 健康生活报道" },
+        category: { en: "Community spotlight", zh: "社群焦點", cn: "社群焦点" },
+        title: { en: "The Open Secret to a Long, Happy Life", zh: "健康快樂生活的公開秘密", cn: "健康快乐生活的公开秘密" },
+        summary: {
+          en: "Healthy activity, nutrition and community support help members and families thrive.",
+          zh: "健康活動、營養及社群支援，陪伴會員與家庭茁壯成長。",
+          cn: "健康活动、营养及社群支援，陪伴会员与家庭茁壮成长。",
         },
-        day: "22",
-        month: { en: "AUG", zh: "8月", cn: "8月" },
-        time: {
-          en: "11:00–13:00",
-          zh: "11:00–13:00",
-          cn: "11:00–13:00",
-        },
-        location: {
-          en: "Love 21 Space",
-          zh: "Love 21 Space",
-          cn: "Love 21 Space",
-        },
+        meta: { en: "Community feature", zh: "社群報導", cn: "社群报道" },
+        href: "/love-21s-open-secret-to-a-long-happy-life/",
+      },
+      {
+        id: "nutrition-support",
+        tone: "yellow",
         image: images.nutrition,
-        imageAlt: {
-          en: "Love 21 nutrition and cooking activity",
-          zh: "Love 21 營養與烹飪活動",
-          cn: "Love 21 营养与烹饪活动",
+        imageAlt: { en: "Love 21 nutrition class", zh: "Love 21 營養課堂", cn: "Love 21 营养课堂" },
+        category: { en: "Nutrition", zh: "營養", cn: "营养" },
+        title: { en: "Practical Support for Healthier Families", zh: "讓家庭更健康的實用支援", cn: "让家庭更健康的实用支援" },
+        summary: {
+          en: "Free diet advice and practical guidance turn healthier choices into everyday routines.",
+          zh: "免費飲食建議與實用指導，讓健康選擇成為日常。",
+          cn: "免费饮食建议与实用指导，让健康选择成为日常。",
         },
-        badge: {
-          en: "First-timer friendly",
-          zh: "適合新手",
-          cn: "适合新手",
-        },
-        action: {
-          label: { en: "Reserve a spot", zh: "預留名額", cn: "预留名额" },
-          href: routes.volunteer,
-        },
+        meta: { en: "Nutrition programme", zh: "營養計劃", cn: "营养计划" },
+        href: "/hong-kong-charity-offers-free-diet-advice-and-guidance-for-children-with-intellectual-disabilities-in-low-income-families/",
       },
     ],
   },
-  donatePreview: {
-    id: "donate-preview",
-    eyebrow: {
-      en: "05 · Give",
-      zh: "05 · 捐助",
-      cn: "05 · 捐助",
+  abilityConversation: {
+    eyebrow: { en: "stories of ability", zh: "能力故事", cn: "能力故事" },
+    title: { en: "Real breakthroughs, real people.", zh: "真實的人，真實的突破。", cn: "真实的人，真实的突破。" },
+    action: {
+      label: { en: "See more stories", zh: "查看更多故事", cn: "查看更多故事" },
+      href: routes.stories,
     },
+    panelEyebrow: { en: "stories of ability", zh: "能力故事", cn: "能力故事" },
+    panelTitle: {
+      en: "Conversations that say #somuchability",
+      zh: "每段同行對話，都看見無限能力",
+      cn: "每段同行对话，都看见无限能力",
+    },
+    panelDescription: {
+      en: "Programme moments from sport, nutrition and family support — presented without invented testimonials.",
+      zh: "來自體育、營養及家庭支援計劃的時刻，不使用虛構見證。",
+      cn: "来自体育、营养及家庭支援计划的时刻，不使用虚构见证。",
+    },
+    chatTitle: { en: "Love 21 programme notes", zh: "Love 21 計劃記錄", cn: "Love 21 计划记录" },
+    chatStatus: { en: "community in action", zh: "社群正在行動", cn: "社群正在行动" },
+    items: [
+      {
+        id: "sports",
+        side: "left",
+        label: { en: "Sports", zh: "體育", cn: "体育" },
+        message: {
+          en: "Regular practice builds skill, confidence and a team that celebrates together.",
+          zh: "恆常練習建立技能、自信，以及一支一起慶祝的隊伍。",
+          cn: "恒常练习建立技能、自信，以及一支一起庆祝的队伍。",
+        },
+      },
+      {
+        id: "nutrition",
+        side: "right",
+        label: { en: "Nutrition", zh: "營養", cn: "营养" },
+        message: {
+          en: "Guidance becomes recipes, shared meals and healthier routines at home.",
+          zh: "營養指導化成食譜、共享的一餐，以及家中的健康習慣。",
+          cn: "营养指导化成食谱、共享的一餐，以及家中的健康习惯。",
+        },
+      },
+      {
+        id: "family",
+        side: "left",
+        label: { en: "Family care", zh: "家庭支援", cn: "家庭支援" },
+        message: {
+          en: "Counselling and peer support help the whole household feel less alone.",
+          zh: "輔導及同儕支援，讓整個家庭不再感到孤單。",
+          cn: "辅导及同伴支援，让整个家庭不再感到孤单。",
+        },
+      },
+      {
+        id: "community",
+        side: "right",
+        label: { en: "Community", zh: "社群", cn: "社群" },
+        message: {
+          en: "Opportunity changes what people can practise, choose and become.",
+          zh: "機會改變一個人可以練習、選擇及成為的可能。",
+          cn: "机会改变一个人可以练习、选择及成为的可能。",
+        },
+      },
+    ],
+    readAction: {
+      label: { en: "Read all stories", zh: "閱讀所有故事", cn: "阅读所有故事" },
+      href: routes.stories,
+    },
+  },
+  education: {
+    eyebrow: { en: "learn about our community", zh: "認識我們的社群", cn: "认识我们的社群" },
     title: {
-      en: "Keep every programme free.",
-      zh: "讓每一項計劃繼續免費。",
-      cn: "让每一项计划继续免费。",
+      en: "This isn’t an ability issue. It’s an opportunity issue.",
+      zh: "問題不在能力，而在機會。",
+      cn: "问题不在能力，而在机会。",
     },
     description: {
-      en: "Pick an amount and focus. Finish on the donation page.",
-      zh: "選擇金額與用途，再到捐助頁完成。",
-      cn: "选择金额与用途，再到捐助页完成。",
+      en: "Love 21 creates opportunities for Hong Kong’s Down syndrome, autistic and neurodiverse community to build health, confidence and connection.",
+      zh: "Love 21 為香港唐氏綜合症、自閉症及神經多樣性社群創造機會，建立健康、自信與連繫。",
+      cn: "Love 21 为香港唐氏综合症、自闭症及神经多样性社群创造机会，建立健康、自信与联系。",
     },
-    supportLabel: {
-      en: "Your gift",
-      zh: "你的捐助",
-      cn: "你的捐助",
-    },
-    frequencyLabel: { en: "Frequency", zh: "頻率", cn: "频率" },
-    oneTimeLabel: { en: "One-time", zh: "一次性", cn: "一次性" },
-    monthlyLabel: { en: "Monthly", zh: "每月", cn: "每月" },
-    amountLabel: { en: "Amount", zh: "金額", cn: "金额" },
-    customAmountLabel: { en: "Custom amount (HK$)", zh: "自訂金額（港元）", cn: "自定义金额（港元）" },
-    customAmountPlaceholder: { en: "Enter amount", zh: "輸入金額", cn: "输入金额" },
-    customAmountError: {
-      en: "Enter a whole-number amount of at least HK$1.",
-      zh: "請輸入至少港幣 1 元的整數金額。",
-      cn: "请输入至少港币 1 元的整数金额。",
-    },
-    programmeLabel: { en: "Direct my gift to", zh: "將捐助用於", cn: "将捐助用于" },
-    programmeOptions: [
+    points: [
       {
-        value: "most-needed",
-        label: { en: "Where most needed", zh: "最有需要的地方", cn: "最有需要的地方" },
-      },
-      { value: "sports", label: { en: "Sports", zh: "體育", cn: "体育" } },
-      { value: "nutrition", label: { en: "Nutrition", zh: "營養", cn: "营养" } },
-      {
-        value: "family",
-        label: { en: "Family support", zh: "家庭支援", cn: "家庭支援" },
-      },
-    ],
-    amounts: [
-      { value: 250, label: { en: "HK$250", zh: "港幣 250 元", cn: "港币 250 元" } },
-      { value: 500, label: { en: "HK$500", zh: "港幣 500 元", cn: "港币 500 元" } },
-      { value: 1000, label: { en: "HK$1,000", zh: "港幣 1,000 元", cn: "港币 1,000 元" } },
-    ],
-    impactMessages: [
-      {
-        frequency: "one-time",
-        programme: "most-needed",
-        message: {
-          en: "Helps keep free classes running where families need them most.",
-          zh: "協助在最有需要的地方維持免費課堂。",
-          cn: "协助在最有需要的地方维持免费课堂。",
-        },
+        value: "600+",
+        description: { en: "members and families in our community", zh: "位社群會員及家庭", cn: "位社群会员及家庭" },
       },
       {
-        frequency: "monthly",
-        programme: "most-needed",
-        message: {
-          en: "Gives Love 21 steady support for the programmes families count on.",
-          zh: "為家庭倚賴的計劃提供穩定支援。",
-          cn: "为家庭依赖的计划提供稳定支援。",
-        },
+        value: "HK$0",
+        description: { en: "charged to Love 21 families", zh: "向 Love 21 家庭收取的費用", cn: "向 Love 21 家庭收取的费用" },
       },
       {
-        frequency: "one-time",
-        programme: "sports",
-        message: {
-          en: "Helps fund sports sessions, kit and coaching time.",
-          zh: "協助支援體育課堂、器材與教練時間。",
-          cn: "协助支援体育课堂、器材与教练时间。",
-        },
-      },
-      {
-        frequency: "monthly",
-        programme: "sports",
-        message: {
-          en: "Helps keep weekly sports sessions going all year.",
-          zh: "協助全年維持每週體育課堂。",
-          cn: "协助全年维持每周体育课堂。",
-        },
-      },
-      {
-        frequency: "one-time",
-        programme: "nutrition",
-        message: {
-          en: "Helps fund cooking classes and nutrition guidance.",
-          zh: "協助支援烹飪課堂與營養指導。",
-          cn: "协助支援烹饪课堂与营养指导。",
-        },
-      },
-      {
-        frequency: "monthly",
-        programme: "nutrition",
-        message: {
-          en: "Helps keep nutrition support available month after month.",
-          zh: "協助每月持續提供營養支援。",
-          cn: "协助每月持续提供营养支援。",
-        },
-      },
-      {
-        frequency: "one-time",
-        programme: "family",
-        message: {
-          en: "Helps fund counselling and carer support.",
-          zh: "協助支援輔導與照顧者服務。",
-          cn: "协助支援辅导与照顾者服务。",
-        },
-      },
-      {
-        frequency: "monthly",
-        programme: "family",
-        message: {
-          en: "Helps Love 21 stay beside carers through the year.",
-          zh: "協助 Love 21 全年陪伴照顧者。",
-          cn: "协助 Love 21 全年陪伴照顾者。",
+        value: "1 goal",
+        description: {
+          en: "opportunity, inclusion and support for every family",
+          zh: "為每個家庭帶來機會、共融與支援",
+          cn: "为每个家庭带来机会、共融与支援",
         },
       },
     ],
-    defaultImpact: {
-      en: "Keeps Love 21 programmes free for families.",
-      zh: "維持 Love 21 計劃對家庭免費。",
-      cn: "维持 Love 21 计划对家庭免费。",
+    factsTitle: { en: "Love 21, in audited numbers", zh: "Love 21 經審核數據", cn: "Love 21 经审核数据" },
+    facts: [
+      {
+        value: "490",
+        label: { en: "families supported in FY2024–25", zh: "個家庭於 2024–25 年度受惠", cn: "个家庭于 2024–25 年度受惠" },
+      },
+      {
+        value: "84",
+        label: { en: "activity types offered in FY2024–25", zh: "種活動於 2024–25 年度提供", cn: "种活动于 2024–25 年度提供" },
+      },
+    ],
+    source: {
+      en: "Source: Love 21 FY2024–25 audited Annual Report and approved programme information.",
+      zh: "資料來源：Love 21 2024–25 年度經審核年報及已核准計劃資料。",
+      cn: "资料来源：Love 21 2024–25 年度经审核年报及已核准计划资料。",
     },
-    cta: {
+    action: {
+      label: { en: "Learn about Love 21", zh: "認識 Love 21", cn: "认识 Love 21" },
+      href: routes.ourStory,
+    },
+  },
+  socialFeed: {
+    eyebrow: { en: "news & social", zh: "新聞與社群", cn: "新闻与社群" },
+    title: { en: "Fresh off the feed", zh: "最新動態", cn: "最新动态" },
+    facebook: {
+      label: { en: "Facebook · Follow", zh: "Facebook · 追蹤", cn: "Facebook · 关注" },
+      href: { en: "https://www.facebook.com/Love21foundation/", zh: "https://www.facebook.com/Love21foundation/", cn: "https://www.facebook.com/Love21foundation/" },
+    },
+    instagram: {
+      label: { en: "Instagram · Follow", zh: "Instagram · 追蹤", cn: "Instagram · 关注" },
+      href: { en: "https://www.instagram.com/love21foundation/", zh: "https://www.instagram.com/love21foundation/", cn: "https://www.instagram.com/love21foundation/" },
+    },
+    items: [
+      {
+        id: "beyond-limits",
+        tone: "pink",
+        network: { en: "Love 21 update", zh: "Love 21 動態", cn: "Love 21 动态" },
+        date: "May 11, 2026",
+        image: "/assets/images/media-beyond.png",
+        imageAlt: { en: "Beyond Limits banquet announcement", zh: "Beyond Limits 晚宴公告", cn: "Beyond Limits 晚宴公告" },
+        title: { en: "Tables & Seats Now Open for Beyond Limits Banquet", zh: "Beyond Limits 晚宴座位現已開放", cn: "Beyond Limits 晚宴座位现已开放" },
+        href: "/beyond-limits-banquet/",
+      },
+      {
+        id: "raffle",
+        tone: "yellow",
+        network: { en: "Love 21 update", zh: "Love 21 動態", cn: "Love 21 动态" },
+        date: "November 27, 2025",
+        image: "/assets/images/media-raffle.png",
+        imageAlt: { en: "Love 21 charity raffle announcement", zh: "Love 21 慈善獎券公告", cn: "Love 21 慈善奖券公告" },
+        title: { en: "Love 21 Foundation Charity Raffle 2025", zh: "Love 21 Foundation 2025 慈善獎券", cn: "Love 21 Foundation 2025 慈善奖券" },
+        href: "/raffle2025-2/",
+      },
+      {
+        id: "dragonboat",
+        tone: "sky",
+        network: { en: "Media feature", zh: "媒體報導", cn: "媒体报道" },
+        date: "September 30, 2021",
+        image: "/assets/images/media-dragonboat.png",
+        imageAlt: { en: "Inclusive dragon-boating experience", zh: "共融龍舟體驗", cn: "共融龙舟体验" },
+        title: { en: "Dragon-Boating Opportunities for Love 21 Members", zh: "Love 21 會員的龍舟體驗", cn: "Love 21 会员的龙舟体验" },
+        href: "/hong-kong-yacht-club-and-charity-team-up-to-help-special-needs-teens-learn-dragon-boating/",
+      },
+      {
+        id: "nutrition",
+        tone: "mint",
+        network: { en: "Media feature", zh: "媒體報導", cn: "媒体报道" },
+        date: "May 22, 2021",
+        image: images.nutrition,
+        imageAlt: { en: "Love 21 nutrition programme", zh: "Love 21 營養計劃", cn: "Love 21 营养计划" },
+        title: { en: "Free Nutrition Guidance for Love 21 Families", zh: "為 Love 21 家庭提供免費營養指導", cn: "为 Love 21 家庭提供免费营养指导" },
+        href: "/hong-kong-charity-offers-free-diet-advice-and-guidance-for-children-with-intellectual-disabilities-in-low-income-families/",
+      },
+    ],
+  },
+  volunteerCta: {
+    eyebrow: { en: "show up", zh: "親身參與", cn: "亲身参与" },
+    title: {
+      en: "Meet the community through volunteering.",
+      zh: "透過義工服務，親身認識我們的社群。",
+      cn: "通过义工服务，亲身认识我们的社群。",
+    },
+    description: {
+      en: "Volunteer as an individual or organisation and help create more opportunities for members and families.",
+      zh: "以個人或機構身份參與，為會員及家庭創造更多機會。",
+      cn: "以个人或机构身份参与，为会员及家庭创造更多机会。",
+    },
+    primary: {
+      label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
+      href: routes.volunteer,
+    },
+    secondary: {
+      label: { en: "Donate", zh: "捐助", cn: "捐助" },
+      href: routes.donate,
+    },
+  },
+  donateCta: {
+    title: {
+      en: "HK$500 helps fund a class for 15 members.",
+      zh: "港幣 500 元協助資助十五位會員的一堂課。",
+      cn: "港币 500 元协助资助十五位会员的一堂课。",
+    },
+    description: {
+      en: "Give once or monthly and help keep sport, nutrition and family support available to our community.",
+      zh: "選擇一次性或每月捐助，支持社群持續獲得體育、營養及家庭支援。",
+      cn: "选择一次性或每月捐助，支持社群持续获得体育、营养及家庭支援。",
+    },
+    primary: {
       label: { en: "Donate now", zh: "立即捐助", cn: "立即捐助" },
       href: routes.donate,
     },
-    note: {
-      en: "Preview only — nothing is charged here.",
-      zh: "僅供預覽 — 此處不會收費。",
-      cn: "仅供预览 — 此处不会收费。",
+    secondary: {
+      label: { en: "Prefer to give items? See our wish list →", zh: "想捐贈物資？查看心願清單 →", cn: "想捐赠物资？查看心愿清单 →" },
+      href: routes.donateItems,
     },
-  },
-  help: {
-    id: "help",
-    eyebrow: {
-      en: "05 · Get involved",
-      zh: "05 · 參與",
-      cn: "05 · 参与",
-    },
-    title: {
-      en: "Give time. Give funds. Open a door.",
-      zh: "付出時間。捐出資金。打開一扇門。",
-      cn: "付出时间。捐出资金。打开一扇门。",
-    },
-    description: {
-      en: "",
-      zh: "",
-      cn: "",
-    },
-    plannedLabel: {
-      en: "Coming soon",
-      zh: "即將推出",
-      cn: "即将推出",
-    },
-    actions: [
-      {
-        id: "donate",
-        status: "live",
-        title: { en: "Donate", zh: "捐助", cn: "捐助" },
-        description: {
-          en: "Fund free sport, nutrition and family support.",
-          zh: "資助免費體育、營養與家庭支援。",
-          cn: "资助免费体育、营养与家庭支援。",
-        },
-        action: {
-          label: { en: "Donate", zh: "捐助", cn: "捐助" },
-          href: routes.donate,
-        },
-      },
-      {
-        id: "volunteer",
-        status: "live",
-        title: { en: "Volunteer", zh: "義工", cn: "义工" },
-        description: {
-          en: "Join a Saturday class, kitchen or sports session.",
-          zh: "加入星期六課堂、廚房或體育活動。",
-          cn: "加入星期六课堂、厨房或体育活动。",
-        },
-        action: {
-          label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-          href: routes.volunteer,
-        },
-      },
-      {
-        id: "campaign",
-        status: "planned",
-        title: { en: "Start a campaign", zh: "發起籌款", cn: "发起筹款" },
-        description: {
-          en: "Rally friends and colleagues around Love 21.",
-          zh: "凝聚親友與同事支持 Love 21。",
-          cn: "凝聚亲友与同事支持 Love 21。",
-        },
-        action: {
-          label: { en: "Ask us", zh: "向我們查詢", cn: "向我们查询" },
-          href: routes.contact,
-        },
-      },
-      {
-        id: "wishlist",
-        status: "planned",
-        title: { en: "Wishlist", zh: "心願清單", cn: "心愿清单" },
-        description: {
-          en: "Sponsor kit, kitchen supplies and class materials.",
-          zh: "贊助器材、廚房物資與課堂用品。",
-          cn: "赞助器材、厨房物资与课堂用品。",
-        },
-        action: {
-          label: { en: "Ask us", zh: "向我們查詢", cn: "向我们查询" },
-          href: routes.contact,
-        },
-      },
-    ],
-  },
-  trust: {
-    id: "trust",
-    eyebrow: {
-      en: "03 · Trust",
-      zh: "03 · 信任",
-      cn: "03 · 信任",
-    },
-    title: {
-      en: "Section 88 charity. Open books. Clear governance.",
-      zh: "第 88 條慈善機構。公開帳目。清晰管治。",
-      cn: "第 88 条慈善机构。公开账目。清晰管治。",
-    },
-    section88: {
-      en: "Registered under Section 88 of Hong Kong’s Inland Revenue Ordinance.",
-      zh: "根據香港《稅務條例》第 88 條註冊。",
-      cn: "根据香港《税务条例》第 88 条注册。",
-    },
-    dignityStatement: {
-      en: "Stories and photos are used with consent. Full policy wording awaits Love 21 approval.",
-      zh: "故事與照片均經同意使用。完整政策措辭尚待 Love 21 核准。",
-      cn: "故事与照片均经同意使用。完整政策措辞尚待 Love 21 核准。",
-    },
-    dignityBadge: {
-      en: "Policy pending approval",
-      zh: "政策尚待核准",
-      cn: "政策尚待核准",
-    },
-    metrics: proofPoints,
-    links: [
-      {
-        label: { en: "Annual report", zh: "年度報告", cn: "年度报告" },
-        href: routes.finance,
-      },
-      {
-        label: { en: "Board", zh: "董事局", cn: "董事局" },
-        href: routes.board,
-      },
-      {
-        label: { en: "Media", zh: "媒體", cn: "媒体" },
-        href: routes.media,
-      },
-    ],
-    communityLabel: {
-      en: "In the news",
-      zh: "媒體報導",
-      cn: "媒体报道",
-    },
-    partnersLabel: {
-      en: "Recognised by",
-      zh: "獲認可於",
-      cn: "获认可于",
-    },
-    partners: [
-      {
-        src: "/assets/images/partner-ccma.png",
-        alt: { en: "Caring Company", zh: "商界展關懷", cn: "商界展关怀" },
-        width: 230,
-        height: 99,
-      },
-      {
-        src: "/assets/images/partner-hkcss.jpeg",
-        alt: {
-          en: "Hong Kong Council of Social Service agency member",
-          zh: "香港社會服務聯會機構會員",
-          cn: "香港社会服务联会机构会员",
-        },
-        width: 220,
-        height: 189,
-      },
-    ],
-    updates: curatedUpdates,
-  },
-  finalCta: {
-    eyebrow: {
-      en: "Join us",
-      zh: "加入我們",
-      cn: "加入我们",
-    },
-    title: {
-      en: "Ready for your first Saturday?",
-      zh: "準備好第一個星期六了嗎？",
-      cn: "准备好第一个星期六了吗？",
-    },
-    actions: [
-      {
-        label: { en: "Contact Love 21", zh: "聯絡 Love 21", cn: "联系 Love 21" },
-        href: routes.contact,
-      },
-      {
-        label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-        href: routes.volunteer,
-      },
-      {
-        label: { en: "Donate", zh: "捐助", cn: "捐助" },
-        href: routes.donate,
-      },
-    ],
   },
 };
 

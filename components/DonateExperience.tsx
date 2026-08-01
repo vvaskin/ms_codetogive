@@ -515,9 +515,15 @@ function ItemsPanel({ locale, active }: { locale: DonationLocale; active: boolea
   );
 }
 
-export function DonateExperience({ locale }: { locale: DonationLocale }) {
+export function DonateExperience({
+  locale,
+  initialMode = "money",
+}: {
+  locale: DonationLocale;
+  initialMode?: DonationModeId;
+}) {
   const c = donationContent;
-  const [mode, setMode] = useState<DonationModeId>("money");
+  const [mode, setMode] = useState<DonationModeId>(initialMode);
   const tabsRef = useRef<Array<HTMLButtonElement | null>>([]);
   const isChinese = locale === "zh";
 

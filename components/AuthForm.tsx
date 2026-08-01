@@ -170,16 +170,18 @@ export function AuthForm({
   redirectTo = "/portal",
   locale = "en",
   showAccountSwitch = true,
+  initialRole = "member",
 }: {
   mode: AuthMode;
   redirectTo?: string;
   locale?: Locale;
   showAccountSwitch?: boolean;
+  initialRole?: UserRole;
 }) {
   const router = useRouter();
   const lang: Copy =
     locale === "zh" ? copy.zh : locale === "cn" ? copy.cn : copy.en;
-  const [role, setRole] = useState<UserRole>("member");
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
