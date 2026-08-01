@@ -19,7 +19,6 @@ import { ActivitiesExperience } from "./ActivitiesExperience";
 import { ContactExperience } from "./ContactExperience";
 import { DonateExperience } from "./DonateExperience";
 import { FinanceExperience } from "./FinanceExperience";
-import { GetInvolvedExperience } from "./GetInvolvedExperience";
 import { MediaExperience } from "./MediaExperience";
 import { ProgrammesExperience } from "./ProgrammesExperience";
 import styles from "./PageRenderer.module.css";
@@ -172,8 +171,6 @@ export async function PageRenderer({
       return <PersonPage page={page} />;
     case "volunteer":
       return <VolunteerPage page={page} />;
-    case "get-involved":
-      return <GetInvolvedExperience locale={page.locale} />;
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":

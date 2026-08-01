@@ -10,7 +10,6 @@ export type PageTemplate =
   | "people-index"
   | "person"
   | "volunteer"
-  | "get-involved"
   | "contact"
   | "donate"
   | "account"
@@ -367,22 +366,6 @@ const enPages: SitePage[] = [
     template: "media-index",
     title: "MEMBER STORIES",
   },
-  {
-    path: "/get-involved/",
-    locale: "en",
-    alternatePath: "/zh/get-involved-hk/",
-    template: "get-involved",
-    title: "Get Involved",
-    description:
-      "Volunteer, partner your company, or give — find your place with Love 21 Foundation.",
-  },
-  {
-    path: "/volunteer/calendar/",
-    locale: "en",
-    alternatePath: "/zh/volunteer-calendar-hk/",
-    template: "calendar",
-    title: "VOLUNTEER CALENDAR",
-  },
 ];
 
 const zhPages: SitePage[] = [
@@ -509,21 +492,6 @@ const zhPages: SitePage[] = [
     template: "media-index",
     title: "會員故事",
   },
-  {
-    path: "/zh/get-involved-hk/",
-    locale: "zh",
-    alternatePath: "/get-involved/",
-    template: "get-involved",
-    title: "參與我們",
-    description: "做義工、企業合作或捐助 — 在 Love 21 找到你的位置。",
-  },
-  {
-    path: "/zh/volunteer-calendar-hk/",
-    locale: "zh",
-    alternatePath: "/volunteer/calendar/",
-    template: "calendar",
-    title: "義工日曆",
-  },
 ];
 
 const cnPages: SitePage[] = [
@@ -649,21 +617,6 @@ const cnPages: SitePage[] = [
     alternatePath: "/stories/",
     template: "media-index",
     title: "会员故事",
-  },
-  {
-    path: "/cn/get-involved/",
-    locale: "cn",
-    alternatePath: "/get-involved/",
-    template: "get-involved",
-    title: "参与我们",
-    description: "做义工、企业合作或捐助 — 在 Love 21 找到你的位置。",
-  },
-  {
-    path: "/cn/volunteer/calendar/",
-    locale: "cn",
-    alternatePath: "/volunteer/calendar/",
-    template: "calendar",
-    title: "义工日历",
   },
 ];
 
