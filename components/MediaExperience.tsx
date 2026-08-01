@@ -81,6 +81,7 @@ export function MediaExperience({ locale }: { locale: Locale }) {
           <p>{mediaText(mediaContent.feeds.description, locale)}</p>
         </div>
         <div className={styles.feedGrid}>
+          <InstagramFeed />
           {feedItems.map((article, index) => (
             <article className={styles.feedCard} key={article.slug}>
               <div className={styles.feedMeta}>
@@ -109,18 +110,6 @@ export function MediaExperience({ locale }: { locale: Locale }) {
               </div>
             </article>
           ))}
-        </div>
-      </SectionShell>
-
-      <SectionShell tone="blush" className={styles.instagram}>
-        <div className={styles.centeredHeading}>
-          <p className={styles.eyebrow}>
-            {mediaText(mediaContent.instagram.eyebrow, locale)}
-          </p>
-          <h2>{mediaText(mediaContent.instagram.title, locale)}</h2>
-        </div>
-        <div className={styles.instagramFeed}>
-          <InstagramFeed />
         </div>
       </SectionShell>
 

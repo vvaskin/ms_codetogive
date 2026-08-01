@@ -32,10 +32,6 @@ export interface MediaContent {
     title: LocalizedMediaText;
     description: LocalizedMediaText;
   };
-  instagram: {
-    eyebrow: LocalizedMediaText;
-    title: LocalizedMediaText;
-  };
   press: {
     eyebrow: LocalizedMediaText;
     title: LocalizedMediaText;
@@ -99,10 +95,6 @@ export const mediaContent: MediaContent = {
       en: "A presentational selection inspired by Love 21 updates. Follow us for the latest posts.",
       zh: "以下為 Love 21 社群動態的展示選集；歡迎追蹤我們，獲取最新消息。",
     },
-  },
-  instagram: {
-    eyebrow: { en: "Instagram", zh: "Instagram" },
-    title: { en: "Latest from Instagram", zh: "最新 Instagram 貼文" },
   },
   press: {
     eyebrow: { en: "Our story in the news", zh: "媒體中的 Love 21" },
