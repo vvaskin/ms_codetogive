@@ -644,44 +644,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           )}
 
           <div className={styles.headerActions}>
-            <AccessibilityMenu
-              locale={locale}
-              simpleView={simpleView}
-              highContrast={highContrast}
-              textSize={textSize}
-              onToggleSimpleView={toggleSimpleView}
-              onToggleHighContrast={toggleHighContrast}
-              onAdjustTextSize={adjustTextSize}
-              className={styles.accessHeader}
-            />
-
-            <div className={styles.languageLinks} aria-label="Language">
-              <Link
-                href={trio.en}
-                className={locale === "en" ? styles.languageActive : undefined}
-              >
-                EN
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.zh}
-                className={zh ? styles.languageActive : undefined}
-              >
-                繁
-              </Link>
-              <span className={styles.languageDivider} aria-hidden="true">
-                ·
-              </span>
-              <Link
-                href={trio.cn}
-                className={cn ? styles.languageActive : undefined}
-              >
-                简
-              </Link>
-            </div>
-
             {session ? (
               <>
                 <Link href={portalPath} className={styles.memberLogin}>
