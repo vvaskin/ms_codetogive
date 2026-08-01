@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { donationContent, type DonationLocale } from "../content/donation";
+import { DonationForm } from "./portal/DonationForm";
 import { ButtonLink } from "./ui/ButtonLink";
 import { PageIntro } from "./ui/PageIntro";
 import { PreviewPanel } from "./ui/PreviewPanel";
@@ -43,43 +44,7 @@ export function DonateExperience({ locale }: { locale: DonationLocale }) {
             <section className={styles.configurator} aria-label={text(c.configurator.title)}>
               <p className={`${styles.accentLabel} ${isChinese ? styles.localizedAccent : ""}`}>{text(c.configurator.eyebrow)}</p>
               <h2>{text(c.configurator.title)}</h2>
-              <fieldset disabled>
-                <legend className={styles.screenReaderOnly}>{text(c.configurator.title)}</legend>
-                <div className={styles.frequency} aria-label={text(c.configurator.title)}>
-                  {c.configurator.frequency.map((item, index) => (
-                    <button className={index === 0 ? styles.frequencySelected : ""} key={text(item)} type="button">
-                      {text(item)}
-                    </button>
-                  ))}
-                </div>
-                <p className={styles.controlLabel}>{text(c.configurator.amountLabel)}</p>
-                <div className={styles.amountGrid}>
-                  {[...c.configurator.amounts, c.configurator.customAmount].map((item, index) => (
-                    <button className={index === 1 ? styles.amountSelected : ""} key={text(item)} type="button">
-                      {text(item)}
-                    </button>
-                  ))}
-                </div>
-                <label className={styles.controlLabel}>
-                  {text(c.configurator.programmeLabel)}
-                  <select defaultValue="">
-                    <option value="" disabled>{text(c.configurator.programmeLabel)}</option>
-                    {c.configurator.programmes.map((item) => <option key={text(item)}>{text(item)}</option>)}
-                  </select>
-                </label>
-                <p className={styles.controlLabel}>{text(c.configurator.detailsTitle)}</p>
-                <div className={styles.detailsGrid}>
-                  {c.configurator.fields.map((item) => (
-                    <input aria-label={text(item)} key={text(item)} placeholder={text(item)} />
-                  ))}
-                </div>
-                <p className={styles.controlLabel}>{text(c.configurator.walletsTitle)}</p>
-                <div className={styles.walletRow}>
-                  {c.configurator.wallets.map((item) => <button key={text(item)} type="button">{text(item)}</button>)}
-                </div>
-                <input aria-label={text(c.configurator.cardLabel)} placeholder={text(c.configurator.cardLabel)} />
-                <button className={styles.previewAction} type="button">{text(c.configurator.action)}</button>
-              </fieldset>
+              <DonationForm />
               <p className={styles.trustLine}>{text(c.configurator.trustLine)}</p>
             </section>
           </PreviewPanel>

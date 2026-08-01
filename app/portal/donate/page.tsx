@@ -22,7 +22,7 @@ export default async function DonatePage() {
         <p>Give once or set up recurring support for our programmes.</p>
       </header>
 
-      <DonationForm />
+      <DonationForm guest={false} />
     </div>
   );
 }

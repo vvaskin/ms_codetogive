@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { recordDonation } from "@/app/actions/donations";
+import { useUser } from "@/lib/supabase/use-user";
 import {
   formatCurrency,
   frequencies,
@@ -14,28 +16,58 @@ interface Confirmation {
   amount: number;
   kind: Kind;
   frequency: Frequency | null;
+  createdAccount: boolean;
 }
 
-export function DonationForm() {
+/**
+ * Name/email fields are shown for logged-out visitors (e.g. the public
+ * /donate page). Pass `guest` to force the mode; otherwise it's auto-detected
+ * from the current session (the portal donor is always signed in).
+ */
+export function DonationForm({ guest }: { guest?: boolean }) {
+  const { user, loading } = useUser();
+  const isGuest = guest ?? (!loading && !user);
   const [kind, setKind] = useState<Kind>("one-time");
   const [amount, setAmount] = useState<number>(presetAmounts[1]);
   const [customAmount, setCustomAmount] = useState("");
   const [frequency, setFrequency] = useState<Frequency>(frequencies[0].value);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   const effectiveAmount = customAmount
     ? Math.max(0, Math.round(Number(customAmount)))
     : amount;
-  const canSubmit = effectiveAmount > 0;
+  const canSubmit = effectiveAmount > 0 && !submitting;
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSubmit) return;
-    // Record-only mock: no payment is processed and nothing is persisted.
+    if (effectiveAmount <= 0) return;
+    setSubmitting(true);
+    setError(null);
+
+    const result = await recordDonation({
+      amountCents: effectiveAmount * 100,
+      kind: kind === "recurring" ? "recurring" : "one_time",
+      frequency: kind === "recurring" ? frequency : null,
+      email: isGuest ? email : undefined,
+      name: isGuest ? name : undefined,
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setError(result.error ?? "Something went wrong. Please try again.");
+      return;
+    }
+
     setConfirmation({
       amount: effectiveAmount,
       kind,
       frequency: kind === "recurring" ? frequency : null,
+      createdAccount: Boolean(result.createdAccount),
     });
   }
 
@@ -63,6 +95,12 @@ export function DonationForm() {
             </>
           )}
         </p>
+        {confirmation.createdAccount && (
+          <p className="donation-confirm-note">
+            We&apos;ve created an account for you and emailed a link to set your
+            password so you can track your giving.
+          </p>
+        )}
         <p className="donation-confirm-note">
           This is a demo — no payment has been taken.
         </p>
@@ -149,6 +187,34 @@ export function DonationForm() {
         </label>
       )}
 
+      {isGuest && (
+        <div className="donation-guest-fields">
+          <label className="donation-frequency">
+            Your name
+            <input
+              type="text"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+          <label className="donation-frequency">
+            Email address
+            <input
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <small>
+              We&apos;ll create an account so you can track your donations.
+            </small>
+          </label>
+        </div>
+      )}
+
       <div className="donation-summary">
         <span>You are giving</span>
         <strong>
@@ -159,9 +225,15 @@ export function DonationForm() {
         </strong>
       </div>
 
+      {error && (
+        <div className="auth-error" role="alert">
+          {error}
+        </div>
+      )}
+
       <button className="auth-submit" type="submit" disabled={!canSubmit}>
-        Donate {formatCurrency(effectiveAmount)}
-        <span aria-hidden="true">➜</span>
+        {submitting ? "Recording…" : `Donate ${formatCurrency(effectiveAmount)}`}
+        {!submitting && <span aria-hidden="true">➜</span>}
       </button>
     </form>
   );

@@ -33,6 +33,8 @@ enable_signup = true
 
 [auth.email]
 enable_signup = true
-# Email confirmation is REQUIRED: users must click the link before logging in.
-enable_confirmations = true
+# Email confirmation is DISABLED: signups are logged in immediately.
+# NOTE: this governs the local `supabase start` stack only. For the hosted
+# project, also turn OFF Authentication → Providers → Email → "Confirm email".
+enable_confirmations = false
 double_confirm_changes = true

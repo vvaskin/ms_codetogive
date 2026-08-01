@@ -46,9 +46,6 @@ const copy = {
       "Please confirm your email address first — check your inbox for the link.",
     networkError:
       "We could not reach the authentication service. Please try again.",
-    checkInboxTitle: "Check your inbox",
-    checkInboxBody:
-      "We sent a confirmation link to {email}. Click it to activate your account, then log in.",
     loggingIn: "Logging in…",
     creatingAccount: "Creating account…",
     logIn: "Log in",
@@ -88,9 +85,6 @@ const copy = {
     emailExists: "此電郵已註冊帳戶。",
     emailNotConfirmed: "請先確認您的電郵地址——請查看收件箱中的連結。",
     networkError: "無法連接驗證服務，請再試一次。",
-    checkInboxTitle: "請查看您的電郵",
-    checkInboxBody:
-      "我們已向 {email} 發送確認連結。請點擊連結啟用帳戶，然後登入。",
     loggingIn: "登入中…",
     creatingAccount: "建立帳戶中…",
     logIn: "登入",
@@ -144,7 +138,6 @@ export function AuthForm({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const isSignup = mode === "signup";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -159,7 +152,7 @@ export function AuthForm({
 
     try {
       if (isSignup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -174,11 +167,8 @@ export function AuthForm({
           return;
         }
 
-        // Email confirmation is required, so there is no session yet.
-        if (!data.session) {
-          setPendingEmail(email);
-          return;
-        }
+        // Email confirmation is disabled, so signup returns a session and we
+        // fall through to the redirect below.
       } else {
         const { error: signInError } =
           await supabase.auth.signInWithPassword({ email, password });
@@ -206,21 +196,6 @@ export function AuthForm({
       : isSignup
         ? "/login"
         : "/signup";
-
-  if (pendingEmail) {
-    return (
-      <div className={styles.authForm}>
-        <div className={styles.authFormHeading}>
-          <p className={styles.eyebrow}>{lang.eyebrow}</p>
-          <h1>{lang.checkInboxTitle}</h1>
-          <p>{lang.checkInboxBody.replace("{email}", pendingEmail)}</p>
-        </div>
-        <p className={styles.authSwitch}>
-          <Link href={switchHref}>{lang.logIn}</Link>
-        </p>
-      </div>
-    );
-  }
 
   return (
     <form className={styles.authForm} method="post" onSubmit={onSubmit}>
