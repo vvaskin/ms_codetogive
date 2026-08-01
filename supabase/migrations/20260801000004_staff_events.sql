@@ -2,6 +2,8 @@
 --
 -- This migration is deliberately additive. The original event columns remain
 -- available for existing consumers while the richer schedule fields are added.
+-- It runs after the donations/event-slug migration so its seeded events can be
+-- backfilled with Hong Kong start timestamps before starts_at becomes required.
 
 -- ---------------------------------------------------------------------------
 -- Staff profiles

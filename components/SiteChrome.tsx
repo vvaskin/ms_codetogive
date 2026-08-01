@@ -353,7 +353,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const cn = locale === "cn";
   const pick = (en: string, zht: string, zhc: string) =>
     cn ? zhc : zh ? zht : en;
-  const { user: session } = useUser();
+  const { user: session, role } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const simpleView = useSyncExternalStore(
@@ -415,7 +415,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const activityItems = cn ? cnActivities : zh ? zhActivities : enActivities;
   const involvedItems = cn ? cnInvolved : zh ? zhInvolved : enInvolved;
   const contactPath = pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
-  const loginPath = session ? "/portal" : pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
+  const loginPath = session
+    ? role === "staff"
+      ? "/admin"
+      : "/portal"
+    : pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
   const memberLabel = session
     ? pick("My portal", "個人頁面", "个人页面")
     : pick("Sign up / Login", "註冊 / 登入", "注册 / 登录");
@@ -675,7 +679,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                   {text}
                 </Link>
               ))}
-              <Link href={loginPath}>{volunteerLabel}</Link>
+              <Link href={loginPath}>{memberLabel}</Link>
               <Link href={donatePath}>{donateLabel}</Link>
             </div>
 

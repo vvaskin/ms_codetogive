@@ -1,7 +1,45 @@
 import "server-only";
 
-import { createClient } from "@supabase/supabase-js";
+import {
+  createClient as createSupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
+import { isStaffRole } from "@/lib/admin";
+import { createClient as createServerClient } from "./server";
 import type { Database } from "./types";
+
+export type AdminAuthState = {
+  user: User | null;
+  isStaff: boolean;
+};
+
+/**
+ * Verifies the cookie-backed user and reads their own RLS-protected profile.
+ * The database role is authoritative; user-controlled auth metadata is never
+ * trusted for staff access.
+ */
+export async function getAdminAuthState(): Promise<AdminAuthState> {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) return { user: null, isStaff: false };
+
+  const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) throw new Error("Unable to verify staff access.");
+
+  return {
+    user,
+    isStaff: isStaffRole(profile?.role),
+  };
+}
 
 /**
  * Admin Supabase client using the service-role key. It BYPASSES Row Level
@@ -20,7 +58,11 @@ export function createAdminClient() {
     );
   }
 
-  return createClient<Database>(url, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
+  return createSupabaseClient<Database>(url, serviceKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false,
+    },
   });
 }

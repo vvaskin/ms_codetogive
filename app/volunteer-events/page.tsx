@@ -19,9 +19,17 @@ export default async function VolunteerEventsPage() {
     supabase.auth.getUser(),
   ]);
 
+  // Admin-only prototype events may omit the legacy calendar category/date.
+  // Keep this existing public feed limited to its original event shape.
+  const feedEvents = (events ?? []).flatMap((event) =>
+    event.date && event.type
+      ? [{ ...event, date: event.date, type: event.type }]
+      : [],
+  );
+
   return (
     <VolunteerEventsFeed
-      events={events ?? []}
+      events={feedEvents}
       isGuest={!userData.user}
     />
   );

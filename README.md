@@ -122,7 +122,9 @@ bucket:
    npm run db:types
    ```
 
-   This overwrites `lib/supabase/types.ts` from the live linked schema.
+   This atomically replaces `lib/supabase/types.generated.ts` from the live
+   linked schema. Stable application aliases remain in
+   `lib/supabase/types.ts`.
 
 4. Run the checks:
 
@@ -228,6 +230,9 @@ client-side code.
   portal pages.
 
 ### Staff access
+
+The Staff Portal is intentionally absent from public navigation. Staff open
+`/admin` directly and sign in with an approved account.
 
 Create the account through the normal signup flow, apply all migrations, then
 promote it from a trusted local terminal:
