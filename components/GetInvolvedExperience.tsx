@@ -23,7 +23,7 @@ export function GetInvolvedExperience({
   initialSection?: "opportunities" | "corporate";
 }) {
   const c = getInvolvedContent;
-  const zh = locale === "zh";
+  const zh = locale !== "en";
   const [filter, setFilter] = useState<OpportunityFilter>("all");
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function GetInvolvedExperience({
         <p className={styles.heroHelper}>{t(c.hero.helper, locale)}</p>
       </section>
 
-      <section className={styles.ways} aria-label={zh ? "參與方式" : "Ways to help"}>
+      <section className={styles.ways} aria-label={locale === "zh" ? "參與方式" : locale === "cn" ? "参与方式" : "Ways to help"}>
         <article className={`${styles.wayCard} ${styles.wayVolunteer}`}>
           <div className={styles.wayMeta}>
             <span className={styles.wayAudience}>{t(c.ways.volunteer.audience, locale)}</span>
@@ -107,7 +107,7 @@ export function GetInvolvedExperience({
           </div>
 
           <div className={styles.filterRow}>
-            <div className={styles.chips} role="group" aria-label={zh ? "篩選機會" : "Filter opportunities"}>
+            <div className={styles.chips} role="group" aria-label={locale === "cn" ? "筛选机会" : zh ? "篩選機會" : "Filter opportunities"}>
               {opportunityFilters.map((item) => {
                 const selected = filter === item.id;
                 return (

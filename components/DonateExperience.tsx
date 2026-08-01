@@ -10,7 +10,7 @@ import styles from "./DonateExperience.module.css";
 export function DonateExperience({ locale }: { locale: DonationLocale }) {
   const c = donationContent;
   const text = (value: Record<DonationLocale, string>) => value[locale];
-  const isChinese = locale === "zh";
+  const isChinese = locale !== "en";
 
   return (
     <article className={styles.page}>
