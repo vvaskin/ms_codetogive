@@ -37,12 +37,8 @@ export const donationContent = {
     },
     title: { en: "Give in a way that feels good.", zh: "用舒服的方式去支持。" },
     description: {
-      en: "We’re not government-funded, so your gift is everything — and 90%+ of it goes straight to our families.",
-      zh: "我們並非由政府資助，因此你的每一份支持都非常重要，而超過九成捐款會直接用於服務家庭。",
-    },
-    scriptNote: {
-      en: "— and yes, you can see exactly where it goes",
-      zh: "— 你亦可以清楚看到捐款的用途",
+      en: "Your gift funds sports, nutrition and holistic programmes for our Down syndrome and autistic community.",
+      zh: "你的捐款為我們的唐氏綜合症及自閉症社群提供體育、營養及全人發展計劃。",
     },
   },
   modes: [
@@ -50,28 +46,16 @@ export const donationContent = {
       id: "money" as const,
       title: { en: "Give money", zh: "金錢捐贈" },
       label: { en: "monthly or one-time", zh: "每月或一次性" },
-      description: {
-        en: "A recurring gift or one-off to where it’s needed most.",
-        zh: "每月或一次捐款，支持最有需要的地方。",
-      },
     },
     {
       id: "events" as const,
       title: { en: "Fund events", zh: "資助活動" },
       label: { en: "pick a focus", zh: "選擇重點" },
-      description: {
-        en: "Help an approved event reach its funding goal.",
-        zh: "協助已核准的活動達成籌款目標。",
-      },
     },
     {
       id: "items" as const,
       title: { en: "Donate items", zh: "物資捐贈" },
       label: { en: "our wish list", zh: "我們的心願清單" },
-      description: {
-        en: "Give exactly what we need — the short list is below.",
-        zh: "捐出我們真正需要的物資，清單就在下方。",
-      },
     },
   ],
   money: {
@@ -82,10 +66,6 @@ export const donationContent = {
     },
     mostImpact: { en: "most impact", zh: "影響最大" },
     amountLabel: { en: "Choose an amount", zh: "選擇金額" },
-    amountNote: {
-      en: "Every amount is tied to something real.",
-      zh: "每個金額都能帶來實際支持。",
-    },
     amounts: [100, 400, 500],
     amountDescriptions: {
       100: { en: "a month of healthy snacks for a member", zh: "為一位會員提供一個月健康小食" },
@@ -104,22 +84,49 @@ export const donationContent = {
       { id: "family", label: { en: "Family Care", zh: "家庭支援" } },
     ],
     paymentTitle: { en: "Choose how to complete your donation", zh: "選擇完成捐款的方式" },
-    paymentNote: {
-      en: "Your choices above stay on this page. Confirm the amount, frequency and focus again with the payment provider.",
-      zh: "以上選擇只保留在此頁。請在付款服務中再次確認金額、頻率及支持範疇。",
-    },
     paymeLabel: { en: "PayMe", zh: "PayMe" },
     paymeDescription: { en: "Scan the verified Love 21 QR code", zh: "掃描 Love 21 已核實的二維碼" },
     paymeInstruction: { en: "Scan to donate with PayMe", zh: "使用 PayMe 掃描捐款" },
     moonclerkLabel: { en: "Secure online form", zh: "安全網上表格" },
     moonclerkDescription: { en: "Continue with Love 21’s hosted provider", zh: "前往 Love 21 的託管付款服務" },
     moonclerkAction: { en: "Continue to MoonClerk", zh: "前往 MoonClerk" },
-    selectedSummary: { en: "Your selection", zh: "你的選擇" },
+    moonclerkNote: {
+      en: "Weekly and monthly giving are available. Confirm your amount and frequency on the secure hosted form.",
+      zh: "安全託管表格提供每週及每月捐款選項。請在表格內再次確認金額及頻率。",
+    },
+    receipt: {
+      title: { en: "Need an official receipt?", zh: "需要正式收據？" },
+      description: {
+        en: "For donations of HK$100 or above, an official receipt can be mailed to you on request.",
+        zh: "捐款港幣100元或以上，可按要求獲發並郵寄正式收據。",
+      },
+      action: { en: "Email Maggie", zh: "電郵聯絡 Maggie" },
+      email: "maggie@love21foundation.com",
+      subject: { en: "Donation receipt request", zh: "捐款收據申請" },
+    },
+    alternativePayments: {
+      summary: { en: "Other ways to donate", zh: "其他捐款方式" },
+      intro: { en: "Bank transfer, FPS or cheque", zh: "銀行轉帳、轉數快或支票" },
+      copy: { en: "Copy", zh: "複製" },
+      copied: { en: "Copied", zh: "已複製" },
+      copyUnavailable: {
+        en: "Copy is unavailable. Select the number to copy it manually.",
+        zh: "無法自動複製，請選取號碼手動複製。",
+      },
+      hsbcLabel: { en: "HSBC transfer", zh: "滙豐銀行轉帳" },
+      hsbcAccount: "582-350526-838",
+      fpsLabel: { en: "FPS ID", zh: "轉數快識別碼" },
+      fpsId: "164778151",
+      chequeTitle: { en: "Donate by cheque", zh: "支票捐款" },
+      payeeLabel: { en: "Payable to", zh: "支票抬頭" },
+      payee: "Love 21 Foundation Limited",
+      addressLabel: { en: "Mail to", zh: "郵寄至" },
+      address: "1102, 11/F, Trium Lab, 21 Luk Hop Street, San Po Kong, Kowloon, HK",
+    },
     invalidAmount: { en: "Enter a whole-dollar amount of at least HK$1.", zh: "請輸入至少港幣一元的整數金額。" },
   },
   impact: {
     eyebrow: { en: "your impact ♡", zh: "你的影響力 ♡" },
-    title: { en: "See your support clearly", zh: "清楚看見你的支持" },
     monthlyDescription: {
       en: "Recurring support helps Love 21 plan activities and keep programmes running.",
       zh: "每月支持有助 Love 21 規劃活動並持續推行計劃。",
@@ -128,8 +135,7 @@ export const donationContent = {
       en: "A one-time gift helps Love 21 respond where support is needed.",
       zh: "一次性捐款協助 Love 21 回應當下最有需要的地方。",
     },
-    allocationTitle: { en: "Where support goes", zh: "捐款用途" },
-    allocationIntro: { en: "Approved allocation overview", zh: "已核准的分配概覽" },
+    allocationTitle: { en: "Where your donation goes", zh: "你的捐款用途" },
     allocations: [
       { value: 60, label: { en: "Programmes & activities", zh: "計劃及活動" }, tone: "blue" },
       { value: 25, label: { en: "Family support & nutrition", zh: "家庭支援及營養" }, tone: "purple" },
@@ -140,8 +146,6 @@ export const donationContent = {
     commitments: [
       { en: "Registered charity in Hong Kong — fully audited", zh: "香港註冊慈善機構，帳目經全面審核" },
       { en: "90%+ of every donation reaches our families directly", zh: "超過九成捐款直接用於服務家庭" },
-      { en: "Annual impact report published — no surprises", zh: "每年發布影響報告，保持透明" },
-      { en: "Partnered with Crossroads Foundation for in-kind donations", zh: "與 Crossroads Foundation 合作處理物資捐贈" },
     ],
     reportAction: { en: "Trust & transparency", zh: "信任與透明" },
   },
@@ -149,8 +153,8 @@ export const donationContent = {
     eyebrow: { en: "pick a focus, make it count", zh: "選擇重點，成就改變" },
     title: { en: "Support an event you believe in.", zh: "支持你認同的活動。" },
     description: {
-      en: "Choose an approved event and see exactly what’s needed. This release previews the contribution flow without taking payment.",
-      zh: "選擇已核准的活動並了解所需。此版本只預覽支持流程，不會收取款項。",
+      en: "Choose an approved event and see the impact your support could make.",
+      zh: "選擇已核准的活動，了解你的支持可以帶來的影響。",
     },
     listEyebrow: { en: "what’s coming up", zh: "即將舉行" },
     listTitle: { en: "Fundable events & programmes", zh: "可資助的活動及計劃" },
@@ -236,8 +240,12 @@ export const donationContent = {
     eyebrow: { en: "prefer to give things, not money?", zh: "想捐物資而非金錢？" },
     title: { en: "Our wish list", zh: "我們的心願清單" },
     description: {
-      en: "We partner with Crossroads Foundation and only ask for what we truly need. Item selections below are a non-transmitting demo.",
-      zh: "我們與 Crossroads Foundation 合作，只徵求真正需要的物資。以下選擇只供示範，不會傳送。",
+      en: "Select an item to preview, then contact Love 21 before arranging delivery.",
+      zh: "選擇物資作預覽，安排送遞前請先聯絡 Love 21。",
+    },
+    partnerNote: {
+      en: "In-kind donations are coordinated with Crossroads Foundation.",
+      zh: "物資捐贈由我們與 Crossroads Foundation 協調安排。",
     },
     action: { en: "Donate this", zh: "捐贈此物資" },
     selectedTitle: { en: "Demo item selected", zh: "已選擇示範物資" },

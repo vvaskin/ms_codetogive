@@ -22,6 +22,7 @@ import { SectionShell } from "./ui/SectionShell";
 import styles from "./DonateExperience.module.css";
 
 const moonclerkUrl = "https://app.moonclerk.com/pay/2805gcehxjca";
+type CopyTarget = "hsbc" | "fps";
 
 function formatHkd(value: number, locale: DonationLocale) {
   return new Intl.NumberFormat(locale === "zh" ? "zh-HK" : "en-HK", {
@@ -152,6 +153,8 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
   const [customAmount, setCustomAmount] = useState("");
   const [programme, setProgramme] = useState("greatest-need");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>("payme");
+  const [copiedTarget, setCopiedTarget] = useState<CopyTarget | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const customNumber = Number(customAmount);
   const customValid = Number.isInteger(customNumber) && customNumber >= 1;
@@ -162,6 +165,18 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
     setPresetAmount(amount);
     setCustomActive(false);
     setCustomAmount("");
+  }
+
+  async function copyPaymentDetail(target: CopyTarget, value: string) {
+    try {
+      if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(value);
+      setCopiedTarget(target);
+      setCopyFailed(false);
+    } catch {
+      setCopiedTarget(null);
+      setCopyFailed(true);
+    }
   }
 
   return (
@@ -190,7 +205,6 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
 
           <div className={styles.formHeading}>
             <h3>{localize(money.amountLabel, locale)}</h3>
-            <p>{localize(money.amountNote, locale)}</p>
           </div>
           <div className={styles.amountGrid}>
             {money.amounts.map((amount) => (
@@ -245,7 +259,6 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
 
           <div className={styles.paymentSection}>
             <h3>{localize(money.paymentTitle, locale)}</h3>
-            <p>{localize(money.paymentNote, locale)}</p>
             <div className={styles.paymentOptions}>
               <button
                 aria-pressed={paymentMethod === "payme"}
@@ -281,12 +294,88 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
               ) : (
                 <div className={styles.moonclerkCompletion}>
                   <Image src="/assets/images/moonclerk.png" width={180} height={90} unoptimized alt="MoonClerk" />
-                  <a href={moonclerkUrl} target="_blank" rel="noreferrer">
-                    {localize(money.moonclerkAction, locale)} <span aria-hidden="true">↗</span>
-                  </a>
+                  <div>
+                    <p>{localize(money.moonclerkNote, locale)}</p>
+                    <a href={moonclerkUrl} target="_blank" rel="noreferrer">
+                      {localize(money.moonclerkAction, locale)} <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
+
+            <aside className={styles.receiptCallout} aria-labelledby="receipt-title">
+              <span aria-hidden="true">✉</span>
+              <div>
+                <strong id="receipt-title">{localize(money.receipt.title, locale)}</strong>
+                <p>{localize(money.receipt.description, locale)}</p>
+              </div>
+              <a href={`mailto:${money.receipt.email}?subject=${encodeURIComponent(localize(money.receipt.subject, locale))}`}>
+                {localize(money.receipt.action, locale)}
+              </a>
+            </aside>
+
+            <details className={styles.alternativePayments}>
+              <summary>
+                <span>
+                  <strong>{localize(money.alternativePayments.summary, locale)}</strong>
+                  <small>{localize(money.alternativePayments.intro, locale)}</small>
+                </span>
+              </summary>
+              <div className={styles.alternativePaymentBody}>
+                <div className={styles.transferList}>
+                  <div className={styles.transferRow}>
+                    <div>
+                      <span>{localize(money.alternativePayments.hsbcLabel, locale)}</span>
+                      <code>{money.alternativePayments.hsbcAccount}</code>
+                    </div>
+                    <button
+                      aria-label={`${localize(money.alternativePayments.copy, locale)} ${localize(money.alternativePayments.hsbcLabel, locale)}`}
+                      onClick={() => copyPaymentDetail("hsbc", money.alternativePayments.hsbcAccount)}
+                      type="button"
+                    >
+                      {localize(copiedTarget === "hsbc" ? money.alternativePayments.copied : money.alternativePayments.copy, locale)}
+                    </button>
+                  </div>
+                  <div className={styles.transferRow}>
+                    <div>
+                      <span>{localize(money.alternativePayments.fpsLabel, locale)}</span>
+                      <code>{money.alternativePayments.fpsId}</code>
+                    </div>
+                    <button
+                      aria-label={`${localize(money.alternativePayments.copy, locale)} ${localize(money.alternativePayments.fpsLabel, locale)}`}
+                      onClick={() => copyPaymentDetail("fps", money.alternativePayments.fpsId)}
+                      type="button"
+                    >
+                      {localize(copiedTarget === "fps" ? money.alternativePayments.copied : money.alternativePayments.copy, locale)}
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.chequeDetails}>
+                  <strong>{localize(money.alternativePayments.chequeTitle, locale)}</strong>
+                  <dl>
+                    <div>
+                      <dt>{localize(money.alternativePayments.payeeLabel, locale)}</dt>
+                      <dd>{money.alternativePayments.payee}</dd>
+                    </div>
+                    <div>
+                      <dt>{localize(money.alternativePayments.addressLabel, locale)}</dt>
+                      <dd>{money.alternativePayments.address}</dd>
+                    </div>
+                  </dl>
+                </div>
+                {copyFailed && (
+                  <p className={styles.copyError} role="status">
+                    {localize(money.alternativePayments.copyUnavailable, locale)}
+                  </p>
+                )}
+                <p className={styles.screenReaderOnly} aria-live="polite">
+                  {copiedTarget
+                    ? `${localize(copiedTarget === "hsbc" ? money.alternativePayments.hsbcLabel : money.alternativePayments.fpsLabel, locale)}: ${localize(money.alternativePayments.copied, locale)}`
+                    : ""}
+                </p>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -298,17 +387,11 @@ function MoneyPanel({ locale, active }: { locale: DonationLocale; active: boolea
               {frequency === "monthly" && <span>/ {localize(money.frequency.monthly, locale).toLowerCase()}</span>}
             </p>
             <p>{frequency === "monthly" ? localize(c.impact.monthlyDescription, locale) : localize(c.impact.oneTimeDescription, locale)}</p>
-            <dl className={styles.selectionSummary}>
-              <div><dt>{localize(money.selectedSummary, locale)}</dt><dd>{localize(selectedProgramme.label, locale)}</dd></div>
-              <div><dt>{localize(money.frequencyLabel, locale)}</dt><dd>{localize(money.frequency[frequency], locale)}</dd></div>
-            </dl>
           </section>
 
           <section className={styles.allocationCard}>
-            <p className={styles.accentLabel}>{localize(c.impact.allocationTitle, locale)}</p>
             <div className={styles.whiteCard}>
-              <h2>{localize(c.impact.title, locale)}</h2>
-              <p>{localize(c.impact.allocationIntro, locale)}</p>
+              <h2>{localize(c.impact.allocationTitle, locale)}</h2>
               <div className={styles.allocationBar} aria-hidden="true">
                 {c.impact.allocations.map((item) => <span className={styles[`allocation${item.tone}`]} key={item.tone} style={{ width: `${item.value}%` }} />)}
               </div>
@@ -363,12 +446,12 @@ function EventsPanel({ locale, active }: { locale: DonationLocale; active: boole
               <h3>{localize(item.title, locale)}</h3>
               <p className={styles.eventSchedule}>{localize(item.schedule, locale)}</p>
               <p>{localize(item.description, locale)}</p>
-              <div className={styles.needs}>
-                <h4>{localize(c.needsTitle, locale)}</h4>
+              <details className={styles.needs}>
+                <summary>{localize(c.needsTitle, locale)}</summary>
                 <ul>
                   {item.needs.map((need) => <li key={need.label.en}><span>{localize(need.label, locale)}</span><strong>{localize(need.detail, locale)}</strong></li>)}
                 </ul>
-              </div>
+              </details>
               <div className={styles.goalLine}>
                 <strong>{localize(c.goalLabel, locale)}: {formatHkd(item.goalHkd, locale)}</strong>
                 <span>{item.progressPercent}% {localize(c.fundedLabel, locale)}</span>
@@ -404,6 +487,7 @@ function ItemsPanel({ locale, active }: { locale: DonationLocale; active: boolea
         <p className={styles.accentLabel}>{localize(c.eyebrow, locale)}</p>
         <h2 id="items-panel-title">{localize(c.title, locale)}</h2>
         <p>{localize(c.description, locale)}</p>
+        <small className={styles.partnerNote}>{localize(c.partnerNote, locale)}</small>
       </header>
       {selectedItem && (
         <div className={styles.itemConfirmation} role="status">
@@ -457,7 +541,6 @@ export function DonateExperience({ locale }: { locale: DonationLocale }) {
           <p className={styles.heroEyebrow}>{localize(c.intro.eyebrow, locale)}</p>
           <h1>{localize(c.intro.title, locale)}</h1>
           <p>{localize(c.intro.description, locale)}</p>
-          <span>{localize(c.intro.scriptNote, locale)}</span>
         </header>
         <div aria-label={isChinese ? "選擇捐贈方式" : "Choose a donation mode"} className={styles.modeGrid} role="tablist">
           {c.modes.map((item, index) => (
@@ -476,7 +559,6 @@ export function DonateExperience({ locale }: { locale: DonationLocale }) {
             >
               <span>{localize(item.label, locale)}</span>
               <strong>{localize(item.title, locale)}</strong>
-              <small>{localize(item.description, locale)}</small>
             </button>
           ))}
         </div>
