@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "eslint .",
     "db:push": "npx supabase db push",
-    "db:types": "npx supabase gen types typescript --linked > lib/supabase/types.ts"
+    "db:types": "npx supabase gen types typescript --linked > lib/supabase/types.ts",
+    "staff:promote": "node scripts/promote-staff.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

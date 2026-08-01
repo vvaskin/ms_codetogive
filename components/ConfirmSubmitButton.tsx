@@ -6,11 +6,13 @@ export function ConfirmSubmitButton({
   children,
   className,
   formAction,
+  formNoValidate,
   message,
 }: {
   children: ReactNode;
   className?: string;
   formAction?: (formData: FormData) => void | Promise<void>;
+  formNoValidate?: boolean;
   message: string;
 }) {
   function confirmSubmission(event: MouseEvent<HTMLButtonElement>) {
@@ -22,6 +24,7 @@ export function ConfirmSubmitButton({
       className={className}
       type="submit"
       formAction={formAction}
+      formNoValidate={formNoValidate}
       onClick={confirmSubmission}
     >
       {children}

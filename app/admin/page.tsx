@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { desc } from "drizzle-orm";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
-import { isStaffRole } from "@/lib/admin";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { user, type PublicUserRole } from "@/lib/db/schema";
+import { USER_ROLES, type UserRole } from "@/lib/roles";
+import {
+  createAdminClient,
+  getAdminAuthState,
+} from "@/lib/supabase/admin";
 import { deleteUser } from "./actions";
 import styles from "./AdminPortal.module.css";
 
@@ -21,24 +20,33 @@ const views = [
   { key: "member", label: "Users" },
   { key: "donor", label: "Donors" },
   { key: "volunteer", label: "Volunteers" },
-] as const satisfies ReadonlyArray<{ key: PublicUserRole; label: string }>;
+] as const satisfies ReadonlyArray<{ key: UserRole; label: string }>;
 
 export default async function AdminPortal({
   searchParams,
 }: {
   searchParams: Promise<{ view?: string }>;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const { user: staffUser, isStaff } = await getAdminAuthState();
 
-  if (!session || !isStaffRole(session.user.role)) {
+  if (!staffUser || !isStaff) {
     redirect("/admin/login");
   }
 
   const requestedView = (await searchParams).view;
-  const activeView = views.some(({ key }) => key === requestedView)
-    ? (requestedView as PublicUserRole)
+  const activeView = USER_ROLES.includes(requestedView as UserRole)
+    ? (requestedView as UserRole)
     : "member";
-  const allUsers = await db.select().from(user).orderBy(desc(user.createdAt));
+  const admin = createAdminClient();
+  const { data: allUsers, error } = await admin
+    .from("users")
+    .select("id, email, name, role, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error("Unable to load the people database.");
+  }
+
   const visibleUsers = allUsers.filter(({ role }) => role === activeView);
 
   return (
@@ -50,7 +58,7 @@ export default async function AdminPortal({
           <p>Manage member, donor, and volunteer accounts.</p>
         </div>
         <div className={styles.headerActions}>
-          <span>Signed in as {session.user.email}</span>
+          <span>Signed in as {staffUser.email ?? "Staff"}</span>
           <SignOutButton />
         </div>
       </header>
@@ -101,8 +109,10 @@ export default async function AdminPortal({
                 {visibleUsers.map((record) => (
                   <tr key={record.id}>
                     <td className={styles.name}>{record.name}</td>
-                    <td className={styles.email}>{record.email}</td>
-                    <td>{record.createdAt.toLocaleDateString("en-GB")}</td>
+                    <td className={styles.email}>
+                      {record.email ?? "Email unavailable"}
+                    </td>
+                    <td>{new Date(record.created_at).toLocaleDateString("en-GB")}</td>
                     <td>
                       <form action={deleteUser}>
                         <input type="hidden" name="id" value={record.id} />

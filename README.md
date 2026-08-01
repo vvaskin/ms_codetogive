@@ -218,13 +218,27 @@ client-side code.
   never stores or reads a password. `public.users` (see
   `supabase/migrations/20260801000001_init.sql`) is a *profile* row keyed by
   the same `id`, auto-created by a database trigger on signup.
-- Each user has one `role`: `member`, `donor`, or `volunteer`, chosen at
-  signup and stored on `public.users`.
+- Each public user has one `role`: `member`, `donor`, or `volunteer`, chosen at
+  signup and stored on `public.users`. `staff` is never offered at signup and
+  can only be assigned with trusted server credentials.
 - Unauthenticated visits to `/portal/*` redirect to `/login`.
 - `lib/supabase/client.ts` is for client components, `lib/supabase/server.ts`
   for server components/route handlers, and `lib/supabase/profile.ts` exposes
   `getSessionProfile()` — the combined auth + profile lookup used by the
   portal pages.
+
+### Staff access
+
+Create the account through the normal signup flow, apply all migrations, then
+promote it from a trusted local terminal:
+
+```bash
+npm run staff:promote -- person@example.com
+```
+
+This command requires `NEXT_PUBLIC_SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. Staff authorization uses the
+profile role in `public.users`; the service-role key remains server-only.
 
 ## Database design
 
@@ -232,8 +246,10 @@ Defined in `supabase/migrations/`:
 
 - **`users`** — profile for a Supabase Auth user (name, phone, address,
   role, avatar path). No password column.
-- **`events`** — the shared calendar of events (title, image, date, type,
-  subtype, location, Google Maps link).
+- **`events`** — event records including bilingual copy, Hong Kong start/end
+  times, audience, and draft/published/cancelled status. Staff CRUD currently
+  lives under `/admin/events`; the public Activity Schedule remains a separate
+  presentational prototype.
 - **`event_participations`** — one row per (user, event) for members and
   volunteers. `status` is `registered` (upcoming/"attending"), `attended`,
   `no_show`, or `cancelled`. A volunteer's attendance certificate path is
@@ -260,7 +276,7 @@ Storage buckets (see `20260801000002_storage.sql`):
 - `content/site-data.ts` — bilingual page content
 - `styles/` — design tokens and foundational global CSS
 - `lib/supabase/` — Supabase client/server helpers, session + profile
-  lookup, and generated database types
+  lookup, staff-only administrative client, and generated database types
 - `lib/roles.ts` — the `member` / `donor` / `volunteer` role union
 - `supabase/migrations/` — versioned SQL migrations (schema, RLS, storage)
 - `supabase/config.toml` — local Supabase CLI stack configuration

@@ -5,7 +5,7 @@ import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import styles from "../AdminPortal.module.css";
 
 export type EventFormValues = {
-  id?: string;
+  id?: number;
   title?: string;
   titleZh?: string;
   startsAt?: string;
@@ -23,6 +23,17 @@ const audienceLabels = {
   volunteers: "Volunteers",
   everyone: "Everyone",
 } as const;
+
+function minuteAfter(value: string) {
+  if (!value) return undefined;
+
+  // Treat the local components as an arithmetic value only. The server action
+  // applies the Asia/Hong_Kong offset when it turns the submitted value into an
+  // instant.
+  const timestamp = Date.parse(`${value}:00Z`);
+  if (Number.isNaN(timestamp)) return undefined;
+  return new Date(timestamp + 60_000).toISOString().slice(0, 16);
+}
 
 export function EventForm({
   action,
@@ -46,7 +57,7 @@ export function EventForm({
 
   function updateStart(nextStart: string) {
     setStartsAt(nextStart);
-    if (endsAt && endsAt < nextStart) setEndsAt("");
+    if (endsAt && endsAt <= nextStart) setEndsAt("");
   }
 
   return (
@@ -88,7 +99,7 @@ export function EventForm({
           name="endsAt"
           type="datetime-local"
           value={endsAt}
-          min={startsAt || undefined}
+          min={minuteAfter(startsAt)}
           onChange={(event) => setEndsAt(event.target.value)}
           disabled={!startsAt}
         />
@@ -154,9 +165,8 @@ export function EventForm({
           <button
             className={styles.cancelButton}
             type="submit"
-            name="status"
-            value="cancelled"
             formAction={cancelAction}
+            formNoValidate
           >
             Cancel
           </button>
@@ -165,6 +175,7 @@ export function EventForm({
           <ConfirmSubmitButton
             className={styles.deleteButton}
             formAction={deleteAction}
+            formNoValidate
             message={deleteMessage}
           >
             Delete

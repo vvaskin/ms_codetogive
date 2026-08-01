@@ -1,16 +1,15 @@
-import Database from "better-sqlite3";
-import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 import process, { loadEnvFile } from "node:process";
 
 try {
   loadEnvFile(".env.local");
 } catch {
-  // The default local database filename is used without an environment file.
+  // The configuration check below provides the actionable error.
 }
 
 const requestedValue = process.argv[2];
-const fromLegacyEnvironment = requestedValue === "--from-env";
-const emails = fromLegacyEnvironment
+const fromEnvironment = requestedValue === "--from-env";
+const emails = fromEnvironment
   ? (process.env.ADMIN_EMAILS ?? "")
       .split(",")
       .map((value) => value.trim().toLowerCase())
@@ -22,34 +21,64 @@ if (emails.length === 0 || emails.some((email) => !email.includes("@"))) {
   process.exit(1);
 }
 
-const databaseFileName = process.env.DB_FILE_NAME ?? "love21.sqlite";
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (databaseFileName !== path.basename(databaseFileName)) {
-  throw new Error("DB_FILE_NAME must be a filename inside the data directory.");
-}
-
-const databasePath = path.join(process.cwd(), "data", databaseFileName);
-const sqlite = new Database(databasePath);
-
-try {
-  const promote = sqlite.prepare(
-    "UPDATE user SET role = 'staff', updated_at = unixepoch() WHERE lower(email) = ?",
+if (!url || !serviceRoleKey) {
+  console.error(
+    "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local first.",
   );
-  let promoted = 0;
-  const missing = [];
-
-  for (const email of emails) {
-    const result = promote.run(email);
-    if (result.changes === 0) missing.push(email);
-    else promoted += result.changes;
-  }
-
-  if (missing.length > 0) {
-    console.error("One or more accounts were not found. Create them through /signup first.");
-    process.exitCode = 1;
-  }
-
-  console.log(`${promoted} account${promoted === 1 ? " is" : "s are"} now staff.`);
-} finally {
-  sqlite.close();
+  process.exit(1);
 }
+
+const supabase = createClient(url, serviceRoleKey, {
+  auth: {
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+    persistSession: false,
+  },
+});
+
+let promoted = 0;
+const missing = [];
+
+for (const email of emails) {
+  const { data: profile, error: lookupError } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error(`Could not find ${email}: ${lookupError.message}`);
+    process.exitCode = 1;
+    continue;
+  }
+
+  if (!profile) {
+    missing.push(email);
+    continue;
+  }
+
+  const { error: updateError } = await supabase
+    .from("users")
+    .update({ role: "staff" })
+    .eq("id", profile.id);
+
+  if (updateError) {
+    console.error(`Could not promote ${email}: ${updateError.message}`);
+    process.exitCode = 1;
+    continue;
+  }
+
+  promoted += 1;
+}
+
+if (missing.length > 0) {
+  console.error(
+    `Account${missing.length === 1 ? "" : "s"} not found: ${missing.join(", ")}. Create them through /signup first.`,
+  );
+  process.exitCode = 1;
+}
+
+console.log(`${promoted} account${promoted === 1 ? " is" : "s are"} now staff.`);

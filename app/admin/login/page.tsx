@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
 import { SignOutButton } from "@/components/SignOutButton";
-import { isStaffRole } from "@/lib/admin";
-import { auth } from "@/lib/auth";
+import { getAdminAuthState } from "@/lib/supabase/admin";
 
 export const metadata: Metadata = {
   title: "Admin login",
@@ -13,11 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLoginPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const { user, isStaff } = await getAdminAuthState();
 
-  if (session && isStaffRole(session.user.role)) redirect("/admin");
+  if (user && isStaff) redirect("/admin");
 
-  if (session) {
+  if (user) {
     return (
       <AuthPage
         eyebrow="Restricted area"

@@ -13,6 +13,7 @@ export default async function PortalPage() {
   const profile = await getSessionProfile();
 
   if (!profile) redirect("/login?next=/portal");
+  if (profile.role === "staff") redirect("/admin");
 
   if (profile.role === "donor") {
     return <DonorDashboard name={profile.name} />;

@@ -1,20 +1,21 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
-import { isStaffRole } from "@/lib/admin";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import {
-  EVENT_AUDIENCES,
-  EVENT_STATUSES,
-  event,
-  type EventAudience,
-  type EventStatus,
-} from "@/lib/db/schema";
+  createAdminClient,
+  getAdminAuthState,
+} from "@/lib/supabase/admin";
+import type {
+  Database,
+  EventAudience,
+  EventStatus,
+} from "@/lib/supabase/types";
+
+const EVENT_AUDIENCES = ["members", "volunteers", "everyone"] as const;
+const EVENT_STATUSES = ["draft", "published", "cancelled"] as const;
+
+type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
 
 function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -32,6 +33,32 @@ function limitedText(
   return value || null;
 }
 
+function parseEventId(formData: FormData) {
+  const rawId = textValue(formData, "id");
+  if (!/^\d+$/.test(rawId)) throw new Error("Invalid event id.");
+
+  const id = Number(rawId);
+  if (!Number.isSafeInteger(id) || id < 1) {
+    throw new Error("Invalid event id.");
+  }
+
+  return id;
+}
+
+function hongKongDateTime(date: Date) {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Hong_Kong",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  })
+    .format(date)
+    .replace(" ", "T");
+}
+
 function parseDateTime(value: string, required: true): Date;
 function parseDateTime(value: string, required: false): Date | null;
 function parseDateTime(value: string, required: boolean) {
@@ -42,7 +69,10 @@ function parseDateTime(value: string, required: boolean) {
   }
 
   const date = new Date(`${value}:00+08:00`);
-  if (!value || Number.isNaN(date.getTime())) throw new Error("Invalid event date.");
+  if (Number.isNaN(date.getTime()) || hongKongDateTime(date) !== value) {
+    throw new Error("Invalid event date.");
+  }
+
   return date;
 }
 
@@ -61,69 +91,115 @@ function parseStatus(value: string): EventStatus {
 }
 
 async function requireStaff() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || !isStaffRole(session.user.role)) redirect("/admin/login");
+  const authState = await getAdminAuthState();
+  if (!authState.user || !authState.isStaff) redirect("/admin/login");
+  return createAdminClient();
 }
 
 function revalidateEventPages() {
   revalidatePath("/admin/events");
 }
 
-function eventValues(formData: FormData, statusOverride?: EventStatus) {
+function eventValues(
+  formData: FormData,
+  statusOverride?: EventStatus,
+): EventInsert {
   const startsAt = parseDateTime(textValue(formData, "startsAt"), true);
   const endsAt = parseDateTime(textValue(formData, "endsAt"), false);
 
-  if (endsAt && endsAt < startsAt) {
-    throw new Error("The end time cannot be earlier than the start time.");
+  if (endsAt && endsAt <= startsAt) {
+    throw new Error("The end time must be later than the start time.");
   }
 
-  const title = limitedText(formData, "title", 120, true)!;
-  const location = limitedText(formData, "location", 200, true)!;
-
   return {
-    title,
-    titleZh: limitedText(formData, "titleZh", 120),
+    title: limitedText(formData, "title", 120, true)!,
+    title_zh: limitedText(formData, "titleZh", 120),
     description: limitedText(formData, "description", 2000),
-    descriptionZh: limitedText(formData, "descriptionZh", 2000),
-    location,
-    locationZh: limitedText(formData, "locationZh", 200),
-    startsAt,
-    endsAt,
+    description_zh: limitedText(formData, "descriptionZh", 2000),
+    location: limitedText(formData, "location", 200, true),
+    location_zh: limitedText(formData, "locationZh", 200),
+    starts_at: startsAt.toISOString(),
+    ends_at: endsAt?.toISOString() ?? null,
     audience: parseAudience(textValue(formData, "audience")),
     status: statusOverride ?? parseStatus(textValue(formData, "status")),
   };
 }
 
+function mutationError(operation: string, message: string) {
+  return new Error(`Unable to ${operation} event: ${message}`);
+}
+
 export async function createEvent(formData: FormData) {
-  await requireStaff();
-  await db.insert(event).values({ id: randomUUID(), ...eventValues(formData) });
+  const supabase = await requireStaff();
+  const { error } = await supabase.from("events").insert(eventValues(formData));
+
+  if (error) throw mutationError("create", error.message);
+
   revalidateEventPages();
   redirect("/admin/events");
 }
 
 export async function updateEvent(formData: FormData) {
-  await requireStaff();
-  const id = textValue(formData, "id");
-  await db
-    .update(event)
-    .set(eventValues(formData, "published"))
-    .where(eq(event.id, id));
+  const supabase = await requireStaff();
+  const id = parseEventId(formData);
+  const { data, error } = await supabase
+    .from("events")
+    .update(eventValues(formData, "published"))
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw mutationError("update", error.message);
+  if (!data) throw new Error("Event not found.");
+
   revalidateEventPages();
   redirect("/admin/events");
 }
 
 export async function updateEventStatus(formData: FormData) {
-  await requireStaff();
-  const id = textValue(formData, "id");
+  const supabase = await requireStaff();
   const status = parseStatus(textValue(formData, "status"));
-  await db.update(event).set({ status }).where(eq(event.id, id));
+  await setEventStatus(supabase, formData, status);
+}
+
+export async function cancelEvent(formData: FormData) {
+  const supabase = await requireStaff();
+  await setEventStatus(supabase, formData, "cancelled");
+}
+
+async function setEventStatus(
+  supabase: ReturnType<typeof createAdminClient>,
+  formData: FormData,
+  status: EventStatus,
+) {
+  const id = parseEventId(formData);
+  const { data, error } = await supabase
+    .from("events")
+    .update({ status })
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw mutationError("update", error.message);
+  if (!data) throw new Error("Event not found.");
+
   revalidateEventPages();
   redirect("/admin/events");
 }
 
 export async function deleteEvent(formData: FormData) {
-  await requireStaff();
-  await db.delete(event).where(eq(event.id, textValue(formData, "id")));
+  const supabase = await requireStaff();
+  const id = parseEventId(formData);
+  const { data, error } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw mutationError("delete", error.message);
+  if (!data) throw new Error("Event not found.");
+
   revalidateEventPages();
   redirect("/admin/events");
 }

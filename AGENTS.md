@@ -68,11 +68,14 @@ Presentational only (no API, persistence, or business rules):
 
 ### Authentication and persistence
 
-- Better Auth uses the Drizzle adapter with local SQLite (`data/love21.sqlite`)
-- `lib/db/schema.ts` is the schema source of truth; generated SQL in `drizzle/` is committed
+- Supabase provides email/password authentication, Postgres persistence, and storage
+- SQL files in `supabase/migrations/` are the schema source of truth; add a new migration instead of rewriting an applied one
+- `lib/supabase/types.ts` mirrors the linked schema and is regenerated with `npm run db:types`
 - Public account roles: `member`, `donor`, `volunteer`; `staff` is server-promoted only
+- `public.users.role` is the staff source of truth; public signup metadata is allowlisted and authenticated users cannot update their own role
 - `/admin` is staff-only; `/admin` manages people and `/admin/events` manages schedule records
-- The `event` table is currently an admin-only prototype and is not connected to public schedules
+- Staff pages and every mutation verify the caller with the cookie-backed client before using the server-only service-role client
+- The `events` table is currently managed only through the staff portal and is not connected to public schedules
 - Event times are entered in `Asia/Hong_Kong`; persisted timestamps are instants
 
 ### Accessibility
@@ -95,4 +98,6 @@ Presentational only (no API, persistence, or business rules):
 - `npm run lint`
 - `npm run build`
 - `npm run dev`
+- `npm run db:push`
+- `npm run db:types`
 - `npm run staff:promote -- person@example.com`

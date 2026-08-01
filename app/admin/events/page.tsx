@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { asc } from "drizzle-orm";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
-import { isStaffRole } from "@/lib/admin";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { event } from "@/lib/db/schema";
 import {
+  createAdminClient,
+  getAdminAuthState,
+} from "@/lib/supabase/admin";
+import type { EventRow } from "@/lib/supabase/types";
+import {
+  cancelEvent,
   createEvent,
   deleteEvent,
   updateEvent,
@@ -29,8 +29,9 @@ const audienceLabels = {
   everyone: "Everyone",
 } as const;
 
-function inputDateTime(date: Date | null) {
-  if (!date) return "";
+function inputDateTime(value: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
   return new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Hong_Kong",
     year: "numeric",
@@ -44,7 +45,8 @@ function inputDateTime(date: Date | null) {
     .replace(" ", "T");
 }
 
-function eventDate(date: Date) {
+function eventDate(value: string) {
+  const date = new Date(value);
   return new Intl.DateTimeFormat("en-HK", {
     timeZone: "Asia/Hong_Kong",
     day: "numeric",
@@ -56,10 +58,20 @@ function eventDate(date: Date) {
 }
 
 export default async function EventsDatabase() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || !isStaffRole(session.user.role)) redirect("/admin/login");
+  const authState = await getAdminAuthState();
+  if (!authState.user || !authState.isStaff) redirect("/admin/login");
 
-  const events = await db.select().from(event).orderBy(asc(event.startsAt));
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("starts_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Unable to load events: ${error.message}`);
+  }
+
+  const events = data ?? [];
 
   return (
     <main className={styles.page}>
@@ -70,7 +82,7 @@ export default async function EventsDatabase() {
           <p>Manage prototype event records. The public schedule is not connected.</p>
         </div>
         <div className={styles.headerActions}>
-          <span>Signed in as {session.user.email}</span>
+          <span>Signed in as {authState.user.email ?? "Staff"}</span>
           <SignOutButton />
         </div>
       </header>
@@ -109,11 +121,11 @@ export default async function EventsDatabase() {
                       <span>{audienceLabels[record.audience]}</span>
                     </div>
                     <h3>{record.title}</h3>
-                    {record.titleZh && <p lang="zh-Hant">{record.titleZh}</p>}
+                    {record.title_zh && <p lang="zh-Hant">{record.title_zh}</p>}
                   </div>
                   <div className={styles.eventFacts}>
-                    <span>{eventDate(record.startsAt)}</span>
-                    <span>{record.location}</span>
+                    <span>{eventDate(record.starts_at)}</span>
+                    <span>{record.location ?? "Location not set"}</span>
                   </div>
                 </div>
 
@@ -149,7 +161,7 @@ export default async function EventsDatabase() {
                     </div>
                     <EventForm
                       action={updateEvent}
-                      cancelAction={updateEventStatus}
+                      cancelAction={cancelEvent}
                       deleteAction={deleteEvent}
                       deleteMessage={`Delete “${record.title}”? This cannot be undone.`}
                       publishOnSave
@@ -168,18 +180,18 @@ export default async function EventsDatabase() {
   );
 }
 
-function eventFormValues(record: typeof event.$inferSelect): EventFormValues {
+function eventFormValues(record: EventRow): EventFormValues {
   return {
     id: record.id,
     title: record.title,
-    titleZh: record.titleZh ?? "",
-    startsAt: inputDateTime(record.startsAt),
-    endsAt: inputDateTime(record.endsAt),
-    location: record.location,
-    locationZh: record.locationZh ?? "",
+    titleZh: record.title_zh ?? "",
+    startsAt: inputDateTime(record.starts_at),
+    endsAt: inputDateTime(record.ends_at),
+    location: record.location ?? "",
+    locationZh: record.location_zh ?? "",
     audience: record.audience,
     status: record.status,
     description: record.description ?? "",
-    descriptionZh: record.descriptionZh ?? "",
+    descriptionZh: record.description_zh ?? "",
   };
 }

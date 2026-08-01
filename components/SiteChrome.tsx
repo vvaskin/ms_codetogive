@@ -187,7 +187,7 @@ function MenuGroup({
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
   const zh = pathname.startsWith("/zh/");
-  const { user: session } = useUser();
+  const { user: session, role } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const simpleView = useSyncExternalStore(
@@ -216,8 +216,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const activityItems = zh ? zhActivities : enActivities;
   const involvedItems = zh ? zhInvolved : enInvolved;
   const contactPath = zh ? "/zh/contact-us-hk/" : "/contact-us/";
-  const loginPath = session ? "/portal" : "/login/";
-  const memberLabel = session
+  const isStaff = role === "staff";
+  const loginPath = isStaff ? "/admin" : session ? "/portal" : "/login/";
+  const memberLabel = isStaff
+    ? zh
+      ? "員工平台"
+      : "Staff portal"
+    : session
     ? zh
       ? "個人頁面"
       : "My portal"
@@ -459,7 +464,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                   {text}
                 </Link>
               ))}
-              <Link href={loginPath}>{portalLabel}</Link>
+              <Link href={loginPath}>{memberLabel}</Link>
               <Link href={donatePath}>{zh ? "捐贈" : "Donate"}</Link>
             </div>
 
