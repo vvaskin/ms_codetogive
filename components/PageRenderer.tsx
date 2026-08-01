@@ -13,10 +13,12 @@ import {
   ContactForm,
   VolunteerForm,
 } from "./DemoForms";
+import { DonateExperience } from "./DonateExperience";
+import styles from "./PageRenderer.module.css";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="page-heading">
+    <div className={styles.pageHeading}>
       <h1>{children}</h1>
     </div>
   );
@@ -24,14 +26,14 @@ function PageHeading({ children }: { children: React.ReactNode }) {
 
 function StandardPage({ page }: { page: SitePage }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
       {page.image && (
-        <div className="feature-image">
+        <div className={styles.featureImage}>
           <Image src={page.image} alt={page.title} fill unoptimized sizes="(max-width: 900px) 100vw, 800px" />
         </div>
       )}
-      <div className="prose">
+      <div className={styles.prose}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
     </article>
@@ -42,6 +44,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
   const programmes = zh
     ? [
         {
+          id: "sport",
           title: "體育",
           image: images.sports,
           paragraphs: [
@@ -50,6 +53,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "nutrition",
           title: "飲食與營養",
           image: images.nutrition,
           paragraphs: [
@@ -58,6 +62,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "family",
           title: "家庭",
           image: images.family,
           paragraphs: [
@@ -65,6 +70,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "csr",
           title: "企業社會責任",
           image: images.csr,
           paragraphs: [
@@ -74,6 +80,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
       ]
     : [
         {
+          id: "sport",
           title: "Sports",
           image: images.sports,
           paragraphs: [
@@ -82,6 +89,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "nutrition",
           title: "Nutrition",
           image: images.nutrition,
           paragraphs: [
@@ -90,6 +98,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "family",
           title: "Family",
           image: images.family,
           paragraphs: [
@@ -97,6 +106,7 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
           ],
         },
         {
+          id: "csr",
           title: "CSR",
           image: images.csr,
           paragraphs: [
@@ -107,11 +117,11 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
       ];
 
   return (
-    <article className="content-page programmes-page">
+    <article className={`${styles.contentPage} ${styles.programmesPage}`}>
       <PageHeading>{zh ? "我們的計劃" : "OUR PROGRAMMES"}</PageHeading>
       {programmes.map((programme, index) => (
-        <section className="programme-row" key={programme.title}>
-          <div className="programme-photo">
+        <section className={styles.programmeRow} id={programme.id} key={programme.title}>
+          <div className={styles.programmePhoto}>
             <Image
               src={programme.image}
               alt=""
@@ -120,13 +130,13 @@ function ProgrammesPage({ zh }: { zh: boolean }) {
               sizes="(max-width: 800px) 100vw, 45vw"
             />
           </div>
-          <div className="programme-copy">
+          <div className={styles.programmeCopy}>
             <h2>{programme.title}</h2>
             {programme.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          {index < programmes.length - 1 && <div className="wide-rule" />}
+          {index < programmes.length - 1 && <div className={styles.wideRule} />}
         </section>
       ))}
     </article>
@@ -140,12 +150,12 @@ function ReportsPage({ page }: { page: SitePage }) {
     ["2022-2023 Annual Report", "/assets/reports/annual-report-2022-2023.pdf"],
   ];
   return (
-    <article className="content-page reports-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
-      <div className="report-links">
+      <div className={styles.reportLinks}>
         {reports.map(([label, href]) => (
           <a href={href} target="_blank" rel="noreferrer" key={href}>
             {label} <span>➜</span>
@@ -158,12 +168,12 @@ function ReportsPage({ page }: { page: SitePage }) {
 
 function MediaIndex({ zh }: { zh: boolean }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{zh ? "媒體報導" : "MEDIA"}</PageHeading>
-      <div className="media-grid">
+      <div className={styles.mediaGrid}>
         {mediaArticles.map((article) => (
-          <article className="media-card" key={article.slug}>
-            <Link href={`/${article.slug}/`} className="media-card-image">
+          <article className={styles.mediaCard} key={article.slug}>
+            <Link href={`/${article.slug}/`} className={styles.mediaCardImage}>
               {article.image && (
                 <Image
                   src={article.image}
@@ -190,17 +200,17 @@ function MediaIndex({ zh }: { zh: boolean }) {
 function PeopleIndex({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
-      <div className="people-grid">
+      <div className={styles.peopleGrid}>
         {boardMembers.map((person) => (
           <Link
             key={person.slug}
             href={zh ? "/zh/board-of-directors-hk/" : `/board-of-directors/${person.slug}/`}
-            className="person-card"
+            className={styles.personCard}
           >
             <div>
               <Image
@@ -221,15 +231,15 @@ function PeopleIndex({ page }: { page: SitePage }) {
 
 function PersonPage({ page }: { page: SitePage }) {
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>BOARD OF DIRECTORS</PageHeading>
-      <div className="profile-layout">
+      <div className={styles.profileLayout}>
         {page.image && (
-          <div className="profile-image">
+          <div className={styles.profileImage}>
             <Image src={page.image} alt={page.title} fill unoptimized sizes="(max-width: 700px) 80vw, 35vw" />
           </div>
         )}
-        <div className="profile-copy">
+        <div className={styles.profileCopy}>
           <h2>{page.title}</h2>
           {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
@@ -241,18 +251,18 @@ function PersonPage({ page }: { page: SitePage }) {
 function VolunteerPage({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page">
+    <article className={styles.contentPage}>
       <PageHeading>{page.title}</PageHeading>
       {page.image && (
-        <div className="feature-image">
+        <div className={styles.featureImage}>
           <Image src={page.image} alt="" fill unoptimized sizes="(max-width: 900px) 100vw, 800px" />
         </div>
       )}
-      <div className="prose centered">
+      <div className={`${styles.prose} ${styles.centered}`}>
         {page.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
       <VolunteerForm zh={zh} />
-      <div className="handson-block">
+      <div className={styles.handsonBlock}>
         <Image src="/assets/images/handson.png" width={180} height={180} unoptimized alt="HandsOn Hong Kong" />
         <p>
           {zh
@@ -274,9 +284,9 @@ function VolunteerPage({ page }: { page: SitePage }) {
 function ContactPage({ page }: { page: SitePage }) {
   const zh = page.locale === "zh";
   return (
-    <article className="content-page narrow-page">
+    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
       <PageHeading>{page.title}</PageHeading>
-      <div className="prose">
+      <div className={styles.prose}>
         <p>
           {zh
             ? "如果你想加入計劃、捐款、做義工或了解更多，歡迎聯絡我們。"
@@ -304,41 +314,15 @@ function ContactPage({ page }: { page: SitePage }) {
 }
 
 function DonatePage({ page }: { page: SitePage }) {
-  const zh = page.locale === "zh";
-  return (
-    <article className="content-page donate-page">
-      <PageHeading>{page.title}</PageHeading>
-      <h2>{zh ? "非常感謝你支持Love 21！" : "Thank you so much for supporting Love 21!"}</h2>
-      <p>
-        {zh
-          ? "你的捐款將為唐氏綜合症、自閉症及神經多樣性社群帶來更多機會。"
-          : "Your kind donation will help us provide even more opportunities for our Down syndrome and autistic community through sports, nutrition and holistic programmes."}
-      </p>
-      <div className="donation-options">
-        <div>
-          <Image src="/assets/images/payme.png" width={240} height={240} unoptimized alt="Love 21 PayMe" />
-          <span>PayMe</span>
-        </div>
-        <a href="https://app.moonclerk.com/pay/2805gcehxjca" target="_blank" rel="noreferrer">
-          <Image src="/assets/images/moonclerk.png" width={240} height={120} unoptimized alt="MoonClerk" />
-          <strong>{zh ? "網上捐贈 ➜" : "DONATE ONLINE ➜"}</strong>
-        </a>
-      </div>
-      <h3>{zh ? "每一分支持都十分重要！" : "Every dollar counts!"}</h3>
-      <p className="privacy-note">
-        {zh
-          ? "這是開發版本；網上捐贈會前往Love 21目前使用的外部付款平台。"
-          : "Development copy: online donations continue to Love 21’s existing external payment provider."}
-      </p>
-    </article>
-  );
+  const locale = page.locale === "zh" ? "zh" : "en";
+  return <DonateExperience locale={locale} />;
 }
 
 function JoinPage({ zh }: { zh: boolean }) {
   return (
-    <article className="content-page narrow-page">
+    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
       <PageHeading>{zh ? "實習機會" : "INTERNSHIP OPPORTUNITIES"}</PageHeading>
-      <div className="prose">
+      <div className={styles.prose}>
         <p>
           {zh
             ? "我們歡迎相關學科的學生申請Love 21實習。"
@@ -393,23 +377,35 @@ export function PageRenderer({ path }: { path: string }) {
       return <DonatePage page={page} />;
     case "account":
       return (
-        <article className="content-page account-page">
+        <article className={`${styles.contentPage} ${styles.accountPage}`}>
           <PageHeading>{page.title}</PageHeading>
           <AccountForm title={page.title} zh={page.locale === "zh"} />
         </article>
       );
     case "calendar":
       return (
-        <article className="content-page calendar-page">
+        <article className={`${styles.contentPage} ${styles.calendarPage}`}>
           <PageHeading>{page.title}</PageHeading>
           <p>
-            If you’d like to commit to teaching your own weekly class for our
-            beneficiaries or support an existing class, please contact our Programme
-            Manager at{" "}
-            <a href="mailto:maggie@love21foundation.com">
-              maggie@love21foundation.com
-            </a>
-            .
+            {page.locale === "zh" ? (
+              <>
+                如你希望義務為我們的會員每星期教授一堂課，或支援現有的課堂，歡迎聯絡我們的計劃經理：
+                <a href="mailto:maggie@love21foundation.com">
+                  maggie@love21foundation.com
+                </a>
+                。
+              </>
+            ) : (
+              <>
+                If you’d like to commit to teaching your own weekly class for our
+                beneficiaries or support an existing class, please contact our
+                Programme Manager at{" "}
+                <a href="mailto:maggie@love21foundation.com">
+                  maggie@love21foundation.com
+                </a>
+                .
+              </>
+            )}
           </p>
         </article>
       );

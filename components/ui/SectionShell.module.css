@@ -1,0 +1,56 @@
+.shell {
+  width: 100%;
+  padding: var(--space-section) 0;
+}
+
+.inner {
+  width: min(var(--layout-container-wide), calc(100% - (var(--layout-gutter) * 2)));
+  margin: 0 auto;
+}
+
+.wide {
+  width: min(var(--layout-container-wide), calc(100% - (var(--layout-gutter) * 2)));
+}
+
+.standard {
+  width: min(var(--layout-container-standard), calc(100% - (var(--layout-gutter) * 2)));
+}
+
+.narrow {
+  width: min(var(--layout-container-narrow), calc(100% - (var(--layout-gutter) * 2)));
+}
+
+.canvas {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+.white {
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+
+.blush {
+  background: var(--color-blush);
+  color: var(--color-ink);
+}
+
+.sky {
+  background: var(--color-sky);
+  color: var(--color-ink);
+}
+
+.mint {
+  background: var(--color-mint);
+  color: var(--color-ink);
+}
+
+.blue {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.dark {
+  background: var(--color-footer);
+  color: var(--color-text-on-dark);
+}

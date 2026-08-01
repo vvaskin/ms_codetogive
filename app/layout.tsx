@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
-import { Titillium_Web } from "next/font/google";
+import { Caveat, Nunito, Shantell_Sans } from "next/font/google";
 import { SiteChrome } from "../components/SiteChrome";
 import "./globals.css";
 
-const titillium = Titillium_Web({
-  variable: "--font-titillium",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const shantell = Shantell_Sans({
+  variable: "--font-shantell",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -41,8 +52,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body className={titillium.variable}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${nunito.variable} ${shantell.variable} ${caveat.variable}`}
+    >
+      <body className={nunito.className}>
         <div className="development-ribbon">
           Development copy — account data is stored in local SQLite
         </div>

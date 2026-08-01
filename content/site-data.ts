@@ -282,14 +282,14 @@ const enPages: SitePage[] = [
   {
     path: "/media/",
     locale: "en",
-    alternatePath: "/zh/媒體報導/",
+    alternatePath: "/zh/media-hk/",
     template: "media-index",
     title: "MEDIA",
   },
   {
     path: "/join-us/",
     locale: "en",
-    alternatePath: "/zh/加入我們/",
+    alternatePath: "/zh/join-us-hk/",
     template: "join",
     title: "INTERNSHIP OPPORTUNITIES",
   },
@@ -324,7 +324,7 @@ const enPages: SitePage[] = [
   {
     path: "/events",
     locale: "en",
-    alternatePath: "/events",
+    alternatePath: "/zh/events-hk/",
     template: "calendar",
     title: "OUR CALENDAR",
   },
@@ -350,11 +350,64 @@ const enPages: SitePage[] = [
     title: "LOGIN / SIGN UP",
   },
   {
+    path: "/signup/",
+    locale: "en",
+    alternatePath: "/zh/signup-hk/",
+    template: "account",
+    title: "CREATE ACCOUNT",
+  },
+  {
     path: "/password-reset/",
     locale: "en",
     alternatePath: "/zh/login-hk/",
     template: "account",
     title: "RESET YOUR PASSWORD",
+  },
+  {
+    path: "/leadership/",
+    locale: "en",
+    alternatePath: "/zh/管理層與員工/",
+    template: "people-index",
+    title: "LEADERSHIP & STAFF",
+    paragraphs: [
+      "Our Board of Directors is comprised of caring individuals from diverse professional backgrounds in Hong Kong, who bring their talents and passion to support and strengthen Love 21.",
+    ],
+  },
+  {
+    path: "/stories/",
+    locale: "en",
+    alternatePath: "/zh/會員故事/",
+    template: "media-index",
+    title: "MEMBER STORIES",
+  },
+  {
+    path: "/volunteer/",
+    locale: "en",
+    alternatePath: "/zh/義工機會/",
+    template: "volunteer",
+    title: "VOLUNTEER OPPORTUNITIES",
+    image: images.story,
+    paragraphs: [
+      "Love 21 Foundation is extremely grateful for our loving and dedicated team of volunteers!",
+    ],
+  },
+  {
+    path: "/volunteer/calendar/",
+    locale: "en",
+    alternatePath: "/zh/義工日曆/",
+    template: "calendar",
+    title: "VOLUNTEER CALENDAR",
+  },
+  {
+    path: "/corporate/",
+    locale: "en",
+    alternatePath: "/zh/企業夥伴/",
+    template: "standard",
+    title: "CORPORATE PARTNERSHIPS",
+    paragraphs: [
+      "Our Corporate Social Responsibility Programme helps Hong Kong organisations learn about the community through shared activity and human connection.",
+      "If you’d like to learn more, please contact our Founder/CEO at jeff@love21foundation.com.",
+    ],
   },
 ];
 
@@ -392,14 +445,14 @@ const zhPages: SitePage[] = [
     paragraphs: ["Love 21衷心感謝每一位充滿愛心和熱誠的義工！"],
   },
   {
-    path: "/zh/媒體報導/",
+    path: "/zh/media-hk/",
     locale: "zh",
     alternatePath: "/media/",
     template: "media-index",
     title: "媒體報導",
   },
   {
-    path: "/zh/加入我們/",
+    path: "/zh/join-us-hk/",
     locale: "zh",
     alternatePath: "/join-us/",
     template: "join",
@@ -455,6 +508,20 @@ const zhPages: SitePage[] = [
     title: "登入 / 註冊",
   },
   {
+    path: "/zh/signup-hk/",
+    locale: "zh",
+    alternatePath: "/signup/",
+    template: "account",
+    title: "建立帳戶",
+  },
+  {
+    path: "/zh/events-hk/",
+    locale: "zh",
+    alternatePath: "/events",
+    template: "calendar",
+    title: "活動時間表",
+  },
+  {
     path: "/zh/raffle2025/",
     locale: "zh",
     alternatePath: "/raffle2025-2/",
@@ -463,6 +530,50 @@ const zhPages: SitePage[] = [
     image: "/assets/images/media-raffle.png",
     paragraphs: [
       "支援神經多樣性社群同時贏取豐富獎品。善款將支持Love 21中心的營運及各項活動和服務。",
+    ],
+  },
+  {
+    path: "/zh/leadership-hk/",
+    locale: "zh",
+    alternatePath: "/leadership/",
+    template: "people-index",
+    title: "管理層與員工",
+    paragraphs: [
+      "董事會成員來自香港不同專業背景，以各自的才能和熱誠支持Love 21的發展。",
+    ],
+  },
+  {
+    path: "/zh/stories-hk/",
+    locale: "zh",
+    alternatePath: "/stories/",
+    template: "media-index",
+    title: "會員故事",
+  },
+  {
+    path: "/zh/volunteer-hk/",
+    locale: "zh",
+    alternatePath: "/volunteer/",
+    template: "volunteer",
+    title: "義工機會",
+    image: images.story,
+    paragraphs: ["Love 21衷心感謝每一位充滿愛心和熱誠的義工！"],
+  },
+  {
+    path: "/zh/volunteer-calendar-hk/",
+    locale: "zh",
+    alternatePath: "/volunteer/calendar/",
+    template: "calendar",
+    title: "義工日曆",
+  },
+  {
+    path: "/zh/corporate-hk/",
+    locale: "zh",
+    alternatePath: "/corporate/",
+    template: "standard",
+    title: "企業夥伴",
+    paragraphs: [
+      "我們的企業社會責任計劃透過共同活動和人與人之間的聯繫，讓香港企業認識我們的社群。",
+      "如欲了解更多，歡迎聯絡我們的創辦人及行政總監：jeff@love21foundation.com。",
     ],
   },
 ];
@@ -508,7 +619,7 @@ export function getPage(path: string): SitePage | undefined {
     return {
       path: normalized,
       locale: "en",
-      alternatePath: "/zh/媒體報導/",
+      alternatePath: "/zh/media-hk/",
       template: "article",
       title: article.title,
       image: article.image,

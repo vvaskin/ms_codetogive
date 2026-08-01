@@ -1,0 +1,102 @@
+/*
+ * Love 21 design tokens — shared styling contract.
+ * Prefer semantic names. Legacy --love-* aliases remain for transitional code.
+ */
+
+:root {
+  /* Brand & accents */
+  --color-pink: #f40770;
+  --color-pink-dark: #d1065f;
+  --color-coral: #ff4f45;
+  --color-blue: #1878f2;
+  --color-blue-dark: #0f5fc4;
+  --color-teal: #20b88f;
+  --color-cyan: #25afe3;
+  --color-yellow: #ffc62e;
+  --color-purple: #7257f4;
+
+  /* Surfaces & text */
+  --color-ink: #292320;
+  --color-text-primary: #292320;
+  --color-text-muted: #6f6a67;
+  --color-text-on-dark: #fffdfa;
+  --color-canvas: #fffdfa;
+  --color-white: #ffffff;
+  --color-blush: #fff0f3;
+  --color-sky: #eaf7ff;
+  --color-mint: #e7f7f1;
+  --color-border: #eadfd6;
+  --color-footer: #292320;
+  --color-focus: #1878f2;
+  --color-background: var(--color-canvas);
+
+  /* Principal action aliases used by shared UI */
+  --color-brand-primary: var(--color-pink);
+  --color-brand-primary-dark: var(--color-pink-dark);
+  --color-brand-secondary: var(--color-blue);
+  --color-brand-accent: var(--color-teal);
+  --color-brand-accent-dark: #189a78;
+
+  /* Layout */
+  --layout-header-height: 64px;
+  --layout-container-wide: 1180px;
+  --layout-container-standard: 1040px;
+  --layout-container-narrow: 720px;
+  --layout-gutter: clamp(1rem, 4vw, 2rem);
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-section: clamp(3.5rem, 7vw, 5.5rem);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+
+  /* Shadow */
+  --shadow-soft: 0 10px 30px rgba(41, 35, 32, 0.08);
+  --shadow-card: 0 16px 40px rgba(41, 35, 32, 0.1);
+  --shadow-lift: 0 18px 44px rgba(244, 7, 112, 0.18);
+
+  /* Typography (see AGENTS.md)
+   * Nunito — normal headings, body, nav, forms
+   * Shantell Sans — handwritten English accents
+   * Caveat — super-handwritten English annotations
+   */
+  --font-display: var(--font-nunito, "Nunito"), "PingFang HK", "Noto Sans TC", sans-serif;
+  --font-body: var(--font-nunito, "Nunito"), "PingFang HK", "Noto Sans TC", system-ui, sans-serif;
+  --font-hand: var(--font-shantell, "Shantell Sans"), cursive;
+  --font-script: var(--font-caveat, "Caveat"), cursive;
+  --font-size-body: 1.05rem;
+  --font-size-small: 0.9rem;
+  --line-height-body: 1.6;
+  --letter-display: -0.03em;
+
+  /* Controls */
+  --control-height: 48px;
+  --control-height-lg: 54px;
+
+  /* Motion */
+  --motion-fast: 140ms ease;
+  --motion-base: 180ms ease;
+
+  /* Compatibility aliases */
+  --love-red: var(--color-pink);
+  --love-red-dark: var(--color-pink-dark);
+  --love-dark: var(--color-ink);
+  --love-muted: var(--color-text-muted);
+  --love-line: var(--color-border);
+  --love-blue: var(--color-blue);
+  --love-green: var(--color-teal);
+  --love-green-dark: var(--color-brand-accent-dark);
+  --header-height: var(--layout-header-height);
+}

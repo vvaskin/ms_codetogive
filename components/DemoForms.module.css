@@ -1,0 +1,21 @@
+.newsletterSection { max-width: var(--layout-container-standard); margin: 0 auto; padding: var(--space-section) var(--layout-gutter); text-align: center; }
+.sectionRule { width: 64px; height: 3px; margin: 0 auto var(--space-5); background: var(--color-pink); }
+.newsletterSection h2 { font-size: clamp(2rem, 4vw, 3rem); }
+.newsletterForm, .stackedForm, .accountForm { display: grid; gap: var(--space-4); margin: var(--space-6) auto 0; text-align: left; }
+.newsletterForm { grid-template-columns: repeat(3, 1fr) auto; max-width: 1000px; align-items: end; }
+.newsletterForm label, .stackedForm label, .accountForm label { display: grid; gap: var(--space-2); font-family: var(--font-display); }
+.newsletterForm input, .stackedForm input, .stackedForm select, .stackedForm textarea, .accountForm input { width: 100%; padding: .7rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-white); }
+.newsletterForm button, .accountForm button { min-height: var(--control-height); padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--color-pink); color: white; font-family: var(--font-display); }
+.stackedForm { max-width: 760px; }
+.formGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.stackedForm fieldset { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.checkLine { display: flex !important; gap: var(--space-2); align-items: center; margin-top: var(--space-2); font-family: var(--font-body) !important; }
+.checkLine input { width: auto; }
+.privacyNote { font-size: var(--font-size-small); color: var(--color-text-muted); }
+.outlineButton { justify-self: start; padding: .8rem 1.2rem; border: 1px solid var(--color-ink); border-radius: var(--radius-pill); }
+.dark { background: var(--color-ink); color: white; }
+.formSuccess { max-width: 760px; margin: var(--space-6) auto; padding: var(--space-5); border-radius: var(--radius-md); background: var(--color-mint); text-align: center; }
+.large { font-size: 1.1rem; }
+.accountForm { max-width: 460px; }
+.accountLinks { display: flex; justify-content: space-between; color: var(--color-brand-primary); font-size: var(--font-size-small); }
+@media (max-width: 760px) { .newsletterForm, .formGrid { grid-template-columns: 1fr; } }

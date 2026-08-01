@@ -6,8 +6,8 @@ import { AuthPage } from "@/components/AuthPage";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Log in",
-  description: "Log in to your Love 21 Foundation portal.",
+  title: "登入",
+  description: "登入您的 Love 21 基金會個人頁面。",
 };
 
 function safeRedirect(value: string | string[] | undefined) {
@@ -15,7 +15,7 @@ function safeRedirect(value: string | string[] | undefined) {
   return path?.startsWith("/") && !path.startsWith("//") ? path : "/portal";
 }
 
-export default async function LoginPage({
+export default async function LoginHkPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string | string[] }>;
@@ -28,11 +28,11 @@ export default async function LoginPage({
 
   return (
     <AuthPage
-      eyebrow="One community"
-      title="A place for every Love 21 journey."
-      description="Members, donors, and volunteers each arrive here through one secure doorway."
+      eyebrow="同一社群"
+      title="為每一段 Love 21 旅程而設。"
+      description="會員、捐贈者及義工，均經由同一個安全入口到達這裡。"
     >
-      <AuthForm mode="login" redirectTo={redirectTo} />
+      <AuthForm mode="login" redirectTo={redirectTo} locale="zh" />
     </AuthPage>
   );
 }

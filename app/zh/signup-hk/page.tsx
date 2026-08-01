@@ -6,11 +6,11 @@ import { AuthPage } from "@/components/AuthPage";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Create an account",
-  description: "Create a Love 21 Foundation portal account.",
+  title: "建立帳戶",
+  description: "建立 Love 21 基金會個人頁面帳戶。",
 };
 
-export default async function SignupPage() {
+export default async function SignupHkPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (session) redirect("/portal");
@@ -18,11 +18,11 @@ export default async function SignupPage() {
   return (
     <AuthPage
       variant="signup"
-      eyebrow="Join Love 21"
-      title="There is a role for everyone."
-      description="Select member, donor, or volunteer when you create your account."
+      eyebrow="加入 Love 21"
+      title="每個人都可以出一分力。"
+      description="建立帳戶時，請選擇會員、捐贈者或義工身份。"
     >
-      <AuthForm mode="signup" />
+      <AuthForm mode="signup" locale="zh" />
     </AuthPage>
   );
 }

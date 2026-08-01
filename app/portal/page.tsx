@@ -5,6 +5,7 @@ import { DonorDashboard } from "@/components/portal/DonorDashboard";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
 import { auth } from "@/lib/auth";
 import type { UserRole } from "@/lib/db/schema";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Your portal",
