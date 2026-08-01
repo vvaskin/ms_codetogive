@@ -66,6 +66,19 @@ Presentational only (no API, persistence, or business rules):
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
 - Portal presentation: `app/portal/page.module.css`
 
+### Authentication and persistence
+
+- Supabase provides email/password authentication, Postgres persistence, and storage
+- SQL files in `supabase/migrations/` are the schema source of truth; add a new migration instead of rewriting an applied one
+- `lib/supabase/types.generated.ts` mirrors the linked schema and is regenerated atomically with `npm run db:types`; `lib/supabase/types.ts` provides stable application aliases
+- Public account roles: `member`, `donor`, `volunteer`; `staff` is server-promoted only
+- `public.users.role` is the staff source of truth; public signup metadata is allowlisted and authenticated users cannot update their own role
+- `/admin` is staff-only; `/admin` manages people and `/admin/events` manages schedule records
+- Do not link `/admin` from public navigation or redirect the general portal to it; staff enter the route directly
+- Staff pages and every mutation verify the caller with the cookie-backed client before using the server-only service-role client
+- The `events` table is currently managed only through the staff portal and is not connected to public schedules
+- Event times are entered in `Asia/Hong_Kong`; persisted timestamps are instants
+
 ### Accessibility
 
 - Minimum 44px touch targets, visible focus, meaningful alt text, keyboard nav
@@ -75,8 +88,9 @@ Presentational only (no API, persistence, or business rules):
 
 ### Behavioral boundaries
 
-- Do not modify Better Auth, Drizzle, SQLite, roles, API routes, or portal authorization
-- Do not add payment processing, reservations, wishlist pledges, campaigns, analytics, or admin controls
+- Authentication, schema, role, migration, and authorization changes require an explicit user request
+- Keep public staff signup disabled and enforce staff authorization independently in every admin mutation
+- Do not add payment processing, reservations, attendee registration, wishlist pledges, campaigns, or analytics
 - Repository content and assets are authoritative; mockups are visual/composition authority only
 - Do not invent unverified impact claims from design mockups
 
@@ -85,3 +99,6 @@ Presentational only (no API, persistence, or business rules):
 - `npm run lint`
 - `npm run build`
 - `npm run dev`
+- `npm run db:push`
+- `npm run db:types`
+- `npm run staff:promote -- person@example.com`

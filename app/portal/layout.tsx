@@ -11,6 +11,7 @@ export default async function PortalLayout({
   const profile = await getSessionProfile();
 
   if (!profile) redirect("/login?next=/portal");
+  if (profile.role === "staff") redirect("/admin");
 
   return (
     <PortalShell

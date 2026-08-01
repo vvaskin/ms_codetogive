@@ -169,10 +169,12 @@ export function AuthForm({
   mode,
   redirectTo = "/portal",
   locale = "en",
+  showAccountSwitch = true,
 }: {
   mode: AuthMode;
   redirectTo?: string;
   locale?: Locale;
+  showAccountSwitch?: boolean;
 }) {
   const router = useRouter();
   const lang: Copy =
@@ -383,12 +385,14 @@ export function AuthForm({
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
 
-      <p className={styles.authSwitch}>
-        {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
-        <Link href={switchHref}>
-          {isSignup ? lang.logIn : lang.createAccount}
-        </Link>
-      </p>
+      {showAccountSwitch && (
+        <p className={styles.authSwitch}>
+          {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
+          <Link href={switchHref}>
+            {isSignup ? lang.logIn : lang.createAccount}
+          </Link>
+        </p>
+      )}
     </form>
   );
 }
