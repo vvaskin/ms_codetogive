@@ -14,41 +14,12 @@ import styles from "./VolunteerSignupForm.module.css";
 
 type AgeGroup = "14-15" | "16-17" | "18+";
 type Gender = "Female" | "Male" | "Prefer not to say";
-type RoleInterest = "Coach" | "Class Assistant" | "Event Helper";
 type ReferralSource =
   | "Existing Love 21 volunteer"
   | "Love 21 social media"
   | "Love 21 email newsletter"
   | "Company referral"
   | "Other";
-
-const ROLE_INTEREST_OPTIONS: {
-  value: RoleInterest;
-  label: string;
-  desc: string;
-  icon: string;
-  minAge?: string;
-}[] = [
-  {
-    value: "Coach",
-    label: "Coach",
-    desc: "Lead and plan sessions",
-    icon: "🏆",
-    minAge: "Age 16+",
-  },
-  {
-    value: "Class Assistant",
-    label: "Class Assistant",
-    desc: "Support coaches in class",
-    icon: "🤝",
-  },
-  {
-    value: "Event Helper",
-    label: "Event Helper",
-    desc: "Help at one-off events",
-    icon: "🎯",
-  },
-];
 
 const REFERRAL_OPTIONS: ReferralSource[] = [
   "Existing Love 21 volunteer",
@@ -84,6 +55,17 @@ function PolicyModal({
 }) {
   const [canCheck, setCanCheck] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
+
+  // If the policy text is short enough to fit without scrolling, there's
+  // nothing to scroll to — enable agreement immediately so the button never
+  // dead-ends. When the text does overflow, the onScroll handler below gates
+  // agreement on reaching the bottom.
+  useEffect(() => {
+    const element = bodyRef.current;
+    if (element && element.scrollHeight <= element.clientHeight) {
+      setCanCheck(true);
+    }
+  }, []);
 
   if (typeof document === "undefined") {
     return null;
@@ -212,6 +194,7 @@ function getDraftSnapshot(): VolunteerSignupDraft | null {
           name: parsed.name,
           email: parsed.email,
           password: parsed.password,
+          phone: parsed.phone ?? "",
         };
       }
     } catch {
@@ -235,8 +218,6 @@ export function VolunteerSignupForm() {
   const [chineseName, setChineseName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [gender, setGender] = useState<Gender | "">("");
-  const [roleInterests, setRoleInterests] = useState<RoleInterest[]>([]);
-  const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [referral, setReferral] = useState<ReferralSource | "">("");
   const [showPolicy, setShowPolicy] = useState(false);
@@ -249,22 +230,7 @@ export function VolunteerSignupForm() {
     }
   }, [draft, router]);
 
-  const canReviewPolicy = Boolean(
-    draft &&
-      ageGroup &&
-      gender &&
-      phone.trim() &&
-      referral &&
-      roleInterests.length > 0,
-  );
-
-  function toggleRoleInterest(interest: RoleInterest) {
-    setRoleInterests((current) =>
-      current.includes(interest)
-        ? current.filter((item) => item !== interest)
-        : [...current, interest],
-    );
-  }
+  const canReviewPolicy = Boolean(draft && ageGroup && gender && referral);
 
   async function finalizeSignup() {
     if (!draft) return;
@@ -278,9 +244,6 @@ export function VolunteerSignupForm() {
       : draft.name;
     const profileNotes = [
       trimmedChineseName ? `Chinese name: ${trimmedChineseName}` : "",
-      roleInterests.length > 0
-        ? `Role interests: ${roleInterests.join(", ")}`
-        : "",
       ageGroup ? `Age group: ${ageGroup}` : "",
       gender ? `Gender: ${gender}` : "",
       referral ? `Referral: ${referral}` : "",
@@ -291,23 +254,33 @@ export function VolunteerSignupForm() {
 
     try {
       const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: draft.email,
-        password: draft.password,
-        options: {
-          data: {
-            name: displayName,
-            role: "volunteer",
-            phone: phone.trim(),
-            address: profileNotes || undefined,
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: draft.email,
+          password: draft.password,
+          options: {
+            data: {
+              name: displayName,
+              role: "volunteer",
+              ...(draft.phone ? { phone: draft.phone } : {}),
+              address: profileNotes || undefined,
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
-        },
-      });
+        });
 
       if (signUpError) {
         setError(readableError(signUpError.message));
         return;
+      }
+
+      // The handle_new_user trigger seeds name/email/role but not the phone,
+      // so persist it into the profile row (RLS: users update their own row).
+      if (draft.phone && signUpData.user) {
+        await supabase
+          .from("users")
+          .update({ phone_number: draft.phone })
+          .eq("id", signUpData.user.id);
       }
 
       window.sessionStorage.removeItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
@@ -366,56 +339,6 @@ export function VolunteerSignupForm() {
             placeholder="陳大文"
           />
         </label>
-
-        <label>
-          <span className={styles.fieldLabel}>
-            Contact number <span className={styles.required}>*</span>
-          </span>
-          <input
-            className={styles.control}
-            type="tel"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            placeholder="+852 9123 4567"
-            required
-          />
-        </label>
-
-        <div>
-          <p className={styles.fieldLabel}>
-            Role interest <span className={styles.required}>*</span>
-          </p>
-          <p className={`${styles.notice} ${styles.noticeInfo}`}>
-            Coach role is available for volunteers aged 18+.
-          </p>
-          <div className={styles.roleGrid}>
-            {ROLE_INTEREST_OPTIONS.map((option) => {
-              const selected = roleInterests.includes(option.value);
-
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`${styles.roleCard} ${selected ? styles.roleCardActive : ""}`}
-                  onClick={() => toggleRoleInterest(option.value)}
-                  aria-pressed={selected}
-                >
-                  <span className={styles.roleIcon} aria-hidden="true">
-                    {option.icon}
-                  </span>
-                  <span className={styles.roleTitle}>{option.label}</span>
-                  <span className={styles.roleDesc}>{option.desc}</span>
-                  {option.minAge ? <span className={styles.roleMinAge}>{option.minAge}</span> : null}
-                </button>
-              );
-            })}
-          </div>
-          {ageGroup && ageGroup !== "18+" && roleInterests.includes("Coach") ? (
-            <p className={`${styles.notice} ${styles.noticeWarn}`}>
-              Coach requires age 18+. Please remove Coach or update age group.
-            </p>
-          ) : null}
-        </div>
 
         <div>
           <p className={styles.fieldLabel}>

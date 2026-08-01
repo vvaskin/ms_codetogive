@@ -6,4 +6,5 @@ export type VolunteerSignupDraft = {
   name: string;
   email: string;
   password: string;
+  phone: string;
 };
