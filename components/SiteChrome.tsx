@@ -169,12 +169,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  // Always start false so SSR and the first client render match; hydrate from storage after mount.
-  const [simpleView, setSimpleView] = useState(false);
-
-  useEffect(() => {
-    setSimpleView(window.localStorage.getItem("simple-view") === "on");
-  }, []);
+  const [simpleView, setSimpleView] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.localStorage.getItem("simple-view") === "on",
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle("simple-view", simpleView);
