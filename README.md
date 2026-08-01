@@ -237,6 +237,27 @@ ask the team to review the migration history together.
 - `app/` — App Router pages and layout
 - `components/` — UI (chrome, home experience, page renderer, demo forms)
 - `content/site-data.ts` — bilingual page content
+- `styles/` — design tokens and foundational global CSS
 - `lib/` — Better Auth and Drizzle database configuration
 - `drizzle/` — generated, versioned SQL migrations
 - `public/assets/` — images and reports
+- `AGENTS.md` — permanent guidance for agents and contributors; update it when
+  architecture, conventions, commands, or workflows change
+
+## Styling
+
+CSS Modules are the official component-styling approach. See `AGENTS.md` for the
+full Love 21 visual system (palette, typography, shared UI, Calm mode).
+
+| Location | Role |
+| --- | --- |
+| `styles/tokens.css` | Design tokens and `--love-*` compatibility aliases |
+| `styles/base.css` | Document resets, body defaults, focus, Calm mode, reduced motion |
+| `app/globals.css` | Global entrypoint (tokens → base) plus quiet development ribbon |
+| `components/ui/*` | Shared presentational primitives |
+| `*.module.css` | Colocated component styles (camelCase selectors) |
+
+- Prefer semantic tokens such as `--color-pink`, `--color-brand-primary`, and `--color-focus`.
+- Do not add new globally named component classes; put new styles in a CSS
+  Module next to the component.
+- Tailwind is not used.

@@ -21,6 +21,8 @@ export const user = sqliteTable(
       .default(false)
       .notNull(),
     image: text("image"),
+    phone: text("phone"),
+    address: text("address"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
       .notNull(),

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import styles from "./DemoForms.module.css";
 
 function useDemoSubmit() {
   const [submitted, setSubmitted] = useState(false);
@@ -23,17 +24,17 @@ export function NewsletterForm({ zh = false }: { zh?: boolean }) {
   const { submitted, onSubmit } = useDemoSubmit();
 
   return (
-    <section className="newsletter-section">
-      <div className="section-rule" />
+    <section className={styles.newsletterSection}>
+      <div className={styles.sectionRule} />
       <h2>{zh ? "訂閱 Love 21 電子通訊" : "Subscribe to our eNews"}</h2>
       {submitted ? (
-        <div className="form-success" role="status">
+        <div className={styles.formSuccess} role="status">
           {zh
             ? "謝謝！這是開發版本，資料並未傳送。"
             : "Thank you! This is a development copy, so no information was transmitted."}
         </div>
       ) : (
-        <form className="newsletter-form" onSubmit={onSubmit}>
+        <form className={styles.newsletterForm} onSubmit={onSubmit}>
           <label>
             {zh ? "姓氏" : "Last Name"}
             <input name="lastName" autoComplete="family-name" />
@@ -58,7 +59,7 @@ export function ContactForm({ zh = false }: { zh?: boolean }) {
 
   if (submitted) {
     return (
-      <div className="form-success large" role="status">
+      <div className={`${styles.formSuccess} ${styles.large}`} role="status">
         <strong>{zh ? "謝謝你的訊息！" : "Thank you for your message!"}</strong>
         <p>
           {zh
@@ -70,8 +71,8 @@ export function ContactForm({ zh = false }: { zh?: boolean }) {
   }
 
   return (
-    <form className="stacked-form" onSubmit={onSubmit}>
-      <div className="form-grid">
+    <form className={styles.stackedForm} onSubmit={onSubmit}>
+      <div className={styles.formGrid}>
         <label>
           {zh ? "名字" : "First Name"}
           <input name="firstName" required />
@@ -93,12 +94,12 @@ export function ContactForm({ zh = false }: { zh?: boolean }) {
         {zh ? "訊息" : "Message"}
         <textarea name="message" rows={6} required />
       </label>
-      <p className="privacy-note">
+      <p className={styles.privacyNote}>
         {zh
           ? "開發版本：此表格不會傳送或儲存個人資料。"
           : "Development copy: this form does not transmit or store personal information."}
       </p>
-      <button className="outline-button dark" type="submit">
+      <button className={`${styles.outlineButton} ${styles.dark}`} type="submit">
         {zh ? "提交 ➜" : "SUBMIT ➜"}
       </button>
     </form>
@@ -110,7 +111,7 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
 
   if (submitted) {
     return (
-      <div className="form-success large" role="status">
+      <div className={`${styles.formSuccess} ${styles.large}`} role="status">
         <strong>{zh ? "感謝你的參與！" : "Thank you for volunteering!"}</strong>
         <p>
           {zh
@@ -122,14 +123,14 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
   }
 
   return (
-    <form className="stacked-form volunteer-form" onSubmit={onSubmit}>
+    <form className={styles.stackedForm} onSubmit={onSubmit}>
       <h2>{zh ? "Love 21義工報名表格" : "Sign-up as Love 21 Volunteer"}</h2>
       <p>
         {zh
           ? "我們現正尋找充滿熱誠的義工，一同參與及支援不同的項目和活動！"
           : "We’re looking for passionate and enthusiastic volunteers to join us across classes, events and community activities."}
       </p>
-      <div className="form-grid">
+      <div className={styles.formGrid}>
         <label>
           中文全名 *
           <input name="chineseName" required />
@@ -173,15 +174,15 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
         <legend>
           Which role would you like to apply for? 請問你對哪一個義工角色感興趣？
         </legend>
-        <label className="check-line">
+        <label className={styles.checkLine}>
           <input type="checkbox" name="role" value="assistant" />
           Assistant in an existing class 現有課堂助教
         </label>
-        <label className="check-line">
+        <label className={styles.checkLine}>
           <input type="checkbox" name="role" value="leader" />
           Host or lead a new class 帶領新課堂
         </label>
-        <label className="check-line">
+        <label className={styles.checkLine}>
           <input type="checkbox" name="role" value="event" />
           Event helper 大型活動義工
         </label>
@@ -190,10 +191,10 @@ export function VolunteerForm({ zh = false }: { zh?: boolean }) {
         Tell us a little more about yourself 告訴我們你的喜好和專長吧！
         <textarea name="about" rows={5} />
       </label>
-      <p className="privacy-note">
+      <p className={styles.privacyNote}>
         Development copy: this form validates locally and does not transmit personal data.
       </p>
-      <button className="outline-button dark" type="submit">
+      <button className={`${styles.outlineButton} ${styles.dark}`} type="submit">
         SUBMIT ➜
       </button>
     </form>
@@ -212,7 +213,7 @@ export function AccountForm({
 
   if (submitted) {
     return (
-      <div className="form-success large" role="status">
+      <div className={`${styles.formSuccess} ${styles.large}`} role="status">
         {zh
           ? "此開發版本不會連接真實帳戶。"
           : "Account actions are disabled in this safe development copy."}
@@ -221,7 +222,7 @@ export function AccountForm({
   }
 
   return (
-    <form className="account-form" onSubmit={onSubmit}>
+    <form className={styles.accountForm} onSubmit={onSubmit}>
       <label>
         {zh ? "用戶名稱或電郵" : "Username or E-mail"}
         <input name="username" type={reset ? "email" : "text"} required />
@@ -233,19 +234,19 @@ export function AccountForm({
         </label>
       )}
       {!reset && (
-        <label className="check-line">
+        <label className={styles.checkLine}>
           <input name="remember" type="checkbox" />
           {zh ? "保持登入" : "Keep me signed in"}
         </label>
       )}
       <button type="submit">{reset ? "RESET PASSWORD" : zh ? "登入" : "Login"}</button>
       {!reset && (
-        <div className="account-links">
+        <div className={styles.accountLinks}>
           <Link href="/join-us/">Register</Link>
           <Link href="/password-reset/">Forgot your password?</Link>
         </div>
       )}
-      <p className="privacy-note">
+      <p className={styles.privacyNote}>
         {zh
           ? "開發版本：登入功能已停用。"
           : "Development copy: authentication is intentionally disabled."}

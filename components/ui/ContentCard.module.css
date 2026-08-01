@@ -1,0 +1,57 @@
+.card {
+  display: grid;
+  gap: 0.9rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--motion-base),
+    box-shadow var(--motion-base);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+.media,
+.mediaPlaceholder {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffd6e8, #dcebff 50%, #d7f5ec);
+}
+
+.media img {
+  object-fit: cover;
+}
+
+.body {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0 1.1rem 1.2rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.summary {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}

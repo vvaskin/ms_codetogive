@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AuthForm } from "@/components/AuthForm";
+import { AuthPage } from "@/components/AuthPage";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -15,17 +16,13 @@ export default async function SignupPage() {
   if (session) redirect("/portal");
 
   return (
-    <section className="auth-page">
-      <div className="auth-side-panel signup-panel" aria-hidden="true">
-        <div>
-          <p className="eyebrow">JOIN LOVE 21</p>
-          <h2>There is a role for everyone.</h2>
-          <p>
-            Select member, donor, or volunteer when you create your account.
-          </p>
-        </div>
-      </div>
+    <AuthPage
+      variant="signup"
+      eyebrow="Join Love 21"
+      title="There is a role for everyone."
+      description="Select member, donor, or volunteer when you create your account."
+    >
       <AuthForm mode="signup" />
-    </section>
+    </AuthPage>
   );
 }

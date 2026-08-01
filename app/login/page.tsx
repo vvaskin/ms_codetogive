@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AuthForm } from "@/components/AuthForm";
+import { AuthPage } from "@/components/AuthPage";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -26,18 +27,12 @@ export default async function LoginPage({
   if (session) redirect(redirectTo);
 
   return (
-    <section className="auth-page">
-      <div className="auth-side-panel" aria-hidden="true">
-        <div>
-          <p className="eyebrow">ONE COMMUNITY</p>
-          <h2>A place for every Love 21 journey.</h2>
-          <p>
-            Members, donors, and volunteers each arrive here through one secure
-            doorway.
-          </p>
-        </div>
-      </div>
+    <AuthPage
+      eyebrow="One community"
+      title="A place for every Love 21 journey."
+      description="Members, donors, and volunteers each arrive here through one secure doorway."
+    >
       <AuthForm mode="login" redirectTo={redirectTo} />
-    </section>
+    </AuthPage>
   );
 }

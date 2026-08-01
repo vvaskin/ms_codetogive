@@ -23,6 +23,11 @@ export interface HomepageMetric {
   label: LocalizedString;
 }
 
+export interface ProgrammeChip {
+  label: LocalizedString;
+  href: LocalizedString;
+}
+
 export interface AbilityStory {
   id: string;
   status: StoryStatus;
@@ -126,6 +131,7 @@ export interface HomepageContent {
       description: LocalizedString;
     };
     pillars: ProgrammePillar[];
+    programmeChips: ProgrammeChip[];
   };
   opportunities: {
     id: string;
@@ -605,6 +611,24 @@ export const homepageContent: HomepageContent = {
         href: routes.programmes,
       },
     ],
+    programmeChips: [
+      {
+        label: { en: "Football", zh: "足球" },
+        href: routes.programmes,
+      },
+      {
+        label: { en: "Climbing", zh: "攀石" },
+        href: routes.programmes,
+      },
+      {
+        label: { en: "Cooking", zh: "烹飪" },
+        href: routes.programmes,
+      },
+      {
+        label: { en: "Counselling", zh: "輔導" },
+        href: routes.programmes,
+      },
+    ],
   },
   opportunities: {
     id: "opportunities",
@@ -645,8 +669,8 @@ export const homepageContent: HomepageContent = {
       href: routes.volunteer,
     },
     contactCta: {
-      label: { en: "Contact us", zh: "聯絡我們" },
-      href: routes.contact,
+      label: { en: "Corporate volunteering", zh: "企業義工" },
+      href: { en: "/corporate/", zh: "/zh/corporate-hk/" },
     },
     activities: [
       {

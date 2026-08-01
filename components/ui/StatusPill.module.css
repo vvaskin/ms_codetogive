@@ -1,0 +1,47 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.pink {
+  background: #ffe0ef;
+  color: var(--color-pink);
+}
+
+.blue {
+  background: #dcebff;
+  color: var(--color-blue);
+}
+
+.teal {
+  background: #d7f5ec;
+  color: #0f8a6a;
+}
+
+.yellow {
+  background: #fff2c7;
+  color: #9a6d00;
+}
+
+.purple {
+  background: #ebe4ff;
+  color: var(--color-purple);
+}
+
+.coral {
+  background: #ffe2df;
+  color: #d63a32;
+}
+
+.ink {
+  background: #efeae6;
+  color: var(--color-ink);
+}
