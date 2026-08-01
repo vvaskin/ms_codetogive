@@ -1,6 +1,6 @@
 import type { UserRole } from "@/lib/roles";
 import { createClient } from "./server";
-import type { UserRow } from "./table-types";
+import type { UserRow } from "./types";
 
 export interface SessionProfile {
   id: string;
@@ -28,7 +28,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
 
   if (!user) return null;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("users")
     .select(
       "id, email, name, phone_number, address, role, profile_image",
@@ -47,9 +47,8 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
       >
     >();
 
-  // The profile row is created by a DB trigger on signup. If it is somehow
-  // missing, fall back to the auth record so the app still renders.
-  const metadata = user.user_metadata ?? {};
+  if (error) throw new Error("Unable to load the account profile.");
+  if (!data) throw new Error("This account does not have a profile.");
 
   const profileImage = data?.profile_image ?? null;
   const avatarUrl = profileImage
@@ -58,12 +57,11 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
 
   return {
     id: user.id,
-    email: data?.email ?? user.email ?? "",
-    name: data?.name ?? (metadata.name as string | undefined) ?? "",
-    phoneNumber: data?.phone_number ?? null,
-    address: data?.address ?? null,
-    role:
-      data?.role ?? ((metadata.role as UserRole | undefined) ?? "member"),
+    email: data.email ?? user.email ?? "",
+    name: data.name,
+    phoneNumber: data.phone_number,
+    address: data.address,
+    role: data.role,
     profileImage,
     avatarUrl,
   };

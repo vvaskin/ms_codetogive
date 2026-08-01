@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
+import { isUserRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -9,13 +10,21 @@ export const metadata: Metadata = {
   description: "建立 Love 21 基金會個人頁面帳戶。",
 };
 
-export default async function SignupHkPage() {
+export default async function SignupHkPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string | string[] }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) redirect("/portal");
+
+  const rawRole = (await searchParams).role;
+  const roleValue = Array.isArray(rawRole) ? rawRole[0] : rawRole;
+  const initialRole = isUserRole(roleValue) ? roleValue : "member";
 
   return (
     <AuthPage
@@ -24,7 +33,7 @@ export default async function SignupHkPage() {
       title="每個人都可以出一分力。"
       description="建立帳戶時，請選擇會員、捐贈者或義工身份。"
     >
-      <AuthForm mode="signup" locale="zh" />
+      <AuthForm mode="signup" locale="zh" initialRole={initialRole} />
     </AuthPage>
   );
 }

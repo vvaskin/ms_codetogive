@@ -46,7 +46,10 @@ yarn-error.log*
 # typescript
 next-env.d.ts
 *.tsbuildinfo
+/lib/supabase/types.generated.ts.tmp
 
 #context
 context.txt
 ai.md
+
+/research/

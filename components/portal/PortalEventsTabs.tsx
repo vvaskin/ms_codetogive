@@ -8,7 +8,7 @@ import type {
   EventRow,
   EventType,
   ParticipationStatus,
-} from "@/lib/supabase/table-types";
+} from "@/lib/supabase/types";
 import styles from "./PortalEventsTabs.module.css";
 
 export interface MyEvent {

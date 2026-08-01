@@ -26,6 +26,7 @@ const activityFilterMap: Record<ActivityCategory, OpportunityCategory> = {
   nutrition: "nutrition",
   family: "family",
   csr: "corporate",
+  event: "events",
 };
 
 const spotHints: Record<string, Localized> = {

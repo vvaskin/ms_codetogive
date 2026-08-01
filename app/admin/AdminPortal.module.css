@@ -1,0 +1,577 @@
+.page {
+  width: min(var(--layout-container-wide), 100%);
+  margin-inline: auto;
+  padding: var(--space-8) var(--layout-gutter) var(--space-section);
+  color: var(--color-ink);
+}
+
+.header,
+.tableHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.header {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2rem, 5vw, 4rem);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 92% 10%, rgba(24, 120, 242, 0.15), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(244, 7, 112, 0.12), transparent 36%),
+    var(--color-blush);
+}
+
+.header h1,
+.tableHeading h2 {
+  margin-top: var(--space-2);
+  font-weight: 800;
+}
+
+.header h1 {
+  max-width: 12ch;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  letter-spacing: -0.045em;
+}
+
+.header p {
+  max-width: 40rem;
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-pink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-pink) 14%, var(--color-border));
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+}
+
+.workspaceNav {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-7);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.workspaceLink,
+.activeWorkspace {
+  min-height: 44px;
+  padding: 0.65rem 1.1rem;
+  border-bottom: 3px solid transparent;
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.workspaceLink:hover {
+  color: var(--color-pink);
+}
+
+.activeWorkspace {
+  border-bottom-color: var(--color-pink);
+  color: var(--color-ink);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-7) 0 var(--space-5);
+  padding: 0.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-blush);
+}
+
+.tab,
+.activeTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  transition:
+    color var(--motion-fast),
+    background-color var(--motion-fast),
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.tab {
+  color: var(--color-text-muted);
+}
+
+.tab:hover {
+  color: var(--color-pink);
+  background: var(--color-white);
+}
+
+.activeTab {
+  color: var(--color-white);
+  background: var(--color-pink);
+  box-shadow: var(--shadow-lift);
+}
+
+.tab span,
+.activeTab span {
+  margin-left: var(--space-2);
+  opacity: 0.75;
+}
+
+.tablePanel {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+}
+
+.tableHeading {
+  margin-bottom: var(--space-5);
+}
+
+.tableHeading > span {
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.tableScroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableScroll th {
+  padding: 0.75rem 0.65rem;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tableScroll td {
+  padding: 0.9rem 0.65rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.tableScroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.name {
+  font-weight: 800;
+}
+
+.email {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deleteButton {
+  min-height: 40px;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
+  border-radius: var(--radius-pill);
+  color: var(--color-coral);
+  background: var(--color-white);
+  font-weight: 800;
+  transition: color var(--motion-fast), background-color var(--motion-fast);
+}
+
+.deleteButton:hover {
+  color: var(--color-white);
+  background: var(--color-coral);
+}
+
+.empty {
+  padding: var(--space-8) 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.eventComposer {
+  margin: var(--space-5) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 95% 20%, rgba(255, 198, 46, 0.2), transparent 28%),
+    var(--color-blush);
+  box-shadow: var(--shadow-soft);
+}
+
+.eventComposer > summary {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  color: var(--color-ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.eventComposer > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 1rem 1.25rem;
+  color: var(--color-pink-dark);
+  list-style: none;
+}
+
+.eventComposer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.eventComposer > summary::before {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-pink);
+  color: var(--color-white);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.eventComposer[open] > summary::before {
+  content: "−";
+}
+
+.eventForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.eventForm label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.eventForm input,
+.eventForm select,
+.eventForm textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-ink);
+  resize: vertical;
+}
+
+.eventForm input:focus,
+.eventForm select:focus,
+.eventForm textarea:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue) 14%, transparent);
+  outline: none;
+}
+
+.fullField {
+  grid-column: 1 / -1;
+}
+
+.primaryButton {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-pink);
+  color: var(--color-white);
+  font-weight: 800;
+  box-shadow: var(--shadow-lift);
+}
+
+.primaryButton:hover {
+  background: var(--color-pink-dark);
+}
+
+.formActions {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.formActions button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.formActions .primaryButton {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.formActions .cancelButton {
+  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
+  color: var(--color-coral);
+}
+
+.formActions .cancelButton:hover {
+  border-color: var(--color-coral);
+  background: var(--color-coral);
+  color: var(--color-white);
+}
+
+.formActions .deleteButton:hover {
+  border-color: var(--color-coral);
+  background: var(--color-coral);
+  color: var(--color-white);
+}
+
+.eventList {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.eventAdminCard {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+.eventAdminCard:hover {
+  border-color: color-mix(in srgb, var(--color-pink) 24%, var(--color-border));
+  box-shadow: var(--shadow-soft);
+}
+
+.eventCardMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+}
+
+.eventCardMain h3 {
+  margin-top: var(--space-3);
+  font-size: 1.4rem;
+}
+
+.eventCardMain p {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.eventCardMeta,
+.eventFacts,
+.eventActions,
+.eventActions > form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.eventCardMeta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.eventFacts {
+  align-items: flex-end;
+  flex-direction: column;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-align: right;
+}
+
+.statusPill {
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.draft {
+  background: var(--color-sky);
+  color: var(--color-blue-dark);
+}
+
+.published {
+  background: var(--color-mint);
+  color: var(--color-brand-accent-dark);
+}
+
+.cancelled {
+  background: var(--color-blush);
+  color: var(--color-pink-dark);
+}
+
+.eventActions {
+  flex-wrap: nowrap;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.eventActions > form {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.eventActions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.eventActions button:hover {
+  border-color: var(--color-blue);
+  color: var(--color-blue);
+}
+
+.eventActions .publishButton {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.eventActions .publishButton:hover {
+  border-color: var(--color-pink-dark);
+  background: var(--color-pink-dark);
+  color: var(--color-white);
+}
+
+.eventActions .cancelButton {
+  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
+  color: var(--color-coral);
+}
+
+.eventActions .cancelButton:hover {
+  border-color: var(--color-coral);
+  background: var(--color-coral);
+  color: var(--color-white);
+}
+
+.eventEditorPanel {
+  margin-top: var(--space-4);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-sky);
+}
+
+.editorHeading {
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.editorHeading h4 {
+  margin-top: var(--space-2);
+  font-size: 1.25rem;
+}
+
+.eventActions .deleteButton {
+  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
+  color: var(--color-coral);
+}
+
+.eventActions .deleteButton:hover {
+  border-color: var(--color-coral);
+  color: var(--color-white);
+  background: var(--color-coral);
+}
+
+@media (max-width: 900px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .headerActions {
+    align-items: flex-start;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    white-space: normal;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding-top: var(--space-6);
+  }
+
+  .header {
+    border-radius: var(--radius-lg);
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+
+  .tab,
+  .activeTab {
+    flex: 0 0 auto;
+  }
+
+  .tablePanel {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .eventForm,
+  .eventCardMain {
+    grid-template-columns: 1fr;
+  }
+
+  .eventFacts {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import {
   boardMembers,
   getPage,
-  type Locale,
   SitePage,
 } from "../content/site-data";
+import type { DonationModeId } from "../content/donation";
+import { getPublishedCalendarEvents } from "../lib/supabase/calendar-events";
 import {
   AccountForm,
   VolunteerForm,
@@ -137,50 +138,17 @@ function VolunteerPage({ page }: { page: SitePage }) {
   );
 }
 
-function DonatePage({ page }: { page: SitePage }) {
-  return <DonateExperience locale={page.locale} />;
+function DonatePage({ page, initialMode }: { page: SitePage; initialMode?: DonationModeId }) {
+  return <DonateExperience initialMode={initialMode} locale={page.locale === "en" ? "en" : "zh"} />;
 }
 
-function JoinPage({ locale }: { locale: Locale }) {
-  const zh = locale === "zh";
-  const cn = locale === "cn";
-  return (
-    <article className={`${styles.contentPage} ${styles.narrowPage}`}>
-      <PageHeading>
-        {zh ? "實習機會" : cn ? "实习机会" : "INTERNSHIP OPPORTUNITIES"}
-      </PageHeading>
-      <div className={styles.prose}>
-        <p>
-          {zh
-            ? "我們歡迎相關學科的學生申請Love 21實習。"
-            : cn
-              ? "我们欢迎相关学科的学生申请 Love 21 实习。"
-              : "We welcome students majoring in related fields to apply for an internship at Love 21. Interns gain first-hand experience in the operations and management of a growing NGO."}
-        </p>
-        <h2>{zh ? "實習工作可能包括" : cn ? "实习工作可能包括" : "Roles may include"}</h2>
-        <ul>
-          <li>Devising a sports programme for our community</li>
-          <li>Managing the operations of Love 21 Space</li>
-          <li>Proposal writing and programme reporting</li>
-          <li>Refining and executing the nutrition programme</li>
-          <li>Administrative, marketing and design work</li>
-        </ul>
-        <h2>{zh ? "要求" : cn ? "要求" : "Requirements"}</h2>
-        <ul>
-          <li>Fluent English and Chinese, written and spoken</li>
-          <li>Currently enrolled in university</li>
-          <li>Flexible, compassionate and proactive</li>
-        </ul>
-        <p>
-          For interested parties, contact Jeff at jeff@love21foundation.com and
-          Maggie at maggie@love21foundation.com.
-        </p>
-      </div>
-    </article>
-  );
-}
-
-export function PageRenderer({ path }: { path: string }) {
+export async function PageRenderer({
+  path,
+  donationMode,
+}: {
+  path: string;
+  donationMode?: DonationModeId;
+}) {
   const page = getPage(path);
   if (!page) notFound();
 
@@ -207,7 +175,7 @@ export function PageRenderer({ path }: { path: string }) {
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":
-      return <DonatePage page={page} />;
+      return <DonatePage initialMode={donationMode} page={page} />;
     case "account":
       return (
         <article className={`${styles.contentPage} ${styles.accountPage}`}>
@@ -216,8 +184,11 @@ export function PageRenderer({ path }: { path: string }) {
         </article>
       );
     case "calendar":
-      return <ActivitiesExperience locale={page.locale} />;
-    case "join":
-      return <JoinPage locale={page.locale} />;
+      return (
+        <ActivitiesExperience
+          locale={page.locale}
+          events={await getPublishedCalendarEvents()}
+        />
+      );
   }
 }

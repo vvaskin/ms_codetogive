@@ -4,280 +4,327 @@ import {
   homepageContent,
   hrefFor,
   t,
+  type HomepageCardTone,
+  type HomepageFeedCard,
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
-import { HomeAbilityStories } from "./home/HomeAbilityStories";
-import { HomeDonatePreview } from "./home/HomeDonatePreview";
+import { CountUp } from "./CountUp";
+import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./HomeExperience.module.css";
+
+const toneClasses: Record<HomepageCardTone, string> = {
+  pink: styles.tonePink,
+  sky: styles.toneSky,
+  mint: styles.toneMint,
+  yellow: styles.toneYellow,
+};
+
+function FeedCard({ item, locale }: { item: HomepageFeedCard; locale: Locale }) {
+  return (
+    <article className={styles.feedCard}>
+      <Link href={item.href} className={styles.feedCardLink}>
+        <span className={styles.feedMeta}>
+          <span aria-hidden="true">21</span>
+          <span>
+            <strong>{t(item.network, locale)}</strong>
+            <time>{item.date}</time>
+          </span>
+        </span>
+        <span className={`${styles.feedImage} ${toneClasses[item.tone]}`}>
+          <Image
+            src={item.image}
+            alt={t(item.imageAlt, locale)}
+            fill
+            sizes="(max-width: 600px) 78vw, (max-width: 1000px) 42vw, 260px"
+          />
+        </span>
+        <span className={styles.feedBody}>
+          <strong>{t(item.title, locale)}</strong>
+          <span>{locale === "en" ? "Read more →" : locale === "zh" ? "閱讀更多 →" : "阅读更多 →"}</span>
+        </span>
+      </Link>
+    </article>
+  );
+}
 
 export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
   const content = homepageContent;
+  const isChinese = locale !== "en";
+  const heroPhotos = content.hero.photos;
+  const impactFeatured = content.impactShowcase.featured;
+  const [impactLeft, impactRight] = content.impactShowcase.sides;
 
   return (
-    <div className={styles.homePage}>
-      <section className={styles.homeHero} aria-labelledby="home-hero-heading">
-        <div className={styles.homeHeroCopy}>
-          <p className={styles.homeEyebrow}>{t(content.hero.eyebrow, locale)}</p>
-          <h1 id="home-hero-heading" className={styles.homeHeroHeadline}>
-            {t(content.hero.headline, locale)}
-          </h1>
-          <p className={styles.homeHeroSupporting}>
-            {t(content.hero.supporting, locale)}
-          </p>
-          <div className={styles.homeHeroActions}>
-            <Link
-              className={styles.homeButtonPrimary}
-              href={hrefFor(content.hero.primaryCta, locale)}
-            >
-              {t(content.hero.primaryCta.label, locale)}
-              <span aria-hidden="true">↗</span>
-            </Link>
-            <Link
-              className={styles.homeTextLink}
-              href={hrefFor(content.hero.secondaryCta, locale)}
-            >
-              {t(content.hero.secondaryCta.label, locale)}
-              <span aria-hidden="true"> ↓</span>
-            </Link>
+    <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
+      <section className={styles.hero} aria-labelledby="homepage-title">
+        <span className={styles.heroBlobOne} aria-hidden="true" />
+        <span className={styles.heroBlobTwo} aria-hidden="true" />
+        <span className={styles.heroDot} aria-hidden="true" />
+        <div className={styles.heroInner}>
+          <div className={styles.heroCopy}>
+            <p className={styles.handEyebrow}>{t(content.hero.eyebrow, locale)}</p>
+            <h1 id="homepage-title">{t(content.hero.title, locale)}</h1>
+            <p className={styles.heroDescription}>{t(content.hero.description, locale)}</p>
+            <div className={styles.heroActions}>
+              <Link
+                className={`${styles.sparkButton} ${styles.pinkButton}`}
+                href={hrefFor(content.hero.primary, locale)}
+              >
+                <span className={styles.sparkHearts} aria-hidden="true">
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartOne}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartTwo}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartThree}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartFour}`} />
+                </span>
+                <span className={styles.sparkLabel}>{t(content.hero.primary.label, locale)}</span>
+              </Link>
+              <Link
+                className={`${styles.sparkButton} ${styles.heroVolunteer}`}
+                href={hrefFor(content.hero.secondary, locale)}
+              >
+                <span className={styles.sparkHearts} aria-hidden="true">
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartOne}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartTwo}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartThree}`} />
+                  <HeartIcon className={`${styles.sparkHeart} ${styles.sparkHeartFour}`} />
+                </span>
+                <span className={styles.sparkLabel}>{t(content.hero.secondary.label, locale)}</span>
+              </Link>
+            </div>
+            <p className={styles.scriptNote}>{t(content.hero.note, locale)}</p>
           </div>
-        </div>
 
-        <div
-          className={styles.homeHeroVisual}
-          aria-label={t(content.hero.imageAlt, locale)}
-        >
-          <figure className={styles.homeHeroPolaroid}>
-            <Image
-              src={content.hero.image}
-              alt={t(content.hero.imageAlt, locale)}
-              fill
-              priority
-              sizes="(max-width: 760px) 90vw, 47vw"
-            />
-            <figcaption>{t(content.hero.caption, locale)}</figcaption>
-          </figure>
-          <figure className={styles.homeHeroMiniPolaroid}>
-            <Image
-              src={content.model.pillars[0].image}
-              alt={t(content.model.pillars[0].imageAlt, locale)}
-              fill
-              sizes="180px"
-            />
-          </figure>
-          <figure className={styles.homeHeroMiniPolaroidAlt}>
-            <Image
-              src={content.model.pillars[1].image}
-              alt={t(content.model.pillars[1].imageAlt, locale)}
-              fill
-              sizes="160px"
-            />
-          </figure>
-          <div className={styles.homeHeroSticker} aria-hidden="true">
-            <span>{t(content.hero.stickers[0], locale)}</span>
-            <span>✦</span>
+          <div className={styles.heroPhotos} aria-label={locale === "en" ? "Love 21 programme moments" : "Love 21 計劃時刻"}>
+            <figure className={`${styles.polaroid} ${styles.polaroidMain}`}>
+              <span className={styles.photoTape} aria-hidden="true" />
+              <span className={styles.photoFrame}>
+                <Image
+                  src={heroPhotos[0].image}
+                  alt={t(heroPhotos[0].alt, locale)}
+                  fill
+                  priority
+                  sizes="(max-width: 760px) 62vw, 360px"
+                />
+              </span>
+              <figcaption>{t(heroPhotos[0].caption, locale)}</figcaption>
+            </figure>
+            <figure className={`${styles.polaroid} ${styles.polaroidLeft}`}>
+              <span className={styles.photoTape} aria-hidden="true" />
+              <span className={styles.photoFrame}>
+                <Image
+                  src={heroPhotos[1].image}
+                  alt={t(heroPhotos[1].alt, locale)}
+                  fill
+                  sizes="(max-width: 760px) 44vw, 260px"
+                />
+              </span>
+              <figcaption>{t(heroPhotos[1].caption, locale)}</figcaption>
+            </figure>
+            <figure className={`${styles.polaroid} ${styles.polaroidRight}`}>
+              <span className={styles.photoTape} aria-hidden="true" />
+              <span className={styles.photoFrame}>
+                <Image
+                  src={heroPhotos[2].image}
+                  alt={t(heroPhotos[2].alt, locale)}
+                  fill
+                  sizes="(max-width: 760px) 39vw, 230px"
+                />
+              </span>
+              <figcaption>{t(heroPhotos[2].caption, locale)}</figcaption>
+            </figure>
           </div>
         </div>
       </section>
 
-      <section className={styles.homeProofBand} aria-label="Love 21 by the numbers">
-        <div className={styles.homeSectionInner}>
-          <ul className={styles.homeProofList}>
-            {content.hero.metrics.map((metric) => (
+      <section
+        className={styles.impactShowcase}
+        aria-labelledby="impact-showcase-title"
+      >
+        <div className={styles.standardInner}>
+          <p className={styles.bluePill}>{t(content.impactShowcase.eyebrow, locale)}</p>
+          <ul className={styles.impactMetrics}>
+            <li className={styles.impactSide}>
+              <strong>
+                <CountUp value={impactLeft.value} className={styles.countUp} />
+              </strong>
+              <span>{t(impactLeft.label, locale)}</span>
+            </li>
+            <li className={styles.impactFeatured}>
+              <strong>
+                <CountUp value={impactFeatured.value} className={styles.countUp} />
+              </strong>
+              <h2 id="impact-showcase-title">{t(impactFeatured.title, locale)}</h2>
+              {impactFeatured.description ? (
+                <p>{t(impactFeatured.description, locale)}</p>
+              ) : null}
+            </li>
+            <li className={styles.impactSide}>
+              <strong>
+                <CountUp value={impactRight.value} className={styles.countUp} />
+              </strong>
+              <span>{t(impactRight.label, locale)}</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className={styles.featuredStory} aria-labelledby="featured-story-title">
+        <span className={styles.featuredStoryBgHearts} aria-hidden="true">
+          <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartBgOne}`} />
+          <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartBgTwo}`} />
+          <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartBgThree}`} />
+        </span>
+        <div className={styles.wideInner}>
+          <p className={styles.sectionEyebrow}>{t(content.featuredStory.eyebrow, locale)}</p>
+          <h2 id="featured-story-title">{t(content.featuredStory.title, locale)}</h2>
+          <div className={styles.featuredStoryStage}>
+            <span className={styles.featuredStoryCardHearts} aria-hidden="true">
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartOne}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartTwo}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartThree}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFour}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFive}`} />
+            </span>
+            <article className={styles.featuredStoryCard}>
+              <div className={styles.featuredStoryImage}>
+                <Image
+                  src={content.featuredStory.image}
+                  alt={t(content.featuredStory.imageAlt, locale)}
+                  fill
+                  sizes="(max-width: 820px) 100vw, 62vw"
+                />
+              </div>
+              <div className={styles.featuredStoryPanel}>
+                <p>{t(content.featuredStory.panelLabel, locale)}</p>
+                <h3>{t(content.featuredStory.panelTitle, locale)}</h3>
+                <p className={styles.featuredStoryContext}>
+                  {t(content.featuredStory.context, locale)}
+                </p>
+                <blockquote className={styles.featuredStoryQuote}>
+                  <p>“{t(content.featuredStory.quote, locale)}”</p>
+                </blockquote>
+                <div className={styles.featuredStoryFooter}>
+                  <cite>{t(content.featuredStory.attribution, locale)}</cite>
+                  <Link href={hrefFor(content.featuredStory.action, locale)}>
+                    {t(content.featuredStory.action.label, locale)} ↗
+                  </Link>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.statBand} aria-label={t(content.impactStats.label, locale)}>
+        <div className={styles.wideInner}>
+          <ul>
+            {content.impactStats.items.map((metric) => (
               <li key={metric.value}>
-                <strong>{metric.value}</strong>
+                <strong>
+                  <CountUp value={metric.value} className={styles.countUp} />
+                </strong>
                 <span>{t(metric.label, locale)}</span>
+                {metric.source && <small>{t(metric.source, locale)}</small>}
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section
-        id={content.model.id}
-        className={styles.homeModel}
-        aria-labelledby="home-model-heading"
-      >
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeSectionHeadingSolo}>
-            <div>
-              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowTeal}`}>
-                {t(content.model.eyebrow, locale)}
-              </p>
-              <h2 id="home-model-heading" className={styles.homeSectionTitle}>
-                {t(content.model.title, locale)}
-              </h2>
-            </div>
-            <p className={styles.homeModelCentreLine}>
-              <strong>{t(content.model.centre.title, locale)}</strong>
-              {" — "}
-              {t(content.model.centre.description, locale)}
-            </p>
-          </div>
+      {/* Featured Stories + Stories of Ability temporarily hidden; content kept in homepage.ts */}
 
-          <div className={styles.homeModelGrid}>
-            {content.model.pillars.map((pillar) => (
-              <article
-                key={pillar.key}
-                className={[
-                  styles.homePillar,
-                  pillar.key === "sports" ? styles.homePillar_sports : "",
-                  pillar.key === "nutrition" ? styles.homePillar_nutrition : "",
-                  pillar.key === "family" ? styles.homePillar_family : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <div className={styles.homePillarMedia}>
-                  <Image
-                    src={pillar.image}
-                    alt={t(pillar.imageAlt, locale)}
-                    fill
-                    sizes="(max-width: 760px) 100vw, (max-width: 1024px) 45vw, 28vw"
-                  />
-                </div>
-                <div className={styles.homePillarCopy}>
-                  <h3>{t(pillar.title, locale)}</h3>
-                  <p>{t(pillar.explanation, locale)}</p>
-                  <p className={styles.homePillarExample}>
-                    {t(pillar.example, locale)}
-                  </p>
-                  <Link
-                    className={styles.homeChipLink}
-                    href={t(pillar.href, locale)}
-                  >
-                    {t(content.model.detailsLabel, locale)}
-                    <span aria-hidden="true">↗</span>
-                  </Link>
-                </div>
-              </article>
+      <section className={styles.education} aria-labelledby="education-title">
+        <div className={styles.standardInner}>
+          <header className={styles.educationIntro}>
+            <p className={styles.pinkEyebrow}>{t(content.education.eyebrow, locale)}</p>
+            <h2 id="education-title">{t(content.education.title, locale)}</h2>
+            <p className={styles.educationLead}>{t(content.education.description, locale)}</p>
+          </header>
+          <ul className={styles.educationPoints}>
+            {content.education.points.map((point) => (
+              <li key={point.value}>
+                <strong>
+                  <CountUp value={point.value} className={styles.countUp} />
+                </strong>
+                <span>{t(point.description, locale)}</span>
+              </li>
             ))}
-          </div>
-          <div className={styles.homeProgrammeChips} aria-label={t(content.model.title, locale)}>
-            {content.model.programmeChips.map((chip) => (
-              <Link key={chip.label.en} href={t(chip.href, locale)}>
-                {t(chip.label, locale)}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <HomeAbilityStories locale={locale} content={content.stories} />
-
-      <section
-        id={content.trust.id}
-        className={styles.homeImpact}
-        aria-labelledby="home-impact-heading"
-      >
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeImpactLayout}>
-            <div>
-              <p className={`${styles.homeEyebrow} ${styles.homeEyebrowPurple}`}>
-                {t(content.trust.eyebrow, locale)}
-              </p>
-              <h2
-                id="home-impact-heading"
-                className={styles.homeSectionTitle}
-              >
-                {t(content.trust.title, locale)}
-              </h2>
-              <p className={styles.homeImpactLead}>
-                {t(content.trust.section88, locale)}
-              </p>
-              <ul className={styles.homeTrustLinks}>
-                {content.trust.links.map((link) => (
-                  <li key={link.label.en}>
-                    <Link className={styles.homeChipLink} href={hrefFor(link, locale)}>
-                      {t(link.label, locale)} <span aria-hidden="true">↗</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <ul className={styles.homeImpactMetrics}>
-              {content.trust.metrics.map((metric) => (
-                <li key={`impact-${metric.value}`}>
-                  <strong>{metric.value}</strong>
-                  <span>{t(metric.label, locale)}</span>
-                </li>
+          </ul>
+          <div className={styles.educationFactsBlock}>
+            <h3>{t(content.education.factsTitle, locale)}</h3>
+            <div className={styles.educationFacts}>
+              {content.education.facts.map((fact, index) => (
+                <article key={fact.value}>
+                  <strong className={index === 0 ? styles.factBlue : styles.factTeal}>
+                    <CountUp value={fact.value} className={styles.countUp} />
+                  </strong>
+                  <span>{t(fact.label, locale)}</span>
+                </article>
               ))}
-            </ul>
+            </div>
+            <p className={styles.sourceNote}>{t(content.education.source, locale)}</p>
           </div>
+          <Link className={styles.blueButton} href={hrefFor(content.education.action, locale)}>
+            {t(content.education.action.label, locale)}
+          </Link>
         </div>
       </section>
 
-      <section id={content.opportunities.id} className={styles.homeVolunteer} aria-labelledby="home-volunteer-heading">
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeVolunteerCard}>
+      <section className={styles.socialFeed} aria-labelledby="social-feed-title">
+        <div className={styles.wideInner}>
+          <div className={styles.sectionHeadingRow}>
             <div>
-              <p className={styles.homeEyebrow}>{t(content.opportunities.eyebrow, locale)}</p>
-              <h2 id="home-volunteer-heading">{t(content.opportunities.title, locale)}</h2>
-              <p>{t(content.opportunities.emptyDescription, locale)}</p>
+              <p className={styles.cyanPill}>{t(content.socialFeed.eyebrow, locale)}</p>
+              <h2 id="social-feed-title">{t(content.socialFeed.title, locale)}</h2>
             </div>
-            <div className={styles.homeVolunteerActions}>
-              <Link className={styles.homeButtonPrimary} href={hrefFor(content.opportunities.volunteerCta, locale)}>
-                {t(content.opportunities.volunteerCta.label, locale)} <span aria-hidden="true">↗</span>
-              </Link>
-              <Link className={styles.homeButtonSecondary} href={hrefFor(content.opportunities.contactCta, locale)}>
-                {t(content.opportunities.contactCta.label, locale)}
-              </Link>
+            <div className={styles.followLinks}>
+              <a href={hrefFor(content.socialFeed.facebook, locale)} target="_blank" rel="noreferrer">
+                {t(content.socialFeed.facebook.label, locale)}
+              </a>
+              <a href={hrefFor(content.socialFeed.instagram, locale)} target="_blank" rel="noreferrer">
+                {t(content.socialFeed.instagram.label, locale)}
+              </a>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className={styles.homeCommunity} aria-labelledby="home-community-heading">
-        <div className={styles.homeSectionInner}>
-          <div className={styles.homeSectionHeadingSolo}>
-            <p className={styles.homeEyebrow}>{t(content.trust.communityLabel, locale)}</p>
-            <h2 id="home-community-heading" className={styles.homeSectionTitle}>
-              {t(content.trust.communityLabel, locale)}
-            </h2>
-          </div>
-          <div className={styles.homeCommunityGrid}>
-            {content.trust.updates.map((update) => (
-              <Link key={update.slug} href={`/${update.slug}/`} className={styles.homeCommunityCard}>
-                {update.image && (
-                  <span className={styles.homeCommunityImage}>
-                    <Image src={update.image} alt="" fill sizes="(max-width: 760px) 100vw, 33vw" />
-                  </span>
-                )}
-                <span className={styles.homeUpdateDate}>{update.date}</span>
-                <strong>{update.title}</strong>
-                <span>{t(update.summary, locale)}</span>
-              </Link>
+          <div className={styles.cardScroller}>
+            {content.socialFeed.items.map((item) => (
+              <FeedCard item={item} locale={locale} key={item.id} />
             ))}
           </div>
         </div>
       </section>
 
-      <HomeDonatePreview locale={locale} content={content.donatePreview} />
-
-      <section
-        className={styles.homeFinalCta}
-        aria-labelledby="home-final-heading"
-      >
-        <div className={styles.homeSectionInner}>
-          <p className={styles.homeFinalEyebrow}>
-            {t(content.finalCta.eyebrow, locale)}
-          </p>
-          <h2 id="home-final-heading" className={styles.homeFinalTitle}>
-            {t(content.finalCta.title, locale)}
-          </h2>
-          <div className={styles.homeFinalActions}>
-            {content.finalCta.actions.map((action) => (
+      {/* volunteerCta sky band intentionally not rendered; Volunteer lives in donateCta below.
+          Restore from content.volunteerCta if a standalone band is needed again. */}
+      <section className={styles.donateCta} aria-labelledby="donate-cta-title">
+        <div className={styles.standardInner}>
+          <div>
+            <h2 id="donate-cta-title">{t(content.donateCta.title, locale)}</h2>
+            <p>{t(content.donateCta.description, locale)}</p>
+          </div>
+          <div className={styles.donateActions}>
+            <Link className={styles.whiteButton} href={hrefFor(content.donateCta.primary, locale)}>
+              {t(content.donateCta.primary.label, locale)}
+            </Link>
+            {content.donateCta.volunteer && (
               <Link
-                key={action.label.en}
-                className={styles.homeButtonGhost}
-                href={hrefFor(action, locale)}
+                className={styles.donateOutlineButton}
+                href={hrefFor(content.donateCta.volunteer, locale)}
               >
-                {t(action.label, locale)}
-                <span aria-hidden="true">↗</span>
+                {t(content.donateCta.volunteer.label, locale)}
               </Link>
-            ))}
+            )}
+            {content.donateCta.secondary && (
+              <Link
+                className={styles.donateWishLink}
+                href={hrefFor(content.donateCta.secondary, locale)}
+              >
+                {t(content.donateCta.secondary.label, locale)}
+              </Link>
+            )}
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

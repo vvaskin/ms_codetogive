@@ -45,6 +45,7 @@ Presentational only (no API, persistence, or business rules):
 - `BrandLockup` — pink “21” mark + Love 21 wordmark
 - `SectionShell` — `tone`: canvas | white | blush | sky | blue | dark | mint; `width`: wide | standard | narrow
 - `ButtonLink` — `variant`: pink | blue | teal | dark | outline | quiet
+- `HeartIcon` — soft outline heart SVG for CTA accents (Join menu, homepage hero Donate/Volunteer hover)
 - `PageIntro` — eyebrow, title, description, actions
 - `ContentCard` — media, meta, title, summary
 - `StatusPill` — programme / story / preview tags
@@ -52,19 +53,34 @@ Presentational only (no API, persistence, or business rules):
 
 ### Chrome and templates
 
-- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), accessibility menu, language, Donate, dark footer
-- Accessibility menu replaces the old Calm-mode toggle. It offers High contrast (`html.high-contrast`), Text size (A−/A+, levels 0–2 as `html.text-large` / `html.text-largest`, stored in `"text-size"`), and Calm mode (Simple View). Storage keys: `"simple-view"` → class `html.simple-view`; `"high-contrast"` → `html.high-contrast`; `"text-size"` = 0|1|2. All applied via effects on `document.documentElement` in `SiteChrome`.
-- Homepage: `components/HomeExperience.*` + `content/homepage.ts`
-- Donation: `content/donation.ts` + donate template in `PageRenderer`
+- `components/SiteChrome.tsx` + `SiteChrome.module.css` — header (~64px), outline “Make a difference” dropdown (Nunito body font + pink outline/`HeartIcon`; filled Donate / Volunteer options without per-option hearts or glow; quiet Login link at bottom; opens on hover or click; panel matches trigger width and is decorated with surrounding heart icons) or portal actions when signed in, dark footer. Volunteer opens `/signup?role=volunteer` (locale variants) with the volunteer role preselected. Homepage hero Donate (pink) and Volunteer (blue) show matching heart accents on hover; homepage `.page` keeps `overflow: visible` so those accents are not clipped.
+- Accessibility and language controls live in a fixed bottom-right floating tools cluster (menus open upward). Accessibility offers High contrast (`html.high-contrast`), Text size (A−/A+, levels 0–2 as `html.text-large` / `html.text-largest`, stored in `"text-size"`), and Calm mode (Simple View). Storage keys: `"simple-view"` → class `html.simple-view`; `"high-contrast"` → `html.high-contrast`; `"text-size"` = 0|1|2. All applied via effects on `document.documentElement` in `SiteChrome`.
+- Homepage: `components/HomeExperience.*` + `content/homepage.ts`. It follows the rebrand composition as a server-rendered sequence of hero polaroids, monthly impact showcase (hero center ≈1,000 classes/activities with title + supporting line; smaller side stats 600+ members/families and HK$0 to families; all numbers blue; no programme category pills), a minimal Crystal programme story (photo + short panel + mother quote; floating `HeartIcon` accents around the card, disabled in Calm mode / reduced motion), audited impact statistics (punchy oversized pink CountUp figures on a blush band), a tightened education / community section (opportunity framing with three equal oversized pink stats plus blue/teal audited fact panels), deterministic media cards, and a dark donate CTA band (Donate now + Volunteer + wish-list link; standalone sky volunteer band content remains in `homepage.ts` but is not rendered). Stat numbers in the impact showcase, impact band, and education section animate via the client `CountUp` helper (`components/CountUp.tsx`) when they enter the viewport; Calm mode (`html.simple-view`) and `prefers-reduced-motion` show final values immediately. Featured Stories and Stories of Ability (ability conversation) content remains in `homepage.ts` but is not currently rendered. Homepage content is fully localized for `en`, `zh`, and `cn`; repository facts and assets replace mockup placeholders, and the homepage has no donation configurator or live-feed dependency. The wishlist CTA deep-links to the Donate Items tab with validated `?mode=items` state.
+- Donation: `content/donation.ts` + interactive `DonateExperience` (`template: "donate"`). The three bilingual modes (`money`, `events`, `items`) retain client-side selections when switching. Money can be completed through the existing PayMe QR or hosted MoonClerk URL; a collapsed disclosure provides approved HSBC/FPS/cheque instructions, and receipt requests link to Maggie by email. Amount/frequency/programme selections are not transmitted by the site. Fundable-event metadata is optional repository content, and event-support/item-selection confirmations are local-only demos with no persistence or progress updates. The community-fundraiser CTA remains disabled.
 - Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`
 - About: `content/about.ts` + `AboutExperience` (`template: "about"`)
 - Finance / Trust & Transparency: `content/finance.ts` + `FinanceExperience` (`template: "reports"`); annual PDFs under `public/assets/reports/`
-- Activities & Calendar: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for activity schedule and volunteer-calendar routes. The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
+- Primary nav: About (dropdown), Events (`/events` — no dropdown), Member Stories (`/stories/`), Contact Us. Get Involved remains routable but is not linked in chrome.
+- Events: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for `/events` and volunteer-calendar routes. Includes a compact Sports / Nutrition / Family Care programmes band (banner images from repository programme assets; copy aligned with approved programmes content). The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
 - News & Media: `content/media.ts` + `MediaExperience` (`template: "media-index"`) for bilingual media and member-story routes. The "From our feeds" grid mixes presentational feed cards with live Instagram posts served by `InstagramFeed` (data from `/api/instagram-webhook`, persisted to gitignored `data/instagram-posts.json`); external social links are the Love 21 Facebook and Instagram URLs.
-- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) for `/get-involved/` (and `/zh/get-involved-hk/`). Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), calendar/events, donate, and contact.
+- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) kept for `/get-involved/` (and locale variants) but omitted from primary nav/footer. Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), events, donate, and contact.
+- Programmes experience code remains (`ProgrammesExperience`, `content/programmes.ts`) but is not routed; Our Programmes and How Families Join pages were removed.
 - Other templates: `PageRenderer.module.css`
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
 - Portal presentation: `app/portal/page.module.css`
+
+### Authentication and persistence
+
+- Supabase provides email/password authentication, Postgres persistence, and storage
+- SQL files in `supabase/migrations/` are the schema source of truth; add a new migration instead of rewriting an applied one
+- `lib/supabase/types.generated.ts` mirrors the linked schema and is regenerated atomically with `npm run db:types`; `lib/supabase/types.ts` provides stable application aliases
+- Public account roles: `member`, `donor`, `volunteer`; `staff` is server-promoted only
+- `public.users.role` is the staff source of truth; public signup metadata is allowlisted and authenticated users cannot update their own role
+- `/admin` is staff-only; `/admin` manages people and `/admin/events` manages schedule records
+- Do not link `/admin` from public navigation or redirect the general portal to it; staff enter the route directly
+- Staff pages and every mutation verify the caller with the cookie-backed client before using the server-only service-role client
+- The `events` table is currently managed only through the staff portal and is not connected to public schedules
+- Event times are entered in `Asia/Hong_Kong`; persisted timestamps are instants
 
 ### Accessibility
 
@@ -75,8 +91,9 @@ Presentational only (no API, persistence, or business rules):
 
 ### Behavioral boundaries
 
-- Do not modify Better Auth, Drizzle, SQLite, roles, API routes, or portal authorization
-- Do not add payment processing, reservations, wishlist pledges, campaigns, analytics, or admin controls
+- Authentication, schema, role, migration, and authorization changes require an explicit user request
+- Keep public staff signup disabled and enforce staff authorization independently in every admin mutation
+- Do not add payment processing, reservations, attendee registration, wishlist pledges, campaigns, or analytics
 - Repository content and assets are authoritative; mockups are visual/composition authority only
 - Do not invent unverified impact claims from design mockups
 
@@ -85,3 +102,6 @@ Presentational only (no API, persistence, or business rules):
 - `npm run lint`
 - `npm run build`
 - `npm run dev`
+- `npm run db:push`
+- `npm run db:types`
+- `npm run staff:promote -- person@example.com`

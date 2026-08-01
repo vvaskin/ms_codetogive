@@ -7,7 +7,7 @@ import {
 } from "@/components/portal/PortalEventsTabs";
 import type { Locale } from "@/content/site-data";
 import { createClient } from "@/lib/supabase/server";
-import type { EventRow } from "@/lib/supabase/table-types";
+import type { EventRow } from "@/lib/supabase/types";
 
 export const metadata: Metadata = {
   title: "Events",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const EVENT_COLUMNS =
-  "id, title, title_zh, title_cn, description, description_zh, description_cn, image, starts_at, ends_at, date, type, subtype, location, location_zh, location_cn, location_link, status, created_at, updated_at";
+  "id, title, title_zh, title_cn, description, description_zh, description_cn, image, starts_at, ends_at, date, type, subtype, location, location_zh, location_cn, location_link, status, audience, created_at, updated_at";
 
 function pickLocale(raw: string | undefined): Locale {
   return raw === "zh" || raw === "cn" ? raw : "en";
