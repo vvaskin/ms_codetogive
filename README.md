@@ -55,30 +55,10 @@ npm start
 
 ## Database setup
 
-The app uses a local SQLite database through Drizzle ORM. There is no separate
-database server to install or start.
-
-The important files are:
-
-- `lib/db/schema.ts` — the TypeScript source of truth for database tables.
-- `drizzle/` — generated SQL migrations. These files should be committed.
-- `drizzle.config.ts` — tells Drizzle where the schema, migrations, and database
-  are located.
-- `data/love21.sqlite` — your local database file. It is created by
-  `npm run db:migrate` and is ignored by Git.
-- `.env.local` — local secrets and the SQLite filename. It is also ignored by
-  Git.
-
-The current database contains only Better Auth's required tables:
-
-- `user`
-- `session`
-- `account`
-- `verification`
-
-The `user` table also contains the Love 21 `role` field. Its allowed values are
-`member`, `donor`, and `volunteer`. Event and funding tables have not been added
-yet.
+Run:
+npm install
+npx supabase login // Milan will give you the code, once you run it
+npx supabase link --project-ref afssbvjqpqlveqwyzvvs
 
 ### After pulling database changes
 
