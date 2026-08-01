@@ -13,12 +13,7 @@ import {
   ContactForm,
   VolunteerForm,
 } from "./DemoForms";
-import { donationContent } from "../content/donation";
-import { ButtonLink } from "./ui/ButtonLink";
-import { PageIntro } from "./ui/PageIntro";
-import { PreviewPanel } from "./ui/PreviewPanel";
-import { SectionShell } from "./ui/SectionShell";
-import { StatusPill } from "./ui/StatusPill";
+import { DonateExperience } from "./DonateExperience";
 import styles from "./PageRenderer.module.css";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
@@ -320,64 +315,7 @@ function ContactPage({ page }: { page: SitePage }) {
 
 function DonatePage({ page }: { page: SitePage }) {
   const locale = page.locale === "zh" ? "zh" : "en";
-  const c = donationContent;
-  const text = (value: Record<"en" | "zh", string>) => value[locale];
-  return (
-    <article className={styles.donatePage}>
-      <SectionShell width="standard">
-        <PageIntro
-          handEyebrow
-          eyebrow={text(c.intro.eyebrow)}
-          title={text(c.intro.title)}
-          description={text(c.intro.description)}
-          scriptNote={text(c.intro.scriptNote)}
-        />
-        <div className={styles.donationModes}>
-          {c.modes.map((mode, index) => (
-            <button className={styles.modeCard} type="button" key={text(mode.title)} aria-pressed={index === 0}>
-              <StatusPill tone={index === 0 ? "pink" : index === 1 ? "blue" : "teal"}>{index + 1}</StatusPill>
-              <h2>{text(mode.title)}</h2>
-              <p>{text(mode.description)}</p>
-            </button>
-          ))}
-        </div>
-      </SectionShell>
-      <SectionShell tone="blush" width="wide">
-        <div className={styles.donationGrid}>
-          <PreviewPanel notice={text(c.preview)}>
-            <div className={styles.configurator}>
-              <StatusPill tone="pink">{text(c.configurator.eyebrow)}</StatusPill>
-              <h2>{text(c.configurator.title)}</h2>
-              <div className={styles.choiceRow}>{c.configurator.frequency.map((item) => <button key={text(item)} type="button" disabled>{text(item)}</button>)}</div>
-              <fieldset disabled>
-                <legend>{text(c.configurator.amountLabel)}</legend>
-                <div className={styles.amountRow}>{c.configurator.amounts.map((item) => <button key={text(item)} type="button">{text(item)}</button>)}</div>
-                <label>{text(c.configurator.programmeLabel)}<select defaultValue=""><option value="" disabled>{text(c.configurator.programmeLabel)}</option>{c.configurator.programmes.map((item) => <option key={text(item)}>{text(item)}</option>)}</select></label>
-                <label>{text(c.configurator.detailsTitle)}<input aria-label={text(c.configurator.fields[0])} placeholder={text(c.configurator.fields[0])} /><input aria-label={text(c.configurator.fields[1])} placeholder={text(c.configurator.fields[1])} /></label>
-                <label>{text(c.configurator.walletsTitle)}</label>
-                <div className={styles.walletRow}>{c.configurator.wallets.map((item) => <button key={text(item)} type="button">{text(item)}</button>)}</div>
-                <input aria-label={text(c.configurator.cardLabel)} placeholder={text(c.configurator.cardLabel)} />
-              </fieldset>
-            </div>
-          </PreviewPanel>
-          <aside className={styles.impactPanel}>
-            <StatusPill tone="yellow">{text(c.impact.eyebrow)}</StatusPill>
-            <h2>{text(c.impact.title)}</h2><p>{text(c.impact.description)}</p>
-            <div className={styles.impactPoints}>{c.impact.points.map((point) => <div key={point.value}><strong>{point.value}</strong><span>{text(point.label)}</span></div>)}</div>
-          </aside>
-        </div>
-        <section className={styles.livePayments}>
-          <div><h2>{text(c.payment.heading)}</h2><p>{text(c.payment.description)}</p></div>
-          <div className={styles.payme}><Image src="/assets/images/payme.png" width={240} height={240} unoptimized alt="Love 21 PayMe" /><span>{text(c.payment.payme)}</span></div>
-          <div className={styles.moonclerk}><Image src="/assets/images/moonclerk.png" width={240} height={120} unoptimized alt="MoonClerk" /><ButtonLink href="https://app.moonclerk.com/pay/2805gcehxjca" external variant="pink">{text(c.payment.moonclerk)} ➜</ButtonLink></div>
-        </section>
-      </SectionShell>
-      <SectionShell width="wide">
-        <PreviewPanel notice={text(c.preview)}><section className={styles.wishlist}><StatusPill tone="teal">{text(c.wishlist.eyebrow)}</StatusPill><h2>{text(c.wishlist.title)}</h2><p>{text(c.wishlist.description)}</p><ul className={styles.wishlistItems}>{c.wishlist.items.map((item) => <li key={text(item)}>{text(item)}</li>)}</ul></section></PreviewPanel>
-      </SectionShell>
-      <section className={styles.fundraiser}><div className={styles.fundraiserInner}><div><h2>{text(c.fundraiser.title)}</h2><p>{text(c.fundraiser.description)}</p></div><PreviewPanel notice={text(c.preview)}><button type="button" disabled>{text(c.fundraiser.action)}</button></PreviewPanel></div></section>
-    </article>
-  );
+  return <DonateExperience locale={locale} />;
 }
 
 function JoinPage({ zh }: { zh: boolean }) {
