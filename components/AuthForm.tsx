@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { VOLUNTEER_SIGNUP_DRAFT_KEY } from "@/lib/volunteer-signup-draft";
+import { VOLUNTEER_SIGNUP_DRAFT_KEY, VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE } from "@/lib/volunteer-signup-draft";
 import { createClient } from "@/lib/supabase/client";
 import { USER_ROLES, type UserRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
@@ -204,6 +204,7 @@ export function AuthForm({
         VOLUNTEER_SIGNUP_DRAFT_KEY,
         JSON.stringify({ name, email, password }),
       );
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=1; Path=/; Max-Age=1800; SameSite=Lax`;
       router.push("/signup/volunteer");
       setIsSubmitting(false);
       return;
@@ -238,6 +239,7 @@ export function AuthForm({
         }
       }
 
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace(redirectTo);
       router.refresh();
     } catch {

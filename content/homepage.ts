@@ -161,6 +161,11 @@ const routes = {
     zh: "/zh/our-volunteer-hk/",
     cn: "/cn/our-volunteer/",
   },
+  volunteerSignup: {
+    en: "/signup?role=volunteer",
+    zh: "/zh/signup-hk/?role=volunteer",
+    cn: "/cn/signup-hk/?role=volunteer",
+  },
   stories: { en: "/stories/", zh: "/zh/stories-hk/", cn: "/cn/stories/" },
   ourStory: {
     en: "/our-story/",
@@ -193,7 +198,7 @@ export const homepageContent: HomepageContent = {
     },
     secondary: {
       label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-      href: routes.volunteer,
+      href: routes.volunteerSignup,
     },
     note: {
       en: "Meet us in person — opportunity looks different up close.",
@@ -755,7 +760,7 @@ export const homepageContent: HomepageContent = {
     },
     primary: {
       label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-      href: routes.volunteer,
+      href: routes.volunteerSignup,
     },
     secondary: {
       label: { en: "Donate", zh: "捐助", cn: "捐助" },

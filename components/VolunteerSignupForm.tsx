@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import {
   VOLUNTEER_SIGNUP_DRAFT_KEY,
+  VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE,
   type VolunteerSignupDraft,
-} from "../lib/volunteer-signup-draft";
+} from "@/lib/volunteer-signup-draft";
 import styles from "./VolunteerSignupForm.module.css";
 
 type AgeGroup = "14-15" | "16-17" | "18+";
@@ -194,8 +195,43 @@ function PolicyModal({
   );
 }
 
+let cachedDraftRaw: string | null | undefined;
+let cachedDraft: VolunteerSignupDraft | null = null;
+
+function getDraftSnapshot(): VolunteerSignupDraft | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.sessionStorage.getItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
+  if (raw === cachedDraftRaw) return cachedDraft;
+  cachedDraftRaw = raw;
+  cachedDraft = null;
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as Partial<VolunteerSignupDraft>;
+      if (parsed.name && parsed.email && parsed.password) {
+        cachedDraft = {
+          name: parsed.name,
+          email: parsed.email,
+          password: parsed.password,
+        };
+      }
+    } catch {
+      // ignore malformed drafts
+    }
+  }
+  return cachedDraft;
+}
+
+function subscribeToDraft() {
+  return () => {};
+}
+
 export function VolunteerSignupForm() {
   const router = useRouter();
+  const draft = useSyncExternalStore(
+    subscribeToDraft,
+    getDraftSnapshot,
+    getDraftSnapshot,
+  );
   const [chineseName, setChineseName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [gender, setGender] = useState<Gender | "">("");
@@ -207,40 +243,19 @@ export function VolunteerSignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [draft, setDraft] = useState<VolunteerSignupDraft | "missing" | null>(null);
-
   useEffect(() => {
-    queueMicrotask(() => {
-      const raw = window.sessionStorage.getItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
-
-      if (!raw) {
-        setDraft("missing");
-        return;
-      }
-
-      try {
-        const parsed = JSON.parse(raw) as VolunteerSignupDraft;
-
-        if (!parsed.name || !parsed.email || !parsed.password) {
-          setDraft("missing");
-          return;
-        }
-
-        setDraft(parsed);
-      } catch {
-        setDraft("missing");
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (draft === "missing") {
+    if (!draft) {
       router.replace("/signup");
     }
   }, [draft, router]);
 
   const canReviewPolicy = Boolean(
-    ageGroup && gender && phone.trim() && referral && roleInterests.length > 0,
+    draft &&
+      ageGroup &&
+      gender &&
+      phone.trim() &&
+      referral &&
+      roleInterests.length > 0,
   );
 
   function toggleRoleInterest(interest: RoleInterest) {
@@ -252,8 +267,7 @@ export function VolunteerSignupForm() {
   }
 
   async function finalizeSignup() {
-    if (!draft || draft === "missing") return;
-
+    if (!draft) return;
     setShowPolicy(false);
     setError(null);
     setIsSubmitting(true);
@@ -277,7 +291,7 @@ export function VolunteerSignupForm() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email: draft.email,
         password: draft.password,
         options: {
@@ -291,12 +305,13 @@ export function VolunteerSignupForm() {
         },
       });
 
-      if (error) {
-        setError(readableError(error.message));
+      if (signUpError) {
+        setError(readableError(signUpError.message));
         return;
       }
 
       window.sessionStorage.removeItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
+      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace("/portal");
       router.refresh();
     } catch {
@@ -309,31 +324,37 @@ export function VolunteerSignupForm() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isSubmitting) return;
+    setError(null);
+    if (!canReviewPolicy) {
+      setError("Please fill in all required fields (name, email, password of at least 8 characters, and all highlighted volunteer details).");
+      return;
+    }
     setShowPolicy(true);
   }
 
-  if (!draft || draft === "missing") {
-    return <div className={styles.loading}>Loading your volunteer registration…</div>;
+  if (!draft) {
+    return null;
   }
 
   return (
     <>
       <form className={styles.form} onSubmit={onSubmit}>
-        <div className={styles.heading}>
-          <h1>Volunteer profile</h1>
-          <p>Step 2 of 2. Complete your volunteer details before account creation.</p>
+        <div className={styles.summary}>
+          <dl>
+            <div className={styles.summaryRow}>
+              <dt>Full name</dt>
+              <dd>{draft.name}</dd>
+            </div>
+            <div className={styles.summaryRow}>
+              <dt>Email address</dt>
+              <dd>{draft.email}</dd>
+            </div>
+          </dl>
         </div>
-
-        <dl className={styles.summary}>
-          <div className={styles.summaryRow}>
-            <dt>Name</dt>
-            <dd>{draft.name}</dd>
-          </div>
-          <div className={styles.summaryRow}>
-            <dt>Email</dt>
-            <dd>{draft.email}</dd>
-          </div>
-        </dl>
+        <p className={`${styles.notice} ${styles.noticeInfo}`}>
+          Your name and email are carried over from the previous step.{" "}
+          <Link href="/signup">Start over</Link>
+        </p>
 
         <label>
           <span className={styles.fieldLabel}>Chinese name (optional)</span>
@@ -480,14 +501,6 @@ export function VolunteerSignupForm() {
         <div className={styles.actions}>
           <button className={styles.submit} type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Creating account..." : "Review policy and sign up"}
-          </button>
-          <button
-            type="button"
-            className={styles.back}
-            onClick={() => router.push("/signup")}
-            disabled={isSubmitting}
-          >
-            Back
           </button>
         </div>
 
