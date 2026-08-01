@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "staff:promote": "node scripts/promote-staff.mjs"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.25",

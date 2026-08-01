@@ -1,7 +1,12 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { db } from "./db";
-import { schema, USER_ROLES } from "./db/schema";
+import {
+  PUBLIC_USER_ROLES,
+  schema,
+  USER_ROLES,
+  type PublicUserRole,
+} from "./db/schema";
 
 const secret = process.env.BETTER_AUTH_SECRET;
 
@@ -22,6 +27,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (newUser) => {
+          const requestedRole = newUser.role;
+          const role = PUBLIC_USER_ROLES.includes(
+            requestedRole as PublicUserRole,
+          )
+            ? requestedRole
+            : "member";
+
+          return { data: { ...newUser, role } };
+        },
+      },
+    },
   },
   user: {
     additionalFields: {

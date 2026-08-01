@@ -69,16 +69,28 @@ The important files are:
 - `.env.local` — local secrets and the SQLite filename. It is also ignored by
   Git.
 
-The current database contains only Better Auth's required tables:
+The database contains Better Auth's required tables:
 
 - `user`
 - `session`
 - `account`
 - `verification`
 
+It also contains:
+
+- `event` — bilingual activity-schedule records managed by staff
+
 The `user` table also contains the Love 21 `role` field. Its allowed values are
-`member`, `donor`, and `volunteer`. Event and funding tables have not been added
-yet.
+`member`, `donor`, `volunteer`, and `staff`. Public signup offers only the first
+three roles. Staff access must be granted locally after the account exists:
+
+```bash
+npm run staff:promote -- person@example.com
+```
+
+After promotion, sign out and back in through `/admin/login`. Staff accounts are
+routed to `/admin`; other accounts continue to use `/portal`. The staff portal
+contains the People database at `/admin` and Events database at `/admin/events`.
 
 ### After pulling database changes
 
@@ -229,8 +241,17 @@ ask the team to review the migration history together.
 - Drizzle schema and relations live in `lib/db/schema.ts`.
 - SQLite defaults to `data/love21.sqlite`; its filename inside `data/` can be
   changed with `DB_FILE_NAME`.
-- Each user has one checked `role`: `member`, `donor`, or `volunteer`.
-- Authenticated users are redirected to the protected placeholder at `/portal`.
+- Each user has one checked `role`: `member`, `donor`, `volunteer`, or `staff`.
+- Public signup exposes only member, donor, and volunteer roles.
+- Regular authenticated users use `/portal`; staff use `/admin`.
+
+## Events
+
+- Staff create and manage events at `/admin/events`.
+- New records default to draft unless staff selects another status.
+- The events database is an admin-only prototype and is not connected to the
+  public Activity Schedule yet.
+- Date and time input uses Hong Kong time.
 
 ## Project shape
 

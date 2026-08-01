@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { auth } from "@/lib/auth";
-import type { UserRole } from "@/lib/db/schema";
+import type { PublicUserRole } from "@/lib/db/schema";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 const roleContent: Record<
-  UserRole,
+  PublicUserRole,
   { label: string; intro: string; placeholder: string }
 > = {
   member: {
@@ -37,7 +37,9 @@ export default async function PortalPage() {
 
   if (!session) redirect("/login?next=/portal");
 
-  const role = session.user.role as UserRole;
+  if (session.user.role === "staff") redirect("/admin");
+
+  const role = session.user.role as PublicUserRole;
   const content = roleContent[role] ?? roleContent.member;
 
   return (

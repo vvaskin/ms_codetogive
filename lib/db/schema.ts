@@ -8,8 +8,15 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const USER_ROLES = ["member", "donor", "volunteer"] as const;
+export const PUBLIC_USER_ROLES = ["member", "donor", "volunteer"] as const;
+export const USER_ROLES = [...PUBLIC_USER_ROLES, "staff"] as const;
+export type PublicUserRole = (typeof PUBLIC_USER_ROLES)[number];
 export type UserRole = (typeof USER_ROLES)[number];
+
+export const EVENT_AUDIENCES = ["members", "volunteers", "everyone"] as const;
+export type EventAudience = (typeof EVENT_AUDIENCES)[number];
+export const EVENT_STATUSES = ["draft", "published", "cancelled"] as const;
+export type EventStatus = (typeof EVENT_STATUSES)[number];
 
 export const user = sqliteTable(
   "user",
@@ -33,7 +40,7 @@ export const user = sqliteTable(
   (table) => [
     check(
       "user_role_check",
-      sql`${table.role} in ('member', 'donor', 'volunteer')`,
+      sql`${table.role} in ('member', 'donor', 'volunteer', 'staff')`,
     ),
   ],
 );
@@ -115,6 +122,48 @@ export const verification = sqliteTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const event = sqliteTable(
+  "event",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    titleZh: text("title_zh"),
+    description: text("description"),
+    descriptionZh: text("description_zh"),
+    location: text("location").notNull(),
+    locationZh: text("location_zh"),
+    startsAt: integer("starts_at", { mode: "timestamp" }).notNull(),
+    endsAt: integer("ends_at", { mode: "timestamp" }),
+    audience: text("audience", { enum: EVENT_AUDIENCES }).notNull(),
+    status: text("status", { enum: EVENT_STATUSES })
+      .default("draft")
+      .notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("event_starts_at_idx").on(table.startsAt),
+    index("event_status_idx").on(table.status),
+    check(
+      "event_audience_check",
+      sql`${table.audience} in ('members', 'volunteers', 'everyone')`,
+    ),
+    check(
+      "event_status_check",
+      sql`${table.status} in ('draft', 'published', 'cancelled')`,
+    ),
+    check(
+      "event_date_order_check",
+      sql`${table.endsAt} is null or ${table.endsAt} >= ${table.startsAt}`,
+    ),
+  ],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
@@ -139,6 +188,7 @@ export const schema = {
   session,
   account,
   verification,
+  event,
   userRelations,
   sessionRelations,
   accountRelations,

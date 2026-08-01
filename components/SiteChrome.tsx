@@ -198,11 +198,16 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const activityItems = zh ? zhActivities : enActivities;
   const involvedItems = zh ? zhInvolved : enInvolved;
   const contactPath = zh ? "/zh/contact-us-hk/" : "/contact-us/";
-  const loginPath = session ? "/portal" : "/login/";
-  const volunteerLabel = session
-    ? zh
-      ? "個人頁面"
-      : "My portal"
+  const isStaff = session?.user.role === "staff";
+  const loginPath = session ? (isStaff ? "/admin" : "/portal") : "/login/";
+  const portalLabel = session
+    ? isStaff
+      ? zh
+        ? "員工頁面"
+        : "Staff portal"
+      : zh
+        ? "個人頁面"
+        : "My portal"
     : zh
       ? "做義工"
       : "Volunteer";
@@ -320,7 +325,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             </div>
 
             <Link href={loginPath} className={styles.portalLink}>
-              {volunteerLabel}
+              {portalLabel}
             </Link>
 
             <Link href={donatePath} className={styles.donatePill}>
@@ -394,7 +399,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                 {zh ? "捐贈" : "Donate"}
               </Link>
               <Link href={loginPath} className={styles.mobileNavLink}>
-                {volunteerLabel}
+                {portalLabel}
               </Link>
             </div>
             <CalmModeToggle
@@ -469,7 +474,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
                   {text}
                 </Link>
               ))}
-              <Link href={loginPath}>{volunteerLabel}</Link>
+              <Link href={loginPath}>{portalLabel}</Link>
               <Link href={donatePath}>{zh ? "捐贈" : "Donate"}</Link>
             </div>
 

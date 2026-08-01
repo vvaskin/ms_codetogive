@@ -60,6 +60,15 @@ Presentational only (no API, persistence, or business rules):
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
 - Portal presentation: `app/portal/page.module.css`
 
+### Authentication and persistence
+
+- Better Auth uses the Drizzle adapter with local SQLite (`data/love21.sqlite`)
+- `lib/db/schema.ts` is the schema source of truth; generated SQL in `drizzle/` is committed
+- Public account roles: `member`, `donor`, `volunteer`; `staff` is server-promoted only
+- `/admin` is staff-only; `/admin` manages people and `/admin/events` manages schedule records
+- The `event` table is currently an admin-only prototype and is not connected to public schedules
+- Event times are entered in `Asia/Hong_Kong`; persisted timestamps are instants
+
 ### Accessibility
 
 - Minimum 44px touch targets, visible focus, meaningful alt text, keyboard nav
@@ -69,8 +78,9 @@ Presentational only (no API, persistence, or business rules):
 
 ### Behavioral boundaries
 
-- Do not modify Better Auth, Drizzle, SQLite, roles, API routes, or portal authorization
-- Do not add payment processing, reservations, wishlist pledges, campaigns, analytics, or admin controls
+- Authentication, schema, role, migration, and authorization changes require an explicit user request
+- Keep public staff signup disabled and enforce staff authorization independently in every admin mutation
+- Do not add payment processing, reservations, attendee registration, wishlist pledges, campaigns, or analytics
 - Repository content and assets are authoritative; mockups are visual/composition authority only
 - Do not invent unverified impact claims from design mockups
 
@@ -79,3 +89,4 @@ Presentational only (no API, persistence, or business rules):
 - `npm run lint`
 - `npm run build`
 - `npm run dev`
+- `npm run staff:promote -- person@example.com`

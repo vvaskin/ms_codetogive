@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { USER_ROLES, type UserRole } from "@/lib/db/schema";
+import {
+  PUBLIC_USER_ROLES,
+  type PublicUserRole,
+} from "@/lib/db/schema";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
@@ -115,14 +118,16 @@ export function AuthForm({
   mode,
   redirectTo = "/portal",
   locale = "en",
+  showAccountSwitch = true,
 }: {
   mode: AuthMode;
   redirectTo?: string;
   locale?: Locale;
+  showAccountSwitch?: boolean;
 }) {
   const router = useRouter();
   const lang: Copy = locale === "zh" ? copy.zh : copy.en;
-  const [role, setRole] = useState<UserRole>("member");
+  const [role, setRole] = useState<PublicUserRole>("member");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSignup = mode === "signup";
@@ -227,7 +232,7 @@ export function AuthForm({
           <fieldset className={styles.rolePicker}>
             <legend>{lang.accountType}</legend>
             <div className={styles.roleOptions}>
-              {USER_ROLES.map((value) => (
+              {PUBLIC_USER_ROLES.map((value) => (
                 <label
                   className={`${styles.roleOption} ${role === value ? styles.selected : ""}`}
                   key={value}
@@ -268,12 +273,14 @@ export function AuthForm({
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>
 
-      <p className={styles.authSwitch}>
-        {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
-        <Link href={switchHref}>
-          {isSignup ? lang.logIn : lang.createAccount}
-        </Link>
-      </p>
+      {showAccountSwitch && (
+        <p className={styles.authSwitch}>
+          {isSignup ? lang.alreadyHaveAccount : lang.newToPortal}{" "}
+          <Link href={switchHref}>
+            {isSignup ? lang.logIn : lang.createAccount}
+          </Link>
+        </p>
+      )}
     </form>
   );
 }
