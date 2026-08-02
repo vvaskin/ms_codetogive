@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
-<<<<<<< HEAD
-import { normalizeSignupRole } from "@/lib/roles";
-=======
 import { isSignupRole } from "@/lib/roles";
->>>>>>> portals
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
