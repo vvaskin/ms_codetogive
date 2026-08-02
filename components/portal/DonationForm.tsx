@@ -175,19 +175,19 @@ export function DonationForm({
 
   async function logoDataUri(): Promise<string> {
     try {
-      const response = await fetch("/assets/images/love21_logo.png");
-      if (!response.ok) return "/assets/images/love21_logo.png";
+      const response = await fetch("/assets/images/love21_logo.png?v=2");
+      if (!response.ok) return "/assets/images/love21_logo.png?v=2";
       const blob = await response.blob();
       return await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () =>
           resolve(reader.result as string);
         reader.onerror = () =>
-          resolve("/assets/images/love21_logo.png");
+          resolve("/assets/images/love21_logo.png?v=2");
         reader.readAsDataURL(blob);
       });
     } catch {
-      return "/assets/images/love21_logo.png";
+      return "/assets/images/love21_logo.png?v=2";
     }
   }
 

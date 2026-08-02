@@ -87,7 +87,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
         aria-label="Love 21 — return to website"
       >
         <Image
-          src="/assets/images/love21_logo.png"
+          src="/assets/images/love21_logo.png?v=2"
           alt=""
           width={330}
           height={202}
