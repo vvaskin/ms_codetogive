@@ -152,15 +152,10 @@ const routes = {
     zh: "/zh/donate-hk/?mode=items",
     cn: "/cn/donate/?mode=items",
   },
-  volunteer: {
-    en: "/our-volunteer/",
-    zh: "/zh/our-volunteer-hk/",
-    cn: "/cn/our-volunteer/",
-  },
   volunteerSignup: {
-    en: "/signup?role=volunteer",
-    zh: "/zh/signup-hk/?role=volunteer",
-    cn: "/cn/signup-hk/?role=volunteer",
+    en: "/signup?role=contributor",
+    zh: "/zh/signup-hk/?role=contributor",
+    cn: "/cn/signup-hk/?role=contributor",
   },
   stories: { en: "/stories/", zh: "/zh/stories-hk/", cn: "/cn/stories/" },
   ourStory: {
@@ -736,7 +731,7 @@ export const homepageContent: HomepageContent = {
     },
     volunteer: {
       label: { en: "Volunteer", zh: "做義工", cn: "做义工" },
-      href: routes.volunteer,
+      href: routes.volunteerSignup,
     },
     secondary: {
       label: {

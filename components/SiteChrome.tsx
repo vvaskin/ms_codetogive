@@ -158,11 +158,10 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const joinLabel = pick("Make a difference", "一起帶來改變", "一起带来改变");
   const signOutLabel = pick("Sign out", "登出", "退出登录");
   const signOutPendingLabel = pick("Signing out…", "登出中…", "退出中…");
-  const volunteerPath = pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/");
   const volunteerSignupPath = pick(
-    "/signup?role=volunteer",
-    "/zh/signup-hk/?role=volunteer",
-    "/cn/signup-hk/?role=volunteer",
+    "/signup?role=contributor",
+    "/zh/signup-hk/?role=contributor",
+    "/cn/signup-hk/?role=contributor",
   );
   const volunteerLabel = pick("Volunteer", "做義工", "做义工");
   const donatePath = pick("/donate/", "/zh/donate-hk/", "/cn/donate/");
@@ -349,7 +348,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <strong className={styles.footerColumnTitle}>
                 {pick("Support", "支持", "支持")}
               </strong>
-              <Link href={volunteerPath}>{volunteerLabel}</Link>
+              <Link href={volunteerSignupPath}>{volunteerLabel}</Link>
               <Link href={donatePath}>{donateLabel}</Link>
             </div>
 

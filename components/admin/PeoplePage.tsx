@@ -17,6 +17,11 @@ export async function PeoplePage({
 }) {
   return (
     <>
+      <AdminPageHeader
+        eyebrow="People"
+        title={title}
+        description={description}
+      />
       <PeopleDirectoryContent role={role} />
     </>
   );
