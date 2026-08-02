@@ -13,6 +13,10 @@ export default async function PortalLayout({
   if (!profile) redirect("/login?next=/portal");
   if (profile.role === "staff") redirect("/admin");
 
+  if (profile.role === "contributor") {
+    return <>{children}</>;
+  }
+
   return (
     <PortalShell
       user={{

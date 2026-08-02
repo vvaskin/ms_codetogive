@@ -53,3 +53,8 @@ context.txt
 ai.md
 
 /research/
+
+# local agent/work-in-progress files
+agent.md
+components/AbilityFlipBook.module.css
+components/AbilityFlipBook.tsx

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DonorDashboard } from "@/components/portal/DonorDashboard";
+import { ContributorPortalExperience } from "@/components/portal/ContributorPortalExperience";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
@@ -15,7 +15,7 @@ export default async function PortalPage() {
   if (!profile) redirect("/login?next=/portal");
 
   if (profile.role === "contributor") {
-    return <DonorDashboard name={profile.name} />;
+    return <ContributorPortalExperience initialNav="My Portal" name={profile.name} />;
   }
 
   // Staff is redirected to /admin by app/portal/layout.tsx; fall back to member
