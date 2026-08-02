@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ContributorPortalExperience } from "@/components/portal/ContributorPortalExperience";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
+import { getContributorPortalData } from "@/lib/portal/contributor-data";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -15,7 +16,14 @@ export default async function PortalPage() {
   if (!profile) redirect("/login?next=/portal");
 
   if (profile.role === "contributor") {
-    return <ContributorPortalExperience initialNav="My Portal" name={profile.name} />;
+    const data = await getContributorPortalData(profile.id);
+    return (
+      <ContributorPortalExperience
+        initialNav="My Portal"
+        name={profile.name}
+        data={data}
+      />
+    );
   }
 
   // Staff is redirected to /admin by app/portal/layout.tsx; fall back to member

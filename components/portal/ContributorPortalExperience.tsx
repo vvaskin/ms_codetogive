@@ -1,13 +1,442 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-import { useEffect, useRef, useState } from "react";
-import React from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { SiteToolsTray } from "@/components/SiteTools";
-import { localePaths } from "@/content/site-data";
+import {
+  AccessibilityMenu,
+  useAccessibilityPrefs,
+} from "@/components/SiteTools";
+import toolsStyles from "@/components/SiteTools.module.css";
+import { recordDonation } from "@/app/actions/donations";
+import { registerForEvent } from "@/app/actions/registrations";
+import { submitVolunteerApplication } from "@/app/actions/volunteer-applications";
+import {
+  buildDonorCertificateHtml,
+  generateDonorCertId,
+} from "@/lib/donor-certificate";
+import {
+  formatDayMonthYearAt,
+  formatEventTime,
+  formatWeekdayDayMonthAt,
+} from "@/lib/format-date";
+import {
+  formatCurrency,
+  frequencies,
+  type Frequency,
+} from "@/lib/portal/mock-data";
+import type {
+  ContributorPortalData,
+  PortalEventCard,
+} from "@/lib/portal/contributor-data";
+import type { ParticipationStatus } from "@/lib/supabase/types";
+import { DonorCertificateButton } from "./DonorCertificateButton";
+import { VolunteerCertificateButton } from "./VolunteerCertificateButton";
 import styles from "./ContributorPortalExperience.module.css";
+
+type Locale = "en" | "zh" | "cn";
+
+const STRINGS: Record<string, { en: string; zh: string; cn: string }> = {
+  portalLabel: { en: "Contributor Portal", zh: "貢獻者平台", cn: "贡献者平台" },
+  goToWebsite: { en: "Go to website", zh: "前往主網站", cn: "前往主网站" },
+  logOut: { en: "Log out", zh: "登出", cn: "登出" },
+  loggingOut: { en: "Logging out…", zh: "登出中…", cn: "登出中…" },
+  notifications: { en: "Notifications", zh: "通知", cn: "通知" },
+  siteTools: { en: "Site tools", zh: "網站工具", cn: "网站工具" },
+  navMyPortal: { en: "My Portal", zh: "我的主頁", cn: "我的主页" },
+  navMyDonations: { en: "My Donations", zh: "我的捐款", cn: "我的捐款" },
+  navMyVolunteer: { en: "My Volunteer", zh: "我的義工", cn: "我的义工" },
+  navEvents: { en: "Events", zh: "活動", cn: "活动" },
+  navDonate: { en: "Donate", zh: "捐款", cn: "捐款" },
+  thankYouPill: { en: "Thank you for showing up", zh: "感謝你的參與", cn: "感谢你的参与" },
+  welcomeBack: { en: "Welcome back, {name}.", zh: "歡迎回來，{name}。", cn: "欢迎回来，{name}。" },
+  welcomeSub: {
+    en: "Because of people like you, more families get to show the world #somuchability. Seriously - thank you.",
+    zh: "因為有你這樣的人，更多家庭得以向世界展現 #somuchability。衷心感謝你。",
+    cn: "因为有你这样的人，更多家庭得以向世界展现 #somuchability。衷心感谢你。",
+  },
+  joiningOne: { en: "event you're joining", zh: "個你正在參與的活動", cn: "个你正在参与的活动" },
+  joiningMany: { en: "events you're joining", zh: "個你正在參與的活動", cn: "个你正在参与的活动" },
+  whatsOn: { en: "What's On", zh: "最新動態", cn: "最新动态" },
+  seeAllEvents: { en: "See all events →", zh: "查看全部活動 →", cn: "查看全部活动 →" },
+  upcomingEvents: { en: "Upcoming events.", zh: "即將舉行的活動。", cn: "即将举行的活动。" },
+  noUpcomingEvents: { en: "No upcoming events yet", zh: "暫無即將舉行的活動", cn: "暂无即将举行的活动" },
+  noUpcomingSub: {
+    en: "New sport, nutrition and family activities go up every week.",
+    zh: "每週都會新增體育、營養及家庭活動。",
+    cn: "每周都会新增体育、营养及家庭活动。",
+  },
+  donorDashboard: { en: "Donor Dashboard", zh: "捐款者概覽", cn: "捐赠者概览" },
+  myDonationsTitle: { en: "My Donations.", zh: "我的捐款。", cn: "我的捐款。" },
+  myDonationsSub: {
+    en: "See your giving history, your impact, and how your money is put to work.",
+    zh: "查看你的捐款紀錄、影響力，以及你的捐款如何被運用。",
+    cn: "查看你的捐款记录、影响力，以及你的捐款如何被运用。",
+  },
+  yourImpact: { en: "Your Impact", zh: "你的影響", cn: "你的影响" },
+  impactTitle: { en: "What your generosity has made possible.", zh: "你的慷慨所帶來的一切。", cn: "你的慷慨所带来的一切。" },
+  statTotalDonated: { en: "total donated", zh: "累計捐款", cn: "累计捐款" },
+  statDonationsMade: { en: "donations made", zh: "捐款次數", cn: "捐款次数" },
+  statActiveRecurring: { en: "active recurring plans", zh: "進行中的定期捐款", cn: "进行中的定期捐款" },
+  statMonthlyCommitment: { en: "monthly commitment", zh: "每月捐款", cn: "每月捐款" },
+  givingHistory: { en: "Giving History", zh: "捐款紀錄", cn: "捐款记录" },
+  givingHistoryTitle: { en: "Your giving over the last 6 months.", zh: "你過去 6 個月的捐款。", cn: "你过去 6 个月的捐款。" },
+  noDonationsYet: {
+    en: "No donations yet - your giving will appear here once you make your first gift.",
+    zh: "暫無捐款——作出首次捐款後，你的紀錄會顯示在這裡。",
+    cn: "暂无捐款——作出首次捐款后，你的记录会显示在这里。",
+  },
+  monthlyGiving: { en: "Monthly giving", zh: "每月捐款", cn: "每月捐款" },
+  monthlyGivingSub: { en: "Completed gifts per month", zh: "每個月的已完成捐款", cn: "每个月的已完成捐款" },
+  recentDonations: { en: "Recent donations", zh: "最近捐款", cn: "最近捐款" },
+  recentDonationsSub: { en: "Your latest gifts", zh: "你最近的捐款", cn: "你最近的捐款" },
+  nothingHereYet: { en: "Nothing here yet.", zh: "暫無紀錄。", cn: "暂无记录。" },
+  recurringTag: { en: "Recurring", zh: "定期", cn: "定期" },
+  oneTimeTag: { en: "One-time", zh: "單次", cn: "单次" },
+  donorBadges: { en: "Donor Badges", zh: "捐款者徽章", cn: "捐赠者徽章" },
+  badgesEarnedCount: { en: "{earned} of {total} earned", zh: "已獲得 {earned}/{total}", cn: "已获得 {earned}/{total}" },
+  badgesTitle: { en: "Celebrating your generosity.", zh: "表揚你的慷慨。", cn: "表扬你的慷慨。" },
+  earnedTag: { en: "Earned", zh: "已獲得", cn: "已获得" },
+  badgeFirstGive: { en: "First Give", zh: "首次捐款", cn: "首次捐款" },
+  badgeFirstGiveDesc: { en: "Made your first donation", zh: "作出首次捐款", cn: "作出首次捐款" },
+  badgeRegular: { en: "Regular", zh: "定期支持者", cn: "定期支持者" },
+  badgeRegularDesc: { en: "Donated in 3 different months", zh: "在 3 個不同月份捐款", cn: "在 3 个不同月份捐款" },
+  badgeSupporter: { en: "Supporter", zh: "支持者", cn: "支持者" },
+  badgeSupporterDesc: { en: "Total giving reaches HK$500", zh: "累計捐款達 HK$500", cn: "累计捐款达 HK$500" },
+  badgeChampion: { en: "Champion", zh: "冠軍", cn: "冠军" },
+  badgeChampionDesc: { en: "One gift of HK$1,000 or more", zh: "單筆捐款 HK$1,000 或以上", cn: "单笔捐款 HK$1,000 或以上" },
+  badgePatron: { en: "Patron", zh: "贊助人", cn: "赞助人" },
+  badgePatronDesc: { en: "Total giving exceeds HK$5,000", zh: "累計捐款超過 HK$5,000", cn: "累计捐款超过 HK$5,000" },
+  badgeYearOne: { en: "Year One", zh: "週年之友", cn: "周年之友" },
+  badgeYearOneDesc: { en: "Donated in 6 different months", zh: "在 6 個不同月份捐款", cn: "在 6 个不同月份捐款" },
+  approvedTitle: { en: "You're an approved volunteer!", zh: "你已成為獲批義工！", cn: "你已成为获批义工！" },
+  submittedTitle: { en: "Application submitted!", zh: "申請已提交！", cn: "申请已提交！" },
+  statusSubmitted: {
+    en: "Your application has been submitted. Our team will review it and reach out within 5 business days.",
+    zh: "你的申請已提交。我們的團隊會在 5 個工作天內審核並聯絡你。",
+    cn: "你的申请已提交。我们的团队会在 5 个工作天内审核并联系你。",
+  },
+  statusUnderReview: {
+    en: "Your application is being reviewed by our team. We'll reach out once it's approved.",
+    zh: "你的申請正在審核中。獲批後我們會與你聯絡。",
+    cn: "你的申请正在审核中。获批后我们会与你联系。",
+  },
+  statusApproved: {
+    en: "You're an approved volunteer. Volunteer events are now unlocked for you.",
+    zh: "你已成為獲批義工，義工活動現已開放予你。",
+    cn: "你已成为获批义工，义工活动现已开放予你。",
+  },
+  statusFallback: { en: "We've received your application.", zh: "我們已收到你的申請。", cn: "我们已收到你的申请。" },
+  submittedOn: { en: "Submitted {date}", zh: "提交日期：{date}", cn: "提交日期：{date}" },
+  browseEvents: { en: "Browse events", zh: "瀏覽活動", cn: "浏览活动" },
+  willNotify: {
+    en: "You'll be notified when a staff member reviews your application.",
+    zh: "工作人員審核你的申請後，你便會收到通知。",
+    cn: "工作人员审核你的申请后，你便会收到通知。",
+  },
+  getInvolved: { en: "Get Involved", zh: "參與其中", cn: "参与其中" },
+  becomeVolunteerTitle: { en: "Become a Volunteer.", zh: "成為義工。", cn: "成为义工。" },
+  becomeVolunteerSub: {
+    en: "Join our community and make a real difference for local families.",
+    zh: "加入我們的社區，為本地家庭帶來真正的改變。",
+    cn: "加入我们的社区，为本地家庭带来真正的改变。",
+  },
+  rejectedBanner: { en: "Your previous application wasn't approved.", zh: "你之前的申請未獲批准。", cn: "你之前的申请未获批准。" },
+  chineseName: { en: "Chinese name", zh: "中文姓名", cn: "中文姓名" },
+  optionalChineseName: { en: "(optional - 中文姓名)", zh: "（選填 - 中文姓名）", cn: "（选填 - 中文姓名）" },
+  ageGroup: { en: "Age group", zh: "年齡組別", cn: "年龄组别" },
+  age1415: { en: "14-15 yrs", zh: "14-15 歲", cn: "14-15 岁" },
+  age1617: { en: "16-17 yrs", zh: "16-17 歲", cn: "16-17 岁" },
+  age18: { en: "18 or above", zh: "18 歲或以上", cn: "18 岁或以上" },
+  gender: { en: "Gender", zh: "性別", cn: "性别" },
+  genderFemale: { en: "Female", zh: "女性", cn: "女性" },
+  genderMale: { en: "Male", zh: "男性", cn: "男性" },
+  genderPreferNot: { en: "Prefer not to say", zh: "不便透露", cn: "不便透露" },
+  aboutYou: { en: "About you", zh: "關於你", cn: "关于你" },
+  aboutHint: {
+    en: "Tell us about your skills or why you want to volunteer...",
+    zh: "告訴我們你的技能，或你為何想成為義工……",
+    cn: "告诉我们你的技能，或你为何想成为义工……",
+  },
+  aboutPlaceholder: {
+    en: "I'm passionate about community sport and want to use my background in coaching to help young athletes build confidence...",
+    zh: "我熱愛社區體育，希望以我的教練背景協助年輕運動員建立自信……",
+    cn: "我热爱社区体育，希望以我的教练背景协助年轻运动员建立自信……",
+  },
+  hearAbout: { en: "How did you hear about us?", zh: "你如何認識我們？", cn: "你如何认识我们？" },
+  hearExisting: { en: "Existing Love 21 volunteer", zh: "現有 Love 21 義工", cn: "现有 Love 21 义工" },
+  hearSocial: { en: "Love 21 social media", zh: "Love 21 社交媒體", cn: "Love 21 社交媒体" },
+  hearEmail: { en: "Love 21 email newsletter", zh: "Love 21 電子通訊", cn: "Love 21 电子通讯" },
+  hearCompany: { en: "Company referral", zh: "公司轉介", cn: "公司转介" },
+  hearOther: { en: "Other", zh: "其他", cn: "其他" },
+  scrcLabel: { en: "SCRC certificate (Working with Children Check)", zh: "SCRC 證書（與兒童工作查核）", cn: "SCRC 证书（与儿童工作查核）" },
+  scrcHint: {
+    en: "Upload a clear scan or photo of your SCRC certificate (PDF, JPG or PNG).",
+    zh: "上載 SCRC 證書的清晰掃描或照片（PDF、JPG 或 PNG）。",
+    cn: "上传 SCRC 证书的清晰扫描或照片（PDF、JPG 或 PNG）。",
+  },
+  consentLabel: { en: "Parental / guardian consent form", zh: "家長／監護人同意書", cn: "家长／监护人同意书" },
+  consentHint: {
+    en: "Upload a signed consent form from your parent or guardian (PDF, JPG or PNG).",
+    zh: "上載由家長或監護人簽署的同意書（PDF、JPG 或 PNG）。",
+    cn: "上传由家长或监护人签署的同意书（PDF、JPG 或 PNG）。",
+  },
+  requiredToSubmit: { en: "Required to submit your application.", zh: "提交申請必須提供。", cn: "提交申请必须提供。" },
+  submitApplication: { en: "Submit application", zh: "提交申請", cn: "提交申请" },
+  submitting: { en: "Submitting…", zh: "提交中…", cn: "提交中…" },
+  errorGeneric: { en: "Something went wrong. Please try again.", zh: "發生錯誤，請再試一次。", cn: "发生错误，请再试一次。" },
+  eventsLockedTitle: { en: "Events are locked for now.", zh: "活動暫未開放。", cn: "活动暂未开放。" },
+  eventsLockedSub: {
+    en: "Volunteer events unlock once a staff member approves your volunteer application.",
+    zh: "義工活動會在你獲批義工申請後開放。",
+    cn: "义工活动会在你获批义工申请后开放。",
+  },
+  lockedSubmitted: {
+    en: "Your volunteer application is under review. Once a staff member approves it, upcoming events will unlock here.",
+    zh: "你的義工申請正在審核。獲批後，即將舉行的活動便會在這裡開放。",
+    cn: "你的义工申请正在审核。获批后，即将举行的活动便会在这里开放。",
+  },
+  lockedRejected: {
+    en: "Your volunteer application wasn't approved, so volunteer event sign-ups are locked.",
+    zh: "你的義工申請未獲批准，因此義工活動報名暫未開放。",
+    cn: "你的义工申请未获批准，因此义工活动报名暂未开放。",
+  },
+  lockedWithdrawn: {
+    en: "You withdrew your volunteer application, so volunteer event sign-ups are locked.",
+    zh: "你已撤回義工申請，因此義工活動報名暫未開放。",
+    cn: "你已撤回义工申请，因此义工活动报名暂未开放。",
+  },
+  viewMyApplication: { en: "View my application", zh: "查看我的申請", cn: "查看我的申请" },
+  upcomingEventsTitle: { en: "Upcoming Events", zh: "即將舉行的活動", cn: "即将举行的活动" },
+  upcomingEventsSub: {
+    en: "Find a session that fits your schedule and register your spot.",
+    zh: "找出配合你時間的活動並報名留位。",
+    cn: "找出配合你时间的活动并报名留位。",
+  },
+  searchPlaceholder: { en: "Search by event name...", zh: "按活動名稱搜尋……", cn: "按活动名称搜索……" },
+  allProgrammes: { en: "All programmes", zh: "全部計劃", cn: "全部计划" },
+  tagSport: { en: "Sport", zh: "體育", cn: "体育" },
+  tagNutrition: { en: "Nutrition", zh: "營養", cn: "营养" },
+  tagFamilySupport: { en: "Family Support", zh: "家庭支援", cn: "家庭支援" },
+  tagCommunity: { en: "Community", zh: "社區", cn: "社区" },
+  clearFilters: { en: "Clear", zh: "清除", cn: "清除" },
+  eventsAvailable: { en: "{count} events available", zh: "共有 {count} 個活動", cn: "共有 {count} 个活动" },
+  eventsShown: { en: "{shown} of {total} events", zh: "顯示 {shown}/{total} 個活動", cn: "显示 {shown}/{total} 个活动" },
+  noMatch: { en: "No events match your search", zh: "沒有符合搜尋條件的活動", cn: "没有符合搜索条件的活动" },
+  noMatchSub: { en: "Try adjusting your filters", zh: "試試調整篩選條件", cn: "试试调整筛选条件" },
+  registerForEvent: { en: "Register for this event", zh: "報名參加此活動", cn: "报名参加此活动" },
+  registering: { en: "Registering…", zh: "報名中…", cn: "报名中…" },
+  registerError: { en: "Could not register. Please try again.", zh: "報名失敗，請再試一次。", cn: "报名失败，请再试一次。" },
+  myEventsEyebrow: { en: "My Events", zh: "我的活動", cn: "我的活动" },
+  myEventsTitle: { en: "Events you're part of.", zh: "你參與的活動。", cn: "你参与的活动。" },
+  statusRegistered: { en: "Registered", zh: "已報名", cn: "已报名" },
+  statusAttended: { en: "Attended", zh: "已出席", cn: "已出席" },
+  statusPending: { en: "Pending review", zh: "待審核", cn: "待审核" },
+  statusCancelled: { en: "Cancelled", zh: "已取消", cn: "已取消" },
+  statusNoShow: { en: "No-show", zh: "缺席", cn: "缺席" },
+  statusNotApproved: { en: "Not approved", zh: "未獲批准", cn: "未获批准" },
+  giveBack: { en: "Give Back", zh: "回饋社會", cn: "回馈社会" },
+  donationMattersTitle: { en: "Your donation matters.", zh: "你的捐款舉足輕重。", cn: "你的捐款举足轻重。" },
+  donationMattersSub: {
+    en: "Every dollar goes directly to programmes supporting children and families in our community.",
+    zh: "每分捐款都直接投入支援我們社區兒童與家庭的計劃。",
+    cn: "每分捐款都直接投入支援我们社区儿童与家庭的计划。",
+  },
+  oneTimeTab: { en: "One-time", zh: "單次捐款", cn: "单次捐款" },
+  recurringTab: { en: "Recurring", zh: "定期捐款", cn: "定期捐款" },
+  chooseImpact: { en: "Choose your impact", zh: "選擇你的影響", cn: "选择你的影响" },
+  tierHero: { en: "Hero", zh: "英雄", cn: "英雄" },
+  tierHeroDesc: { en: "Sponsors a full volunteer shift for one programme", zh: "資助一個計劃的完整義工班次", cn: "资助一个计划的完整义工班次" },
+  tierPatron: { en: "Patron", zh: "贊助人", cn: "赞助人" },
+  tierPatronDesc: { en: "Covers a week of family support for one household", zh: "資助一個家庭一星期的家庭支援", cn: "资助一个家庭一星期的家庭支援" },
+  tierGuardian: { en: "Guardian", zh: "守護者", cn: "守护者" },
+  tierGuardianDesc: { en: "Funds a full programme day for a group of families", zh: "資助一群家庭一整天的計劃活動", cn: "资助一群家庭一整天的计划活动" },
+  customAmount: { en: "Custom amount", zh: "自訂金額", cn: "自订金额" },
+  customAmountDesc: { en: "You choose the amount", zh: "金額由你決定", cn: "金额由你决定" },
+  enterAmount: { en: "Enter an amount", zh: "輸入金額", cn: "输入金额" },
+  customAmountAria: { en: "Custom amount in HKD", zh: "自訂港幣金額", cn: "自订港币金额" },
+  frequencyLabel: { en: "Frequency", zh: "捐款頻率", cn: "捐款频率" },
+  freqMonthly: { en: "Monthly", zh: "每月", cn: "每月" },
+  freqQuarterly: { en: "Quarterly", zh: "每季", cn: "每季" },
+  freqYearly: { en: "Yearly", zh: "每年", cn: "每年" },
+  yourGift: { en: "Your gift", zh: "你的捐款", cn: "你的捐款" },
+  recurringDonation: { en: "Recurring donation", zh: "定期捐款", cn: "定期捐款" },
+  donationAmount: { en: "Donation amount", zh: "捐款金額", cn: "捐款金额" },
+  processingFee: { en: "Processing fee", zh: "處理費", cn: "处理费" },
+  donateNow: { en: "Donate {amount}", zh: "捐款 {amount}", cn: "捐款 {amount}" },
+  recording: { en: "Recording…", zh: "處理中…", cn: "处理中…" },
+  securePayment: { en: "Secure payment - receipt emailed automatically", zh: "安全付款——收據會自動電郵給您", cn: "安全付款——收据会自动电邮给您" },
+  thankYouTitle: { en: "Thank you, {name}!", zh: "多謝你，{name}！", cn: "多谢你，{name}！" },
+  confirmationBody: {
+    en: "Your {kind} donation of {amount} is making a real difference for families in our community.",
+    zh: "你的{kind}捐款 {amount} 正在為我們社區的家庭帶來真正的改變。",
+    cn: "你的{kind}捐款 {amount} 正在为我们社区的家庭带来真正的改变。",
+  },
+  kindRecurring: { en: "recurring", zh: "定期", cn: "定期" },
+  kindOneTime: { en: "one-time", zh: "單次", cn: "单次" },
+  demoNote: { en: "This is a demo - no payment has been taken.", zh: "這是示範——未收取任何款項。", cn: "这是示范——未收取任何款项。" },
+  downloadCertificate: { en: "Download certificate", zh: "下載證書", cn: "下载证书" },
+  donateAgain: { en: "Donate again", zh: "再次捐款", cn: "再次捐款" },
+  backToPortal: { en: "Back to portal", zh: "返回主頁", cn: "返回主页" },
+  friend: { en: "friend", zh: "朋友", cn: "朋友" },
+  roleContributor: { en: "Contributor", zh: "貢獻者", cn: "贡献者" },
+  badgeContributor: { en: "Contributor", zh: "貢獻者", cn: "贡献者" },
+  badgeApprovedVolunteer: { en: "Approved volunteer", zh: "獲批義工", cn: "获批义工" },
+  badgeDonor: { en: "Donor", zh: "捐款者", cn: "捐赠者" },
+  statHoursGiven: { en: "Hours given", zh: "義工時數", cn: "义工时数" },
+  statSessions: { en: "Sessions", zh: "參與次數", cn: "参与次数" },
+  statTotalGiven: { en: "Total donated", zh: "累計捐款", cn: "累计捐款" },
+  statDonations: { en: "Donations", zh: "捐款次數", cn: "捐款次数" },
+  yourCertificates: { en: "Your certificates", zh: "你的證書", cn: "你的证书" },
+  certificateNote: {
+    en: "Certificates reflect the hours you've logged at attended sessions and your completed donations.",
+    zh: "證書反映你於已出席活動所記錄的時數及已完成的捐款。",
+    cn: "证书反映你于已出席活动所记录的时数及已完成的捐款。",
+  },
+  languageLabel: { en: "Language", zh: "語言", cn: "语言" },
+};
+
+interface LocaleCtxValue {
+  locale: Locale;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}
+
+const LocaleContext = createContext<LocaleCtxValue>({
+  locale: "en",
+  t: (key: string) => key,
+});
+
+function makeT(locale: Locale) {
+  return (key: string, vars?: Record<string, string | number>): string => {
+    const entry = STRINGS[key];
+    const value = entry?.[locale] ?? entry?.en ?? key;
+    if (!vars) return value;
+    return value.replace(/\{(\w+)\}/g, (match, k: string) =>
+      k in vars ? String(vars[k]) : match,
+    );
+  };
+}
+
+function usePortalText(): LocaleCtxValue {
+  return useContext(LocaleContext);
+}
+
+function GlobeIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className={toolsStyles.languageIcon}
+      fill="none"
+      focusable="false"
+      height="20"
+      viewBox="0 0 24 24"
+      width="20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M3.5 12h17" stroke="currentColor" strokeLinecap="round" strokeWidth="1.75" />
+      <path
+        d="M12 3c2.5 2.6 3.75 5.6 3.75 9S14.5 18.4 12 21c-2.5-2.6-3.75-5.6-3.75-9S9.5 5.6 12 3Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+      />
+    </svg>
+  );
+}
+
+function PortalLangMenu({ locale, onChange }: { locale: Locale; onChange: (l: Locale) => void }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const { t } = usePortalText();
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  const options = [
+    { id: "en" as const, name: "English", short: "EN" },
+    { id: "zh" as const, name: "繁體中文", short: "繁" },
+    { id: "cn" as const, name: "简体中文", short: "简" },
+  ];
+
+  return (
+    <div ref={rootRef} className={toolsStyles.languageMenu}>
+      <button
+        type="button"
+        className={`${toolsStyles.accessTrigger} ${open ? toolsStyles.accessTriggerOpen : ""}`}
+        aria-label={t("languageLabel")}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        style={{ color: "var(--portal-muted-3)" }}
+      >
+        <GlobeIcon />
+      </button>
+      {open ? (
+        <div
+          className={toolsStyles.languagePanel}
+          role="menu"
+          aria-label={t("languageLabel")}
+        >
+          {options.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                onChange(option.id);
+                setOpen(false);
+              }}
+              className={`${toolsStyles.languageOption} ${locale === option.id ? toolsStyles.languageOptionActive : ""}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                width: "100%",
+                minHeight: 44,
+                padding: "0.45rem 0.7rem",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <span className={toolsStyles.languageOptionName}>{option.name}</span>
+              <span className={toolsStyles.languageOptionShort}>{option.short}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 const s = (w = 20) => ({ width: w, height: w, display: "block" as const });
 const ico = (strokeWidth = 2) => ({
@@ -18,23 +447,12 @@ const ico = (strokeWidth = 2) => ({
   strokeLinejoin: "round" as const,
 });
 
-const IcoClock = ({ size = 20 }) => (
-  <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
-    <circle cx={12} cy={12} r={10} />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
 const IcoCalendar = ({ size = 20 }) => (
   <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
     <rect x={3} y={4} width={18} height={18} rx={2} />
     <line x1={16} y1={2} x2={16} y2={6} />
     <line x1={8} y1={2} x2={8} y2={6} />
     <line x1={3} y1={10} x2={21} y2={10} />
-  </svg>
-);
-const IcoActivity = ({ size = 20 }) => (
-  <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
   </svg>
 );
 const IcoHeart = ({ size = 20 }) => (
@@ -126,17 +544,6 @@ const IcoMapPin = ({ size = 20 }) => (
     <circle cx={12} cy={10} r={3} />
   </svg>
 );
-const IcoPencil = ({ size = 20 }) => (
-  <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </svg>
-);
-const IcoHandshake = ({ size = 20 }) => (
-  <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
-    <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
-  </svg>
-);
 const IcoShield = ({ size = 20 }) => (
   <svg viewBox="0 0 24 24" style={s(size)} {...ico()}>
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -181,497 +588,370 @@ const IcoChevronLeft = ({ size = 16 }) => (
 
 const navLinks = ["My Portal", "My Donations", "My Volunteer", "Events", "Donate"] as const;
 
-const donorJourneySteps = [
-  { label: "First donation", done: true },
-  { label: "Regular donor", done: true, active: true },
-  { label: "Champion", done: false, badge: "$" },
-  { label: "Patron", done: false, badge: "*" },
-];
+type Nav = (typeof navLinks)[number];
 
-const donorStats: { icon: React.ReactNode; value: string; label: string; color: string }[] = [
-  { icon: <IcoDollar size={22} />, value: "$325", label: "total donated", color: "#e85d7a" },
-  { icon: <IcoCalendar size={22} />, value: "7", label: "donations made", color: "#4a9fd4" },
-  { icon: <IcoHome size={22} />, value: "4", label: "programmes funded", color: "#4caf89" },
-  { icon: <IcoUsers size={22} />, value: "~60", label: "families impacted", color: "#d4a017" },
-];
+const NAV_LABEL_KEYS: Record<Nav, string> = {
+  "My Portal": "navMyPortal",
+  "My Donations": "navMyDonations",
+  "My Volunteer": "navMyVolunteer",
+  Events: "navEvents",
+  Donate: "navDonate",
+};
 
-const donorDonationHistory = [
-  { month: "Feb", value: 25 },
-  { month: "Mar", value: 50 },
-  { month: "Apr", value: 25 },
-  { month: "May", value: 50 },
-  { month: "Jun", value: 100 },
-  { month: "Jul", value: 75, highlight: true },
-];
+const PORTAL_LOCALE_KEY = "portal-locale";
+const PORTAL_LOCALE_EVENT = "love21-portal-locale";
 
-const donorBadges: { icon: React.ReactNode; label: string; desc: string; earned: boolean; bg: string; iconBg: string; iconColor: string }[] = [
-  { icon: <IcoHeart size={20} />, label: "First Give", desc: "Made your first donation", earned: true, bg: "#fdf6e3", iconBg: "#fff", iconColor: "#a07800" },
-  { icon: <IcoRefresh size={20} />, label: "Consistent", desc: "Donated 3 months in a row", earned: true, bg: "#edf7f0", iconBg: "#fff", iconColor: "#2e7d5f" },
-  { icon: <IcoAward size={20} />, label: "Supporter", desc: "Donated $25 or more", earned: true, bg: "#fdf0f2", iconBg: "#fff", iconColor: "#c13057" },
-  { icon: <IcoLock size={20} />, label: "Champion", desc: "Donated $100+ in one month", earned: false, bg: "#f7f5f3", iconBg: "#eee", iconColor: "#bbb" },
-  { icon: <IcoLock size={20} />, label: "Patron", desc: "Total giving exceeds $500", earned: false, bg: "#f7f5f3", iconBg: "#eee", iconColor: "#bbb" },
-  { icon: <IcoLock size={20} />, label: "Year One", desc: "Donated for 12 months", earned: false, bg: "#f7f5f3", iconBg: "#eee", iconColor: "#bbb" },
-];
-
-const donationBreakdown = [
-  { name: "Sport", pct: 35, color: "#e85d7a" },
-  { name: "Nutrition", pct: 25, color: "#4caf89" },
-  { name: "Family", pct: 22, color: "#4a9fd4" },
-  { name: "CSR", pct: 18, color: "#c8961a" },
-];
-
-const donationTiers: { amount: number; label: string; desc: string; icon: React.ReactNode }[] = [
-  { amount: 25, label: "Supporter", desc: "Covers sport equipment for one child for a term", icon: <IcoAward size={22} /> },
-  { amount: 50, label: "Champion", desc: "Funds a family's nutrition session and meal kit", icon: <IcoNutrition size={22} /> },
-  { amount: 100, label: "Hero", desc: "Sponsors a full volunteer shift for one programme", icon: <IcoStar size={22} /> },
-  { amount: 250, label: "Patron", desc: "Covers a week of family support for one household", icon: <IcoTrophy size={22} /> },
-];
-
-const impactStats = [
-  { value: "$42K", label: "raised this year", color: "#e85d7a" },
-  { value: "1,200+", label: "families supported", color: "#4a9fd4" },
-  { value: "18", label: "programmes funded", color: "#4caf89" },
-  { value: "94%", label: "goes directly to families", color: "#d4a017" },
-];
-
-function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function arcPath(cx: number, cy: number, outerR: number, innerR: number, startDeg: number, endDeg: number) {
-  const s1 = polarToCartesian(cx, cy, outerR, startDeg);
-  const e1 = polarToCartesian(cx, cy, outerR, endDeg);
-  const s2 = polarToCartesian(cx, cy, innerR, endDeg);
-  const e2 = polarToCartesian(cx, cy, innerR, startDeg);
-  const large = endDeg - startDeg > 180 ? 1 : 0;
-  return [
-    `M ${s1.x} ${s1.y}`,
-    `A ${outerR} ${outerR} 0 ${large} 1 ${e1.x} ${e1.y}`,
-    `L ${s2.x} ${s2.y}`,
-    `A ${innerR} ${innerR} 0 ${large} 0 ${e2.x} ${e2.y}`,
-    "Z",
-  ].join(" ");
-}
-
-function DonutChart() {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const cx = 90;
-  const cy = 90;
-  const outerR = 68;
-  const innerR = 42;
-  const segments = donationBreakdown.reduce<Array<{ name: string; pct: number; color: string; start: number; end: number }>>((acc, d) => {
-    const start = acc.length ? acc[acc.length - 1].end : 0;
-    const span = (d.pct / 100) * 360;
-    const end = start + span;
-    acc.push({ ...d, start, end });
-    return acc;
-  }, []);
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-      <svg width={180} height={180} viewBox="0 0 180 180">
-        {segments.map((seg, i) => {
-          const isHov = hovered === i;
-          return (
-            <path
-              key={seg.name}
-              d={arcPath(cx, cy, isHov ? outerR + 6 : outerR, innerR, seg.start, seg.end - 0.5)}
-              fill={seg.color}
-              opacity={hovered !== null && !isHov ? 0.5 : 1}
-              style={{ cursor: "pointer", transition: "all 0.2s" }}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-            />
-          );
-        })}
-        <text x={cx} y={cy - 8} textAnchor="middle" fontSize={20} fontWeight={800} fill="#1a1a1a">
-          {hovered !== null ? `${segments[hovered].pct}%` : "$325"}
-        </text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fontSize={11} fill="#999">
-          {hovered !== null ? segments[hovered].name : "total donated"}
-        </text>
-      </svg>
-      <div style={{ display: "flex", gap: 0, width: "100%", borderRadius: 12, overflow: "hidden", border: "1px solid #ede8e3" }}>
-        {segments.map((seg, i) => (
-          <div
-            key={seg.name}
-            onMouseEnter={() => setHovered(i)}
-            onMouseLeave={() => setHovered(null)}
-            style={{
-              flex: seg.pct,
-              padding: "12px 14px",
-              backgroundColor: hovered === i ? seg.color : "#fff",
-              cursor: "default",
-              transition: "background 0.2s",
-              borderRight: i < segments.length - 1 ? "1px solid #ede8e3" : "none",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-              <div style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: seg.color, flexShrink: 0, opacity: hovered === i ? 0 : 1, transition: "opacity 0.15s" }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: hovered === i ? "#fff" : "#1a1a1a" }}>{seg.name}</span>
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: hovered === i ? "#fff" : seg.color }}>{seg.pct}%</div>
-          </div>
-        ))}
-      </div>
-      <p style={{ fontSize: 11, color: "#bbb", margin: 0 }}>Hover a segment to explore - 94% goes directly to programmes</p>
-    </div>
-  );
-}
-
-function ProfilePage({ onBack }: { onBack: () => void }) {
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({
-    fullName: "Sarah Chan",
-    email: "sarah.chan@email.com",
-    phone: "+61 412 345 678",
-    location: "Sydney, NSW",
-    about: "Passionate about community sport and making a difference for families in need. I've been volunteering with this organisation since 2023 and it's been one of the most rewarding experiences of my life.",
-  });
-  const [draft, setDraft] = useState({ ...form });
-
-  const fieldStyle = {
-    width: "100%",
-    padding: "9px 12px",
-    border: "1.5px solid #e8e3de",
-    borderRadius: 9,
-    fontSize: 13,
-    color: "#1a1a1a",
-    outline: "none",
-    boxSizing: "border-box" as const,
-    backgroundColor: "#fafaf9",
-    fontFamily: "inherit",
-    transition: "border-color 0.15s",
-  };
-
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 48px" }}>
-      <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#888", display: "flex", alignItems: "center", gap: 6, marginBottom: 28, padding: 0 }}>
-        <IcoChevronLeft size={14} /> Back to portal
-      </button>
-
-      <div style={{ backgroundColor: "#fdf0f2", borderRadius: 20, padding: "36px 40px", marginBottom: 32, position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", right: -20, top: -30, width: 140, height: 140, borderRadius: "50%", backgroundColor: "#7ecec4", opacity: 0.18 }} />
-        <div style={{ position: "absolute", right: 60, bottom: -40, width: 100, height: 100, borderRadius: "50%", backgroundColor: "#e85d7a", opacity: 0.1 }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 28, position: "relative", zIndex: 1 }}>
-          <div style={{ position: "relative", flexShrink: 0 }}>
-            <div style={{ width: 88, height: 88, borderRadius: "50%", backgroundColor: "#8bbdd9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 800, color: "#fff", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>SC</div>
-            <div style={{ position: "absolute", bottom: 2, right: 2, width: 18, height: 18, borderRadius: "50%", backgroundColor: "#4caf89", border: "2px solid #fff" }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>{form.fullName}</h1>
-            <p style={{ fontSize: 13, color: "#888", margin: "0 0 12px" }}>Regular Volunteer - Member since March 2023</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-              <span style={{ fontSize: 12, backgroundColor: "#fbd4dc", color: "#c13057", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>Regular volunteer</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, backgroundColor: "#d6f0e8", color: "#2e7d5f", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}><IcoLeaf size={11} />First Steps</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, backgroundColor: "#fdf6e3", color: "#a07800", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}><IcoStar size={11} />Regular</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, backgroundColor: "#e8f2fb", color: "#1e5c8a", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}><IcoHandshake size={11} />Team Player</span>
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 32, marginTop: 28, paddingTop: 24, borderTop: "1px solid rgba(0,0,0,0.07)", position: "relative", zIndex: 1 }}>
-          {[
-            { value: "42", label: "Hours given", color: "#e85d7a" },
-            { value: "19", label: "Sessions", color: "#4a9fd4" },
-            { value: "3", label: "Programmes", color: "#e07043" },
-            { value: "~35", label: "People helped", color: "#d4a017" },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 11, color: "#888", marginTop: 2 }}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 14, padding: "28px", marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Contact &amp; About</p>
-          {!editing ? (
-            <button
-              onClick={() => setEditing(true)}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 18px", borderRadius: 8, border: "1.5px solid #e85d7a", backgroundColor: "transparent", color: "#e85d7a", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#fdf0f2";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-              }}
-            >
-              <IcoPencil size={14} /> Edit profile
-            </button>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => { setDraft({ ...form }); setEditing(false); }} style={{ padding: "7px 18px", borderRadius: 8, border: "1.5px solid #e8e3de", backgroundColor: "#fff", color: "#888", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-              <button onClick={() => { setForm({ ...draft }); setEditing(false); }} style={{ padding: "7px 18px", borderRadius: 8, border: "none", backgroundColor: "#e85d7a", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Save changes</button>
-            </div>
-          )}
-        </div>
-
-        {editing ? (
-          <>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-              {([
-                ["Full name", "fullName"],
-                ["Email", "email"],
-                ["Phone", "phone"],
-                ["Location", "location"],
-              ] as [string, keyof typeof draft][]).map(([label, key]) => (
-                <div key={key}>
-                  <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 }}>{label}</div>
-                  <input
-                    value={draft[key]}
-                    onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-                    style={fieldStyle}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "#e85d7a";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "#e8e3de";
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            <div>
-              <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 }}>About</div>
-              <textarea
-                value={draft.about}
-                onChange={(e) => setDraft({ ...draft, about: e.target.value })}
-                rows={4}
-                style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.6 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#e85d7a";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e8e3de";
-                }}
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
-              {([
-                ["Full name", form.fullName],
-                ["Email", form.email],
-                ["Phone", form.phone],
-                ["Location", form.location],
-              ] as [string, string][]).map(([label, value]) => (
-                <div key={label}>
-                  <div style={{ fontSize: 11, color: "#bbb", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 14, color: "#1a1a1a", fontWeight: 500 }}>{value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ borderTop: "1px solid #f0ece8", paddingTop: 20 }}>
-              <div style={{ fontSize: 11, color: "#bbb", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 8 }}>About</div>
-              <p style={{ fontSize: 14, color: "#444", lineHeight: 1.75, margin: 0 }}>{form.about}</p>
-            </div>
-          </>
-        )}
-      </div>
-    </main>
-  );
-}
-
-const newsEvents = [
-  { tag: "Sport", tagColor: "#e85d7a", tagBg: "#fbd4dc", title: "Saturday Morning Football Clinic returns for Term 3", date: "Aug 9, 2026", photo: "https://images.unsplash.com/photo-1752681305099-89eab8580496?w=480&h=280&fit=crop&auto=format" },
-  { tag: "CSR", tagColor: "#1e5c8a", tagBg: "#d6e9f8", title: "Corporate Partner Day - ANZ Bank Team Joining Us", date: "Aug 14, 2026", photo: "https://images.unsplash.com/photo-1560220604-1985ebfe28b1?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Nutrition", tagColor: "#2e7d5f", tagBg: "#d6f0e8", title: "Healthy Lunchbox Workshop - Spots Still Open", date: "Aug 16, 2026", photo: "https://images.unsplash.com/photo-1653233797467-1a528819fd4f?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Community", tagColor: "#a07800", tagBg: "#fdf6e3", title: "Annual Community Picnic Planning Kickoff", date: "Aug 20, 2026", photo: "https://images.unsplash.com/photo-1592753054398-9fa298d40e85?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Sport", tagColor: "#e85d7a", tagBg: "#fbd4dc", title: "New Swimming Programme Launching in September", date: "Aug 22, 2026", photo: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=480&h=280&fit=crop&auto=format" },
-  { tag: "CSR", tagColor: "#1e5c8a", tagBg: "#d6e9f8", title: "Westpac Foundation Grant - Community Impact Report", date: "Aug 28, 2026", photo: "https://images.unsplash.com/photo-1616680214084-22670de1bc82?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Family Support", tagColor: "#7b3fa0", tagBg: "#ede0f7", title: "Back-to-School Backpack Drive - Help Us Pack 300 Bags", date: "Sep 3, 2026", photo: "https://images.unsplash.com/photo-1758599668178-d9716bbda9d5?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Nutrition", tagColor: "#2e7d5f", tagBg: "#d6f0e8", title: "Chef Volunteer Spotlight: Meet Marcus", date: "Sep 5, 2026", photo: "https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=480&h=280&fit=crop&auto=format" },
-  { tag: "Sport", tagColor: "#e85d7a", tagBg: "#fbd4dc", title: "Junior Athletics Day - Register Your Club", date: "Sep 12, 2026", photo: "https://images.unsplash.com/photo-1766066015219-b10a97dbb781?w=480&h=280&fit=crop&auto=format" },
-];
-
-function NewsCarousel() {
-  const [page, setPage] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const CARDS_PER_PAGE = 3;
-  const totalPages = Math.ceil(newsEvents.length / CARDS_PER_PAGE);
-
-  const goTo = (next: number) => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setPage(next % totalPages);
-      setAnimating(false);
-    }, 400);
-  };
-
-  useEffect(() => {
-    timerRef.current = setTimeout(() => goTo(page + 1), 5000);
+const portalLocaleStore = {
+  subscribe: (onStoreChange: () => void) => {
+    window.addEventListener("storage", onStoreChange);
+    window.addEventListener(PORTAL_LOCALE_EVENT, onStoreChange);
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      window.removeEventListener("storage", onStoreChange);
+      window.removeEventListener(PORTAL_LOCALE_EVENT, onStoreChange);
     };
-  }, [page]);
+  },
+  getSnapshot: (): Locale => {
+    const value = window.localStorage.getItem(PORTAL_LOCALE_KEY);
+    return value === "zh" || value === "cn" ? value : "en";
+  },
+  getServerSnapshot: () => "en" as const,
+};
 
-  const visible = newsEvents.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE);
+const MONTHS_LOCALIZED: Record<Locale, string[]> = {
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  zh: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+  cn: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+};
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
+}
+
+function eventTag(type: PortalEventCard["type"]) {
+  switch (type) {
+    case "sport":
+      return { labelKey: "tagSport", color: "var(--portal-pink-deep)", bg: "var(--portal-pink-chip)" };
+    case "nutrition":
+      return { labelKey: "tagNutrition", color: "var(--portal-teal-deep)", bg: "var(--portal-teal-soft)" };
+    case "family_support":
+      return { labelKey: "tagFamilySupport", color: "var(--portal-purple)", bg: "var(--portal-purple-soft)" };
+    default:
+      return { labelKey: "tagCommunity", color: "var(--portal-gold-deep)", bg: "var(--portal-gold-soft)" };
+  }
+}
+
+const statusMeta: Record<string, { labelKey: string; color: string; bg: string }> = {
+  accepted: { labelKey: "statusRegistered", color: "var(--portal-teal-deep)", bg: "var(--portal-teal-soft)" },
+  attended: { labelKey: "statusAttended", color: "var(--portal-blue-deep)", bg: "var(--portal-blue-soft)" },
+  pending: { labelKey: "statusPending", color: "var(--portal-gold-deep)", bg: "var(--portal-gold-soft)" },
+  cancelled: { labelKey: "statusCancelled", color: "var(--portal-muted-4)", bg: "var(--portal-neutral)" },
+  no_show: { labelKey: "statusNoShow", color: "var(--portal-pink-deep)", bg: "var(--portal-pink-chip)" },
+  rejected: { labelKey: "statusNotApproved", color: "var(--portal-pink-deep)", bg: "var(--portal-pink-chip)" },
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 14px",
+  border: "1.5px solid var(--portal-border-2)",
+  borderRadius: 10,
+  fontSize: "0.875rem",
+  color: "var(--portal-ink)",
+  outline: "none",
+  boxSizing: "border-box",
+  backgroundColor: "#fff",
+  fontFamily: "inherit",
+  transition: "border-color 0.15s",
+};
+
+const pageStyle: React.CSSProperties = {
+  maxWidth: 1200,
+  margin: "0 auto",
+  padding: "40px 48px",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  fontSize: "0.6875rem",
+  fontWeight: 700,
+  color: "var(--portal-pink)",
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  margin: "0 0 6px",
+};
+
+const pageTitleStyle: React.CSSProperties = {
+  fontSize: "2rem",
+  fontWeight: 700,
+  color: "var(--portal-ink)",
+  margin: "0 0 8px",
+};
+
+const pageSubtitleStyle: React.CSSProperties = {
+  fontSize: "0.875rem",
+  color: "var(--portal-muted-3)",
+  margin: 0,
+};
+
+const sectionEyebrowStyle: React.CSSProperties = {
+  fontSize: "0.6875rem",
+  fontWeight: 700,
+  color: "var(--portal-blue)",
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  margin: "0 0 6px",
+};
+
+const sectionTitleStyle: React.CSSProperties = {
+  fontSize: "1.625rem",
+  fontWeight: 700,
+  color: "var(--portal-ink)",
+  margin: "0 0 8px",
+};
+
+function Dashboard({ name, data, go }: { name: string; data: ContributorPortalData; go: (nav: Nav) => void }) {
+  const { t, locale } = usePortalText();
+  const upcoming = data.events.filter((ev) => new Date(ev.startsAt) >= new Date());
+  const attending = data.participations.filter((p) => p.status === "accepted").length;
 
   return (
-    <section style={{ marginBottom: 56 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>What&apos;s On</p>
-        <button style={{ fontSize: 12, color: "#e85d7a", background: "none", border: "none", cursor: "pointer", fontWeight: 600, padding: 0 }}>See all events -&gt;</button>
-      </div>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 24 }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: 0 }}>News &amp; upcoming events.</h2>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button key={i} onClick={() => goTo(i)} style={{ width: i === page ? 20 : 7, height: 7, borderRadius: 4, border: "none", cursor: "pointer", padding: 0, backgroundColor: i === page ? "#e85d7a" : "#e0d8d2", transition: "all 0.3s" }} />
-          ))}
+    <main style={pageStyle}>
+      <section
+        style={{
+          backgroundColor: "var(--portal-pink-soft)",
+          borderRadius: 16,
+          padding: "36px 40px",
+          marginBottom: 48,
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+        }}
+      >
+        <div className={styles.deco} style={{ position: "absolute", right: 140, top: -18, width: 60, height: 60, borderRadius: "50%", backgroundColor: "var(--portal-mint)", opacity: 0.6, zIndex: 0 }} />
+        <div className={styles.deco} style={{ position: "absolute", right: 108, bottom: -12, width: 36, height: 36, borderRadius: "50%", backgroundColor: "var(--portal-mint)", opacity: 0.45, zIndex: 0 }} />
+        <div style={{ zIndex: 1 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, backgroundColor: "var(--portal-pink-chip)", borderRadius: 20, padding: "4px 12px", marginBottom: 14 }}>
+            <span style={{ color: "var(--portal-pink-deep)", display: "flex" }}><IcoSparkle size={12} /></span>
+            <span style={{ fontSize: "0.6875rem", fontWeight: 600, color: "var(--portal-pink-deep)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{t("thankYouPill")}</span>
+          </div>
+          <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--portal-ink)", margin: "0 0 10px" }}>{t("welcomeBack", { name: firstName(name) })}</h1>
+          <p style={{ fontSize: "0.875rem", color: "var(--portal-muted)", lineHeight: 1.6, maxWidth: 380, margin: 0 }}>
+            {t("welcomeSub")}
+          </p>
         </div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, opacity: animating ? 0 : 1, transform: animating ? "translateX(-24px)" : "translateX(0)", transition: "opacity 0.35s ease, transform 0.35s ease" }}>
-        {visible.map((ev, i) => (
+        <div style={{ zIndex: 1, backgroundColor: "var(--portal-pink)", borderRadius: 14, padding: "24px 32px", textAlign: "center", minWidth: 140, color: "#fff", flexShrink: 0 }}>
+          <div style={{ fontSize: "3.25rem", fontWeight: 800, lineHeight: 1 }}>{attending}</div>
+          <div style={{ fontSize: "0.8125rem", marginTop: 6, opacity: 0.9 }}>
+            {attending === 1 ? t("joiningOne") : t("joiningMany")}
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+          <p style={sectionEyebrowStyle}>{t("whatsOn")}</p>
+          <button
+            type="button"
+            onClick={() => go("Events")}
+            style={{ fontSize: "0.75rem", color: "var(--portal-pink)", background: "none", border: "none", cursor: "pointer", fontWeight: 600, padding: 0 }}
+          >
+            {t("seeAllEvents")}
+          </button>
+        </div>
+        <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("upcomingEvents")}</h2>
+
+        {upcoming.length === 0 ? (
           <div
-            key={`${page}-${i}`}
-            style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 6px 24px rgba(0,0,0,0.09)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.transform = "translateY(0)";
+            style={{
+              backgroundColor: "var(--portal-soft-bg)",
+              border: "1px solid var(--portal-border)",
+              borderRadius: 16,
+              padding: "40px",
+              textAlign: "center",
+              color: "var(--portal-muted-4)",
             }}
           >
-            <div style={{ height: 140, overflow: "hidden", backgroundColor: "#f0ece8" }}>
-              <img src={ev.photo} alt={ev.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-            <div style={{ padding: "14px 16px 18px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: ev.tagColor, backgroundColor: ev.tagBg, borderRadius: 20, padding: "3px 10px" }}>{ev.tag}</span>
-                <span style={{ fontSize: 11, color: "#bbb" }}>{ev.date}</span>
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", lineHeight: 1.45 }}>{ev.title}</div>
-            </div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, color: "var(--portal-muted-7)" }}><IcoCalendar size={40} /></div>
+            <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--portal-muted-5)" }}>{t("noUpcomingEvents")}</div>
+            <div style={{ fontSize: "0.8125rem", marginTop: 6 }}>{t("noUpcomingSub")}</div>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Dashboard() {
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 48px" }}>
-      <section style={{ backgroundColor: "#fdf0f2", borderRadius: 16, padding: "36px 40px", marginBottom: 48, position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <div style={{ position: "absolute", right: 140, top: -18, width: 60, height: 60, borderRadius: "50%", backgroundColor: "#7ecec4", opacity: 0.6, zIndex: 0 }} />
-        <div style={{ position: "absolute", right: 108, bottom: -12, width: 36, height: 36, borderRadius: "50%", backgroundColor: "#7ecec4", opacity: 0.45, zIndex: 0 }} />
-        <div style={{ zIndex: 1 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, backgroundColor: "#fbd4dc", borderRadius: 20, padding: "4px 12px", marginBottom: 14 }}>
-            <span style={{ color: "#c13057", display: "flex" }}><IcoSparkle size={12} /></span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "#c13057", letterSpacing: "0.06em", textTransform: "uppercase" }}>Thank you for showing up</span>
-          </div>
-          <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", margin: "0 0 10px" }}>Welcome back, Sarah.</h1>
-          <p style={{ fontSize: 14, color: "#666", lineHeight: 1.6, maxWidth: 340, margin: 0 }}>Because of people like you, 490+ families get to show the world #somuchability. Seriously - thank you.</p>
-        </div>
-        <div style={{ zIndex: 1, backgroundColor: "#e85d7a", borderRadius: 14, padding: "24px 32px", textAlign: "center", minWidth: 140, color: "#fff", flexShrink: 0 }}>
-          <div style={{ fontSize: 52, fontWeight: 800, lineHeight: 1 }}>42</div>
-          <div style={{ fontSize: 13, marginTop: 6, opacity: 0.9 }}>hours given this year</div>
-        </div>
-      </section>
-      <NewsCarousel />
-    </main>
-  );
-}
-
-function MyDonationsPage() {
-  const maxDonation = Math.max(...donorDonationHistory.map((d) => d.value));
-
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 48px" }}>
-      <div style={{ marginBottom: 40 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Donor Dashboard</p>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", margin: "0 0 8px" }}>My Donations.</h1>
-        <p style={{ fontSize: 14, color: "#888", margin: 0 }}>See your giving history, your impact, and how your money is put to work.</p>
-      </div>
-
-      <section style={{ marginBottom: 56 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Donor Journey</p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 24px" }}>Your giving path.</h2>
-        <div style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 14, padding: "32px 36px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-            {donorJourneySteps.map((step, i) => (
-              <div key={step.label} style={{ display: "flex", alignItems: "center", flex: i < donorJourneySteps.length - 1 ? 1 : 0 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                  {step.done ? (
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: step.active ? "#4a9fd4" : "#4caf89", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: step.active ? "0 0 0 4px #d6e9f8" : "none" }}>
-                      <IcoCheck size={16} />
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            {upcoming.slice(0, 6).map((ev) => {
+              const tag = eventTag(ev.type);
+              return (
+                <div key={ev.id} style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "18px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: tag.color, backgroundColor: tag.bg, borderRadius: 20, padding: "3px 10px" }}>{t(tag.labelKey)}</span>
+                    <span style={{ color: "var(--portal-muted-5)", display: "flex" }}><IcoCalendar size={15} /></span>
+                  </div>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--portal-ink)", lineHeight: 1.45, marginBottom: 10 }}>{ev.title}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-strong)", fontWeight: 600 }}>{formatWeekdayDayMonthAt(ev.startsAt, locale)}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)" }}>
+                      {formatEventTime(ev.startsAt, ev.endsAt)}
+                      {ev.location ? <span> · {ev.location}</span> : null}
                     </div>
-                  ) : (
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", border: "2px solid #ddd", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#999", backgroundColor: "#fafafa" }}>{step.badge}</div>
-                  )}
-                  <span style={{ fontSize: 11, color: step.active ? "#4a9fd4" : "#555", fontWeight: step.active ? 700 : 400, textAlign: "center", whiteSpace: "nowrap" }}>{step.label}</span>
+                  </div>
                 </div>
-                {i < donorJourneySteps.length - 1 && <div style={{ flex: 1, height: 3, backgroundColor: step.done && !step.active ? "#4caf89" : "#e8e3df", margin: "0 8px", marginBottom: 22, borderRadius: 2 }} />}
-              </div>
-            ))}
+              );
+            })}
           </div>
-          <p style={{ textAlign: "center", fontSize: 13, color: "#666", margin: 0 }}>$175 more to reach Champion status - your impact is growing.</p>
-        </div>
+        )}
       </section>
+    </main>
+  );
+}
+
+function lastMonths(count: number, locale: Locale): { key: string; label: string }[] {
+  const now = new Date();
+  const months = MONTHS_LOCALIZED[locale];
+  const out: { key: string; label: string }[] = [];
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push({
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      label: months[d.getMonth()],
+    });
+  }
+  return out;
+}
+
+function MyDonationsPage({ data }: { data: ContributorPortalData }) {
+  const { t, locale } = usePortalText();
+  const { donations, totalDonationCents, donationCount, activeRecurringCount, monthlyRecurringCents } = data;
+  const giving = donations.filter((d) => d.status === "completed" || d.status === "active");
+
+  const stats = [
+    { icon: <IcoDollar size={22} />, value: formatCurrency(totalDonationCents / 100), label: t("statTotalDonated"), color: "var(--portal-pink)" },
+    { icon: <IcoCalendar size={22} />, value: String(donationCount), label: t("statDonationsMade"), color: "var(--portal-blue)" },
+    { icon: <IcoRefresh size={22} />, value: String(activeRecurringCount), label: t("statActiveRecurring"), color: "var(--portal-teal)" },
+    { icon: <IcoHome size={22} />, value: monthlyRecurringCents ? `${formatCurrency(monthlyRecurringCents / 100)}/mo` : "—", label: t("statMonthlyCommitment"), color: "var(--portal-gold)" },
+  ];
+
+  const months = lastMonths(6, locale);
+  const byMonth = months.map((m) => ({
+    ...m,
+    value: giving
+      .filter((d) => new Date(d.createdAt).toISOString().slice(0, 7) === m.key)
+      .reduce((sum, d) => sum + d.amountCents, 0),
+  }));
+  const maxMonth = Math.max(...byMonth.map((m) => m.value), 1);
+
+  const monthsSet = new Set(giving.map((d) => new Date(d.createdAt).toISOString().slice(0, 7)));
+  const maxSingle = giving.reduce((m, d) => Math.max(m, d.amountCents), 0);
+  const badges = [
+    { labelKey: "badgeFirstGive", descKey: "badgeFirstGiveDesc", earned: donationCount >= 1, icon: <IcoHeart size={20} />, bg: "var(--portal-gold-soft)", iconColor: "var(--portal-gold-deep)" },
+    { labelKey: "badgeRegular", descKey: "badgeRegularDesc", earned: monthsSet.size >= 3, icon: <IcoRefresh size={20} />, bg: "#edf7f0", iconColor: "var(--portal-teal-deep)" },
+    { labelKey: "badgeSupporter", descKey: "badgeSupporterDesc", earned: totalDonationCents >= 50000, icon: <IcoAward size={20} />, bg: "var(--portal-pink-soft)", iconColor: "var(--portal-pink-deep)" },
+    { labelKey: "badgeChampion", descKey: "badgeChampionDesc", earned: maxSingle >= 100000, icon: <IcoTrophy size={20} />, bg: "#e8f2fb", iconColor: "var(--portal-blue-deep)" },
+    { labelKey: "badgePatron", descKey: "badgePatronDesc", earned: totalDonationCents >= 500000, icon: <IcoLock size={20} />, bg: "#f7f5f3", iconColor: "var(--portal-muted-3)" },
+    { labelKey: "badgeYearOne", descKey: "badgeYearOneDesc", earned: monthsSet.size >= 6, icon: <IcoStar size={20} />, bg: "#f7f5f3", iconColor: "var(--portal-muted-3)" },
+  ];
+  const earnedCount = badges.filter((b) => b.earned).length;
+
+  return (
+    <main style={pageStyle}>
+      <div style={{ marginBottom: 40 }}>
+        <p style={eyebrowStyle}>{t("donorDashboard")}</p>
+        <h1 style={pageTitleStyle}>{t("myDonationsTitle")}</h1>
+        <p style={pageSubtitleStyle}>{t("myDonationsSub")}</p>
+      </div>
 
       <section style={{ marginBottom: 56 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Your Impact</p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 24px" }}>What your generosity has made possible.</h2>
+        <p style={sectionEyebrowStyle}>{t("yourImpact")}</p>
+        <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("impactTitle")}</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
-          {donorStats.map((stat) => (
-            <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 14, padding: "24px 20px" }}>
+          {stats.map((stat) => (
+            <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 14, padding: "24px 20px" }}>
               <div style={{ color: stat.color, marginBottom: 10 }}>{stat.icon}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: stat.color, marginBottom: 4 }}>{stat.value}</div>
-              <div style={{ fontSize: 12, color: "#777", lineHeight: 1.4 }}>{stat.label}</div>
+              <div style={{ fontSize: "1.625rem", fontWeight: 800, color: stat.color, marginBottom: 4, lineHeight: 1.2 }}>{stat.value}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-2)", lineHeight: 1.4 }}>{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       <section style={{ marginBottom: 56 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Fund Allocation</p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 24px" }}>Where your money goes.</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-          <div style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 16, padding: "28px 32px" }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: "#1a1a1a", marginBottom: 2 }}>Programme breakdown</div>
-            <div style={{ fontSize: 12, color: "#888", marginBottom: 20 }}>How your donations are allocated</div>
-            <DonutChart />
+        <p style={sectionEyebrowStyle}>{t("givingHistory")}</p>
+        <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("givingHistoryTitle")}</h2>
+        {giving.length === 0 ? (
+          <div style={{ backgroundColor: "var(--portal-soft-bg)", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "32px", textAlign: "center", color: "var(--portal-muted-4)" }}>
+            {t("noDonationsYet")}
           </div>
-          <div style={{ backgroundColor: "#f8f5f2", borderRadius: 16, padding: "28px 32px" }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: "#1a1a1a", marginBottom: 2 }}>Donation history</div>
-            <div style={{ fontSize: 12, color: "#888", marginBottom: 24 }}>Last 6 months - $325 total</div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 16, height: 120, paddingBottom: 4 }}>
-              {donorDonationHistory.map((bar) => (
-                <div key={bar.month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 11, fontWeight: bar.highlight ? 700 : 400, color: bar.highlight ? "#4a9fd4" : "#555" }}>${bar.value}</span>
-                  <div style={{ width: "100%", height: `${(bar.value / maxDonation) * 90}px`, backgroundColor: bar.highlight ? "#4a9fd4" : "#b8d8f0", borderRadius: "5px 5px 0 0" }} />
-                  <span style={{ fontSize: 11, color: "#888" }}>{bar.month}</span>
-                </div>
-              ))}
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "28px 32px" }}>
+              <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--portal-ink)", marginBottom: 2 }}>{t("monthlyGiving")}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)", marginBottom: 24 }}>{t("monthlyGivingSub")}</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 16, height: 140, paddingBottom: 4 }}>
+                {byMonth.map((bar) => (
+                  <div key={bar.key} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: bar.value > 0 ? 700 : 400, color: bar.value > 0 ? "var(--portal-blue)" : "var(--portal-muted-5)" }}>
+                      {bar.value > 0 ? formatCurrency(bar.value / 100) : ""}
+                    </span>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: `${Math.max((bar.value / maxMonth) * 100, bar.value > 0 ? 8 : 2)}px`,
+                        backgroundColor: bar.value > 0 ? "var(--portal-blue)" : "var(--portal-neutral-soft)",
+                        borderRadius: "5px 5px 0 0",
+                      }}
+                    />
+                    <span style={{ fontSize: "0.6875rem", color: "var(--portal-muted-3)" }}>{bar.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ backgroundColor: "var(--portal-soft-bg-2)", borderRadius: 16, padding: "28px 32px" }}>
+              <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--portal-ink)", marginBottom: 2 }}>{t("recentDonations")}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)", marginBottom: 20 }}>{t("recentDonationsSub")}</div>
+              {donations.slice(0, 5).length === 0 ? (
+                <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)", margin: 0 }}>{t("nothingHereYet")}</p>
+              ) : (
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {donations.slice(0, 5).map((donation) => (
+                    <li key={donation.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--portal-border)" }}>
+                      <div>
+                        <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: "var(--portal-ink)" }}>{formatCurrency(donation.amountCents / 100)}</div>
+                        <div style={{ fontSize: "0.6875rem", color: "var(--portal-muted-4)" }}>{formatDayMonthYearAt(donation.createdAt, locale)}</div>
+                      </div>
+                      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: donation.kind === "recurring" ? "var(--portal-blue-deep)" : "var(--portal-teal-deep)", backgroundColor: donation.kind === "recurring" ? "var(--portal-blue-soft)" : "var(--portal-teal-soft)", borderRadius: 20, padding: "3px 10px", whiteSpace: "nowrap" }}>
+                        {donation.kind === "recurring" ? t("recurringTag") : t("oneTimeTag")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
-        </div>
+        )}
       </section>
 
-      <section style={{ marginBottom: 56 }}>
+      <section>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9fd4", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Donor Badges</p>
-          <div style={{ backgroundColor: "#d6e9f8", color: "#1e5c8a", fontSize: 12, fontWeight: 600, borderRadius: 20, padding: "4px 12px" }}>3 of 6 earned</div>
+          <p style={sectionEyebrowStyle}>{t("donorBadges")}</p>
+          <div style={{ backgroundColor: "var(--portal-blue-soft)", color: "var(--portal-blue-deep)", fontSize: "0.75rem", fontWeight: 600, borderRadius: 20, padding: "4px 12px" }}>
+            {t("badgesEarnedCount", { earned: earnedCount, total: badges.length })}
+          </div>
         </div>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 24px" }}>Celebrating your generosity.</h2>
+        <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("badgesTitle")}</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 16 }}>
-          {donorBadges.map((badge) => (
-            <div key={badge.label} style={{ backgroundColor: badge.bg, borderRadius: 14, padding: "20px" }}>
+          {badges.map((badge) => (
+            <div key={badge.labelKey} style={{ backgroundColor: badge.bg, borderRadius: 14, padding: "20px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: badge.iconBg, display: "flex", alignItems: "center", justifyContent: "center", color: badge.iconColor, boxShadow: badge.earned ? "0 2px 8px rgba(0,0,0,0.08)" : "none" }}>{badge.icon}</div>
-                {badge.earned && <span style={{ fontSize: 10, fontWeight: 700, color: "#4caf89", letterSpacing: "0.06em", textTransform: "uppercase" as const, backgroundColor: "rgba(255,255,255,0.7)", padding: "3px 8px", borderRadius: 10 }}>Earned</span>}
+                <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: badge.iconColor, boxShadow: badge.earned ? "0 2px 8px var(--portal-shadow-soft)" : "none" }}>{badge.icon}</div>
+                {badge.earned && <span style={{ fontSize: "0.625rem", fontWeight: 700, color: "var(--portal-teal)", letterSpacing: "0.06em", textTransform: "uppercase" as const, backgroundColor: "var(--portal-chip-overlay)", padding: "3px 8px", borderRadius: 10 }}>{t("earnedTag")}</span>}
               </div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: badge.earned ? "#1a1a1a" : "#888", marginBottom: 4 }}>{badge.label}</div>
-              <div style={{ fontSize: 11, color: badge.earned ? "#555" : "#aaa", lineHeight: 1.4 }}>{badge.desc}</div>
+              <div style={{ fontWeight: 700, fontSize: "0.875rem", color: badge.earned ? "var(--portal-ink)" : "var(--portal-muted-3)", marginBottom: 4 }}>{t(badge.labelKey)}</div>
+              <div style={{ fontSize: "0.6875rem", color: badge.earned ? "var(--portal-muted-strong)" : "var(--portal-muted-5)", lineHeight: 1.4 }}>{t(badge.descKey)}</div>
             </div>
           ))}
         </div>
@@ -680,350 +960,696 @@ function MyDonationsPage() {
   );
 }
 
-function MyVolunteerPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ chineseName: "", ageGroup: "", gender: "", about: "", hearAbout: "" });
+function VolunteerStatusCard({ data, go }: { data: ContributorPortalData; go: (nav: Nav) => void }) {
+  const { t, locale } = usePortalText();
+  const app = data.application;
+  const status = app?.status;
+  const statusText: Record<string, string> = {
+    submitted: t("statusSubmitted"),
+    under_review: t("statusUnderReview"),
+    approved: t("statusApproved"),
+  };
 
-  const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#1a1a1a", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 };
-  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", border: "1.5px solid #e8e3de", borderRadius: 10, fontSize: 14, color: "#1a1a1a", outline: "none", boxSizing: "border-box", backgroundColor: "#fff", fontFamily: "inherit", transition: "border-color 0.15s" };
+  return (
+    <main style={{ maxWidth: 720, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
+      <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: status === "approved" ? "var(--portal-teal-soft)" : "var(--portal-blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: status === "approved" ? "var(--portal-teal-deep)" : "var(--portal-blue-deep)" }}>
+        <IcoCheck size={28} />
+      </div>
+      <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 12 }}>
+        {status === "approved" ? t("approvedTitle") : t("submittedTitle")}
+      </h1>
+      <p style={{ fontSize: "1rem", color: "var(--portal-muted)", maxWidth: 440, margin: "0 auto 24px", lineHeight: 1.7 }}>
+        {statusText[status ?? ""] ?? t("statusFallback")}
+      </p>
+      {app?.submitted_at && (
+        <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)", marginBottom: 32 }}>
+          {t("submittedOn", { date: formatDayMonthYearAt(app.submitted_at, locale) })}
+        </p>
+      )}
+      {status === "approved" ? (
+        <button
+          type="button"
+          onClick={() => go("Events")}
+          style={{ padding: "12px 32px", borderRadius: 12, border: "none", backgroundColor: "var(--portal-pink)", color: "#fff", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer" }}
+        >
+          {t("browseEvents")}
+        </button>
+      ) : (
+        <div style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)" }}>{t("willNotify")}</div>
+      )}
+    </main>
+  );
+}
+
+function MyVolunteerPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) => void }) {
+  const router = useRouter();
+  const { t } = usePortalText();
+  const status = data.application?.status;
+
+  const [form, setForm] = useState({ chineseName: "", ageGroup: "", gender: "", about: "", hearAbout: "" });
+  const [scrcFile, setScrcFile] = useState<File | null>(null);
+  const [parentalConsentFile, setParentalConsentFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  const labelStyle: React.CSSProperties = { fontSize: "0.8125rem", fontWeight: 600, color: "var(--portal-ink)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 };
+
+  const AGE_GROUPS = [
+    { label: t("age1415"), value: "14-15" },
+    { label: t("age1617"), value: "16-17" },
+    { label: t("age18"), value: "18+" },
+  ];
+  const GENDERS = [
+    { label: t("genderFemale"), value: "Female" },
+    { label: t("genderMale"), value: "Male" },
+    { label: t("genderPreferNot"), value: "Prefer not to say" },
+  ];
+  const HEAR_ABOUT = [
+    { label: t("hearExisting"), value: "Existing Love 21 volunteer" },
+    { label: t("hearSocial"), value: "Love 21 social media" },
+    { label: t("hearEmail"), value: "Love 21 email newsletter" },
+    { label: t("hearCompany"), value: "Company referral" },
+    { label: t("hearOther"), value: "Other" },
+  ];
+
+  const isAdult = form.ageGroup === "18+";
+  const isMinor = form.ageGroup === "14-15" || form.ageGroup === "16-17";
+  const canSubmit = Boolean(form.ageGroup && form.gender && form.hearAbout) && !submitting;
 
   const RadioOption = ({ label, selected, onSelect }: { label: string; selected: boolean; onSelect: () => void }) => (
-    <div onClick={onSelect} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${selected ? "#e85d7a" : "#e8e3de"}`, backgroundColor: selected ? "#fdf0f2" : "#fff", cursor: "pointer", transition: "all 0.15s" }}>
-      <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${selected ? "#e85d7a" : "#d0cbc5"}`, backgroundColor: selected ? "#e85d7a" : "#fff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+    <div onClick={onSelect} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${selected ? "var(--portal-pink)" : "var(--portal-border-2)"}`, backgroundColor: selected ? "var(--portal-pink-soft)" : "#fff", cursor: "pointer", transition: "all 0.15s" }}>
+      <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${selected ? "var(--portal-pink)" : "var(--portal-border-3)"}`, backgroundColor: selected ? "var(--portal-pink)" : "#fff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
         {selected && <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#fff" }} />}
       </div>
-      <span style={{ fontSize: 14, color: selected ? "#c13057" : "#333", fontWeight: selected ? 600 : 400 }}>{label}</span>
+      <span style={{ fontSize: "0.875rem", color: selected ? "var(--portal-pink-deep)" : "var(--portal-ink-soft)", fontWeight: selected ? 600 : 400 }}>{label}</span>
     </div>
   );
 
-  const canSubmit = form.ageGroup && form.gender && form.hearAbout;
+  async function onSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setError(null);
+    const result = await submitVolunteerApplication({
+      ageGroup: form.ageGroup,
+      gender: form.gender,
+      referralSource: form.hearAbout,
+      bio: form.about.trim() || null,
+      chineseName: form.chineseName.trim() || null,
+      scrcFile: isAdult ? scrcFile : null,
+      parentalConsentFile: isMinor ? parentalConsentFile : null,
+    });
+    setSubmitting(false);
+    if (!result.ok) {
+      setError(result.error ?? t("errorGeneric"));
+      return;
+    }
+    setJustSubmitted(true);
+    router.refresh();
+  }
 
-  if (submitted) {
-    return (
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
-        <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#d6f0e8", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "#2e7d5f" }}>
-          <IcoCheck size={28} />
-        </div>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", marginBottom: 12 }}>Application submitted!</h1>
-        <p style={{ fontSize: 16, color: "#666", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.7 }}>Thank you for wanting to volunteer with us. Our team will review your application and reach out within 5 business days.</p>
-        <button onClick={() => { setSubmitted(false); setForm({ chineseName: "", ageGroup: "", gender: "", about: "", hearAbout: "" }); }} style={{ padding: "12px 32px", borderRadius: 12, border: "none", backgroundColor: "#e85d7a", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-          Submit another application
-        </button>
-      </main>
-    );
+  if (status === "approved" || justSubmitted) {
+    return <VolunteerStatusCard data={data} go={go} />;
+  }
+
+  if (status === "submitted" || status === "under_review") {
+    return <VolunteerStatusCard data={data} go={go} />;
   }
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "40px 48px" }}>
       <div style={{ marginBottom: 36 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Get Involved</p>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", margin: "0 0 8px" }}>Become a Volunteer.</h1>
-        <p style={{ fontSize: 14, color: "#888", margin: 0 }}>Join our community and make a real difference for families across Western Sydney.</p>
+        <p style={eyebrowStyle}>{t("getInvolved")}</p>
+        <h1 style={pageTitleStyle}>{t("becomeVolunteerTitle")}</h1>
+        <p style={pageSubtitleStyle}>{t("becomeVolunteerSub")}</p>
       </div>
 
-      <div style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 16, padding: "36px 40px", display: "flex", flexDirection: "column", gap: 28 }}>
+      {status === "rejected" && data.application?.rejection_reason_visible && data.application?.rejection_reason && (
+        <div style={{ backgroundColor: "var(--portal-pink-soft)", border: "1px solid var(--portal-pink-chip)", borderRadius: 12, padding: "14px 18px", marginBottom: 24, fontSize: "0.8125rem", color: "var(--portal-pink-deep)", lineHeight: 1.6 }}>
+          <strong>{t("rejectedBanner")}</strong>{" "}
+          {data.application.rejection_reason}
+        </div>
+      )}
+
+      <div style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "36px 40px", display: "flex", flexDirection: "column", gap: 28 }}>
         <div>
-          <div style={labelStyle}><span style={{ color: "#888", display: "flex" }}><IcoUser size={16} /></span>Chinese name<span style={{ fontSize: 12, color: "#bbb", fontWeight: 400 }}>(optional - 中文姓名)</span></div>
-          <input value={form.chineseName} onChange={(e) => setForm({ ...form, chineseName: e.target.value })} placeholder="陳大文" style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
+          <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoUser size={16} /></span>{t("chineseName")}<span style={{ fontSize: "0.75rem", color: "var(--portal-muted-6)", fontWeight: 400 }}>{t("optionalChineseName")}</span></div>
+          <input value={form.chineseName} onChange={(e) => setForm({ ...form, chineseName: e.target.value })} placeholder="陳大文" style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "var(--portal-pink)"; }} onBlur={(e) => { e.target.style.borderColor = "var(--portal-border-2)"; }} />
         </div>
         <div>
-          <div style={labelStyle}><span style={{ color: "#888", display: "flex" }}><IcoCalendar size={16} /></span>Age group<span style={{ color: "#e85d7a" }}>*</span></div>
+          <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoCalendar size={16} /></span>{t("ageGroup")}<span style={{ color: "var(--portal-pink)" }}>*</span></div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["14-15 yrs", "16-17 yrs", "18 or above"].map((opt) => <RadioOption key={opt} label={opt} selected={form.ageGroup === opt} onSelect={() => setForm({ ...form, ageGroup: opt })} />)}
+            {AGE_GROUPS.map((opt) => <RadioOption key={opt.value} label={opt.label} selected={form.ageGroup === opt.value} onSelect={() => setForm({ ...form, ageGroup: opt.value })} />)}
           </div>
         </div>
         <div>
-          <div style={labelStyle}><span style={{ color: "#888", display: "flex" }}><IcoUsers size={16} /></span>Gender<span style={{ color: "#e85d7a" }}>*</span></div>
+          <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoUsers size={16} /></span>{t("gender")}<span style={{ color: "var(--portal-pink)" }}>*</span></div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Female", "Male", "Prefer not to say"].map((opt) => <RadioOption key={opt} label={opt} selected={form.gender === opt} onSelect={() => setForm({ ...form, gender: opt })} />)}
+            {GENDERS.map((opt) => <RadioOption key={opt.value} label={opt.label} selected={form.gender === opt.value} onSelect={() => setForm({ ...form, gender: opt.value })} />)}
           </div>
         </div>
         <div>
-          <div style={labelStyle}><span style={{ color: "#888", display: "flex" }}><IcoMessage size={16} /></span>About you</div>
-          <p style={{ fontSize: 12, color: "#999", margin: "0 0 10px" }}>Tell us about your skills or why you want to volunteer...</p>
-          <textarea value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} rows={5} placeholder="I'm passionate about community sport and want to use my background in coaching to help young athletes build confidence..." style={{ ...inputStyle, resize: "vertical", lineHeight: 1.65 }} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
+          <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoMessage size={16} /></span>{t("aboutYou")}</div>
+          <p style={{ fontSize: "0.75rem", color: "var(--portal-muted-4)", margin: "0 0 10px" }}>{t("aboutHint")}</p>
+          <textarea value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} rows={5} placeholder={t("aboutPlaceholder")} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.65 }} onFocus={(e) => { e.target.style.borderColor = "var(--portal-pink)"; }} onBlur={(e) => { e.target.style.borderColor = "var(--portal-border-2)"; }} />
         </div>
         <div>
-          <div style={labelStyle}><span style={{ color: "#888", display: "flex" }}><IcoShare size={16} /></span>How did you hear about us?<span style={{ color: "#e85d7a" }}>*</span></div>
+          <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoShare size={16} /></span>{t("hearAbout")}<span style={{ color: "var(--portal-pink)" }}>*</span></div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Existing Love 21 volunteer", "Love 21 social media", "Love 21 email newsletter", "Company referral", "Other"].map((opt) => (
-              <RadioOption key={opt} label={opt} selected={form.hearAbout === opt} onSelect={() => setForm({ ...form, hearAbout: opt })} />
+            {HEAR_ABOUT.map((opt) => (
+              <RadioOption key={opt.value} label={opt.label} selected={form.hearAbout === opt.value} onSelect={() => setForm({ ...form, hearAbout: opt.value })} />
             ))}
           </div>
         </div>
-        <button onClick={() => { if (canSubmit) setSubmitted(true); }} style={{ padding: "13px", borderRadius: 11, border: "none", backgroundColor: canSubmit ? "#e85d7a" : "#f0ece8", color: canSubmit ? "#fff" : "#bbb", fontSize: 15, fontWeight: 700, cursor: canSubmit ? "pointer" : "default", transition: "all 0.15s", marginTop: 4 }}>
-          Submit application
+
+        {isAdult && (
+          <div>
+            <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoAward size={16} /></span>{t("scrcLabel")}<span style={{ color: "var(--portal-pink)" }}>*</span></div>
+            <p style={{ fontSize: "0.75rem", color: "var(--portal-muted-4)", margin: "0 0 10px" }}>{t("scrcHint")}</p>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setScrcFile(e.target.files?.[0] ?? null)}
+              style={{ fontSize: "0.8125rem", color: "var(--portal-muted-strong)", fontFamily: "inherit" }}
+            />
+            {isAdult && !scrcFile && <div style={{ fontSize: "0.6875rem", color: "var(--portal-pink-deep)", marginTop: 6 }}>{t("requiredToSubmit")}</div>}
+          </div>
+        )}
+
+        {isMinor && (
+          <div>
+            <div style={labelStyle}><span style={{ color: "var(--portal-muted-3)", display: "flex" }}><IcoLeaf size={16} /></span>{t("consentLabel")}<span style={{ color: "var(--portal-pink)" }}>*</span></div>
+            <p style={{ fontSize: "0.75rem", color: "var(--portal-muted-4)", margin: "0 0 10px" }}>{t("consentHint")}</p>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setParentalConsentFile(e.target.files?.[0] ?? null)}
+              style={{ fontSize: "0.8125rem", color: "var(--portal-muted-strong)", fontFamily: "inherit" }}
+            />
+            {isMinor && !parentalConsentFile && <div style={{ fontSize: "0.6875rem", color: "var(--portal-pink-deep)", marginTop: 6 }}>{t("requiredToSubmit")}</div>}
+          </div>
+        )}
+
+        {error && (
+          <div role="alert" style={{ backgroundColor: "var(--portal-pink-soft)", border: "1px solid var(--portal-pink-chip)", borderRadius: 10, padding: "12px 16px", fontSize: "0.8125rem", color: "var(--portal-pink-deep)" }}>
+            {error}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          style={{ padding: "13px", borderRadius: 11, border: "none", backgroundColor: canSubmit ? "var(--portal-pink)" : "var(--portal-neutral)", color: canSubmit ? "#fff" : "var(--portal-muted-6)", fontSize: "0.9375rem", fontWeight: 700, cursor: canSubmit ? "pointer" : "default", transition: "all 0.15s", marginTop: 4 }}
+        >
+          {submitting ? t("submitting") : t("submitApplication")}
         </button>
       </div>
     </main>
   );
 }
 
-const initialComments = [
-  { id: 1, name: "Mei Tanaka", initials: "MT", avatarColor: "#8bbdd9", role: "Parent", date: "Jul 28, 2026", message: "Sarah helped my daughter tie her shoelaces before every session and never made her feel rushed. That small act of patience meant the world to us. Thank you for showing up every single week." },
-  { id: 2, name: "David Okafor", initials: "DO", avatarColor: "#4caf89", role: "Parent", date: "Jul 19, 2026", message: "My son used to be terrified of group activities. After just three sessions with this programme, he's asking to go back. The volunteers made him feel safe and included. We're so grateful." },
-  { id: 3, name: "Priya Sharma", initials: "PS", avatarColor: "#d4a017", role: "Parent", date: "Jul 12, 2026", message: "Knowing there are people like the volunteers here who genuinely care - it restores your faith in community. Our family has been part of this programme for six months and we feel so supported." },
-  { id: 4, name: "James Nguyen", initials: "JN", avatarColor: "#7b3fa0", role: "Parent", date: "Jun 30, 2026", message: "The nutrition workshop changed how we cook at home. My kids are eating vegetables they never touched before! Whoever organised and volunteered for that session - you changed our weekly routine." },
-];
-
-function CommunityVoices() {
-  return (
-    <section style={{ marginTop: 72, paddingTop: 56, borderTop: "1px solid #ede8e3" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Community</p>
-        <span style={{ fontSize: 12, color: "#bbb" }}>{initialComments.length} messages</span>
-      </div>
-      <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", margin: "0 0 6px" }}>Voices from our community.</h2>
-      <p style={{ fontSize: 14, color: "#888", margin: "0 0 36px" }}>Warm words from the families whose lives you&apos;ve touched.</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-        {initialComments.map((comment) => (
-          <div key={comment.id} style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 16, padding: "24px", display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 36, lineHeight: 1, color: "#fbd4dc", fontFamily: "Georgia, serif", marginBottom: 10, marginTop: -6 }}>&quot;</div>
-            <p style={{ fontSize: 13, color: "#444", lineHeight: 1.75, margin: "0 0 20px", flex: 1 }}>{comment.message}</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: comment.avatarColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{comment.initials}</div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}>{comment.name}</div>
-                <div style={{ fontSize: 11, color: "#bbb" }}>{comment.role} - {comment.date}</div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-const allEvents = [
-  { id: 1, tag: "Sport", tagColor: "#e85d7a", tagBg: "#fbd4dc", title: "Saturday Morning Football Clinic", date: "2026-08-09", dateLabel: "Sat 9 Aug", time: "8:00 AM - 11:00 AM", location: "Parramatta Park, NSW", spots: 4, totalSpots: 12, overview: "Join 60+ kids on the field for our flagship sport programme. Help coaches run drills, manage equipment, and keep the energy high for families from across Western Sydney.", photo: "https://images.unsplash.com/photo-1752681305099-89eab8580496?w=600&h=340&fit=crop&auto=format" },
-  { id: 2, tag: "CSR", tagColor: "#1e5c8a", tagBg: "#d6e9f8", title: "Corporate Partner Day - ANZ Bank", date: "2026-08-14", dateLabel: "Fri 14 Aug", time: "9:00 AM - 2:00 PM", location: "Bankstown Community Centre", spots: 8, totalSpots: 20, overview: "Our CSR partner ANZ is sending 20 staff to help with the family support packing day. Volunteers are needed to coordinate stations and assist with logistics.", photo: "https://images.unsplash.com/photo-1560220604-1985ebfe28b1?w=600&h=340&fit=crop&auto=format" },
-  { id: 3, tag: "Nutrition", tagColor: "#2e7d5f", tagBg: "#d6f0e8", title: "Healthy Lunchbox Workshop", date: "2026-08-16", dateLabel: "Sun 16 Aug", time: "10:00 AM - 12:30 PM", location: "Auburn Community Kitchen", spots: 4, totalSpots: 8, overview: "Help families learn practical, affordable meal prep skills. This hands-on session is led by a nutritionist and needs volunteers who can assist with food handling and translation.", photo: "https://images.unsplash.com/photo-1653233797467-1a528819fd4f?w=600&h=340&fit=crop&auto=format" },
-  { id: 4, tag: "Community", tagColor: "#a07800", tagBg: "#fdf6e3", title: "Annual Community Picnic Planning", date: "2026-08-20", dateLabel: "Thu 20 Aug", time: "6:00 PM - 8:00 PM", location: "Online via Zoom", spots: 20, totalSpots: 30, overview: "Help shape our biggest community event of the year. Join the planning committee to contribute ideas on activities, catering, entertainment, and volunteer coordination.", photo: "https://images.unsplash.com/photo-1500293669-115211273e5c?w=600&h=340&fit=crop&auto=format" },
-  { id: 5, tag: "Sport", tagColor: "#e85d7a", tagBg: "#fbd4dc", title: "New Swimming Programme Launch", date: "2026-08-22", dateLabel: "Sat 22 Aug", time: "7:30 AM - 10:00 AM", location: "Auburn Swim Centre", spots: 6, totalSpots: 10, overview: "Partnering with Auburn Swim Centre to bring free swim lessons to 80 families. Volunteers assist with registration, supervision, and encouraging nervous first-timers.", photo: "https://images.unsplash.com/photo-1651614158095-b98b6c1da74b?w=600&h=340&fit=crop&auto=format" },
-  { id: 6, tag: "Family Support", tagColor: "#7b3fa0", tagBg: "#ede0f7", title: "Back-to-School Backpack Drive", date: "2026-09-03", dateLabel: "Thu 3 Sep", time: "10:00 AM - 4:00 PM", location: "Granville Warehouse", spots: 15, totalSpots: 40, overview: "Every child deserves to start the term ready. Join the packing line to fill 300 backpacks with stationery, books and essentials for families who need it most.", photo: "https://images.unsplash.com/photo-1594608661623-aa0bd3a69d98?w=600&h=340&fit=crop&auto=format" },
-  { id: 7, tag: "Nutrition", tagColor: "#2e7d5f", tagBg: "#d6f0e8", title: "Chef Volunteer Cooking Class", date: "2026-09-05", dateLabel: "Sat 5 Sep", time: "9:00 AM - 12:00 PM", location: "Merrylands Community Hall", spots: 3, totalSpots: 6, overview: "Join our resident volunteer chef Marcus to run a live cooking class for 30 families. Help prep ingredients, manage stations, and assist participants through each recipe step.", photo: "https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&h=340&fit=crop&auto=format" },
-  { id: 8, tag: "Community", tagColor: "#a07800", tagBg: "#fdf6e3", title: "Junior Athletics Day", date: "2026-09-12", dateLabel: "Sat 12 Sep", time: "8:00 AM - 1:00 PM", location: "Blacktown Athletics Centre", spots: 10, totalSpots: 18, overview: "A full morning of track and field fun for kids aged 6-14. Volunteers help run events, manage timing, hand out medals, and keep the atmosphere positive and inclusive.", photo: "https://images.unsplash.com/photo-1766066015219-b10a97dbb781?w=600&h=340&fit=crop&auto=format" },
-];
-
-const ALL_TAGS = ["Sport", "CSR", "Nutrition", "Community", "Family Support"];
-
-function EventsPage() {
-  const [search, setSearch] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [dateFrom, setDateFrom] = useState("");
-  const [registered, setRegistered] = useState<number[]>([]);
-
-  const toggleTag = (tag: string) => setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]));
-
-  const filtered = allEvents.filter((ev) => {
-    const matchSearch = ev.title.toLowerCase().includes(search.toLowerCase()) || ev.tag.toLowerCase().includes(search.toLowerCase());
-    const matchTag = selectedTags.length === 0 || selectedTags.includes(ev.tag);
-    const matchDate = !dateFrom || ev.date >= dateFrom;
-    return matchSearch && matchTag && matchDate;
-  });
-
-  const tagMeta: Record<string, { color: string; bg: string }> = {
-    Sport: { color: "#e85d7a", bg: "#fbd4dc" },
-    CSR: { color: "#1e5c8a", bg: "#d6e9f8" },
-    Nutrition: { color: "#2e7d5f", bg: "#d6f0e8" },
-    Community: { color: "#a07800", bg: "#fdf6e3" },
-    "Family Support": { color: "#7b3fa0", bg: "#ede0f7" },
+function EventsLockedPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) => void }) {
+  const { t } = usePortalText();
+  const status = data.application?.status;
+  const message: Record<string, string> = {
+    submitted: t("lockedSubmitted"),
+    under_review: t("lockedSubmitted"),
+    rejected: t("lockedRejected"),
+    withdrawn: t("lockedWithdrawn"),
   };
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 48px" }}>
-      <div style={{ marginBottom: 32 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Get Involved</p>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", margin: "0 0 8px" }}>Upcoming Events</h1>
-        <p style={{ fontSize: 14, color: "#888", margin: 0 }}>Find a session that fits your schedule and register your spot.</p>
+    <main style={{ maxWidth: 720, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
+      <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "var(--portal-pink-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "var(--portal-pink-deep)" }}>
+        <IcoLock size={28} />
       </div>
-      <div style={{ backgroundColor: "#faf8f6", border: "1px solid #ede8e3", borderRadius: 16, padding: "20px 24px", marginBottom: 36 }}>
-        <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 12 }}>{t("eventsLockedTitle")}</h1>
+      <p style={{ fontSize: "0.9375rem", color: "var(--portal-muted)", maxWidth: 460, margin: "0 auto 8px", lineHeight: 1.7 }}>
+        {t("eventsLockedSub")}
+      </p>
+      <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)", maxWidth: 460, margin: "0 auto 32px", lineHeight: 1.7 }}>{message[status ?? ""] ?? ""}</p>
+      <button
+        type="button"
+        onClick={() => go("My Volunteer")}
+        style={{ padding: "12px 32px", borderRadius: 12, border: "none", backgroundColor: "var(--portal-pink)", color: "#fff", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer" }}
+      >
+        {t("viewMyApplication")}
+      </button>
+    </main>
+  );
+}
+
+function EventsPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) => void }) {
+  const router = useRouter();
+  const { t, locale } = usePortalText();
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [busyEvent, setBusyEvent] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const byEventId = new Map(data.events.map((ev) => [ev.id, ev]));
+  const mine = data.participations
+    .map((p) => ({ event: byEventId.get(p.eventId), status: p.status }))
+    .filter(
+      (entry): entry is { event: PortalEventCard; status: ParticipationStatus } =>
+        Boolean(entry.event),
+    );
+
+  const filtered = data.events.filter((ev) => {
+    const matchSearch = !search || ev.title.toLowerCase().includes(search.toLowerCase());
+    const matchDate = !dateFrom || ev.startsAt.slice(0, 10) >= dateFrom;
+    const matchType = !typeFilter || ev.type === typeFilter;
+    return matchSearch && matchDate && matchType;
+  });
+
+  async function register(eventId: number) {
+    if (busyEvent != null) return;
+    setBusyEvent(eventId);
+    setError(null);
+    const result = await registerForEvent({ eventId });
+    setBusyEvent(null);
+    if (!result.ok) {
+      setError(result.error ?? t("registerError"));
+      return;
+    }
+    router.refresh();
+  }
+
+  if (data.application?.status !== "approved") {
+    return <EventsLockedPage data={data} go={go} />;
+  }
+
+  const typeOptions = [
+    { value: "", label: t("allProgrammes") },
+    { value: "sport", label: t("tagSport") },
+    { value: "nutrition", label: t("tagNutrition") },
+    { value: "family_support", label: t("tagFamilySupport") },
+  ];
+
+  return (
+    <main style={pageStyle}>
+      <div style={{ marginBottom: 32 }}>
+        <p style={eyebrowStyle}>{t("getInvolved")}</p>
+        <h1 style={pageTitleStyle}>{t("upcomingEventsTitle")}</h1>
+        <p style={pageSubtitleStyle}>{t("upcomingEventsSub")}</p>
+      </div>
+
+      <div style={{ backgroundColor: "var(--portal-soft-bg)", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "20px 24px", marginBottom: 28 }}>
+        <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
           <div style={{ flex: 1, position: "relative" }}>
-            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#bbb", display: "flex", pointerEvents: "none" }}><IcoSearch size={16} /></span>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by event name or type..." style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1.5px solid #e8e3de", borderRadius: 10, fontSize: 13, color: "#1a1a1a", outline: "none", boxSizing: "border-box", backgroundColor: "#fff", fontFamily: "inherit" }} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
+            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--portal-muted-6)", display: "flex", pointerEvents: "none" }}><IcoSearch size={16} /></span>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} style={{ ...inputStyle, paddingLeft: 36 }} />
           </div>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "10px 12px", border: "1.5px solid #e8e3de", borderRadius: 10, fontSize: 13, color: dateFrom ? "#1a1a1a" : "#aaa", outline: "none", backgroundColor: "#fff", fontFamily: "inherit", cursor: "pointer" }} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
-          {(search || selectedTags.length > 0 || dateFrom) && (
-            <button onClick={() => { setSearch(""); setSelectedTags([]); setDateFrom(""); }} style={{ padding: "10px 16px", borderRadius: 10, border: "1.5px solid #e8e3de", backgroundColor: "#fff", color: "#888", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Clear</button>
+          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ ...inputStyle, maxWidth: 160, cursor: "pointer" }} />
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} style={{ ...inputStyle, maxWidth: 180, cursor: "pointer" }}>
+            {typeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          {(search || dateFrom || typeFilter) && (
+            <button type="button" onClick={() => { setSearch(""); setDateFrom(""); setTypeFilter(""); }} style={{ padding: "10px 16px", borderRadius: 10, border: "1.5px solid var(--portal-border-2)", backgroundColor: "#fff", color: "var(--portal-muted-3)", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}>{t("clearFilters")}</button>
           )}
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12, color: "#999", alignSelf: "center", marginRight: 2 }}>Filter by:</span>
-          {ALL_TAGS.map((tag) => {
-            const active = selectedTags.includes(tag);
-            const meta = tagMeta[tag];
-            return (
-              <button key={tag} onClick={() => toggleTag(tag)} style={{ padding: "5px 14px", borderRadius: 20, border: `1.5px solid ${active ? meta.color : "#e8e3de"}`, backgroundColor: active ? meta.bg : "#fff", color: active ? meta.color : "#777", fontSize: 12, fontWeight: active ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>{tag}</button>
-            );
-          })}
-        </div>
+        {error && (
+          <div role="alert" style={{ backgroundColor: "var(--portal-pink-soft)", border: "1px solid var(--portal-pink-chip)", borderRadius: 10, padding: "10px 14px", fontSize: "0.8125rem", color: "var(--portal-pink-deep)" }}>
+            {error}
+          </div>
+        )}
       </div>
-      <p style={{ fontSize: 13, color: "#999", marginBottom: 20 }}>{filtered.length === allEvents.length ? `${allEvents.length} events available` : `${filtered.length} of ${allEvents.length} events`}</p>
+
+      <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)", marginBottom: 20 }}>
+        {filtered.length === data.events.length ? t("eventsAvailable", { count: data.events.length }) : t("eventsShown", { shown: filtered.length, total: data.events.length })}
+      </p>
+
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0", color: "#bbb" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, color: "#ccc" }}><IcoSearch size={40} /></div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: "#aaa" }}>No events match your search</div>
-          <div style={{ fontSize: 13, marginTop: 6 }}>Try adjusting your filters</div>
+        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--portal-muted-6)" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, color: "var(--portal-muted-7)" }}><IcoSearch size={40} /></div>
+          <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--portal-muted-5)" }}>{t("noMatch")}</div>
+          <div style={{ fontSize: "0.8125rem", marginTop: 6 }}>{t("noMatchSub")}</div>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
           {filtered.map((ev) => {
-            const isReg = registered.includes(ev.id);
-            const spotsLeft = ev.spots;
-            const pct = ((ev.totalSpots - spotsLeft) / ev.totalSpots) * 100;
+            const tag = eventTag(ev.type);
+            const participation = mine.find((m) => m.event.id === ev.id);
             return (
-              <div
-                key={ev.id}
-                style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 18, overflow: "hidden", display: "flex", flexDirection: "column", transition: "box-shadow 0.2s, transform 0.2s" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,0.08)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                <div style={{ height: 170, overflow: "hidden", backgroundColor: "#f0ece8", position: "relative" }}>
-                  <img src={ev.photo} alt={ev.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                  <span style={{ position: "absolute", top: 14, left: 14, fontSize: 11, fontWeight: 700, color: ev.tagColor, backgroundColor: ev.tagBg, borderRadius: 20, padding: "4px 12px" }}>{ev.tag}</span>
-                  {isReg && (
-                    <span style={{ position: "absolute", top: 14, right: 14, display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "#2e7d5f", backgroundColor: "#d6f0e8", borderRadius: 20, padding: "4px 10px" }}>
-                      <IcoCheck size={11} /> Registered
-                    </span>
-                  )}
+              <div key={ev.id} style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 18, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <div style={{ height: 88, backgroundColor: tag.bg, position: "relative", display: "flex", alignItems: "center", padding: "0 22px" }}>
+                  <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: tag.color, backgroundColor: "#fff", borderRadius: 20, padding: "4px 12px" }}>{t(tag.labelKey)}</span>
                 </div>
                 <div style={{ padding: "20px 22px", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.4 }}>{ev.title}</h3>
+                  <h3 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "var(--portal-ink)", margin: 0, lineHeight: 1.4 }}>{ev.title}</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#555" }}>
-                      <span style={{ color: "#aaa", display: "flex" }}><IcoCalendar size={13} /></span>
-                      <span style={{ fontWeight: 600 }}>{ev.dateLabel}</span><span style={{ color: "#bbb" }}>·</span><span>{ev.time}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", color: "var(--portal-muted-strong)" }}>
+                      <span style={{ color: "var(--portal-muted-5)", display: "flex" }}><IcoCalendar size={13} /></span>
+                      <span style={{ fontWeight: 600 }}>{formatWeekdayDayMonthAt(ev.startsAt, locale)}</span><span style={{ color: "var(--portal-muted-6)" }}>·</span><span>{formatEventTime(ev.startsAt, ev.endsAt)}</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#888" }}>
-                      <span style={{ color: "#aaa", display: "flex" }}><IcoMapPin size={13} /></span><span>{ev.location}</span>
-                    </div>
+                    {ev.location && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.75rem", color: "var(--portal-muted-3)" }}>
+                        <span style={{ color: "var(--portal-muted-5)", display: "flex" }}><IcoMapPin size={13} /></span><span>{ev.location}</span>
+                      </div>
+                    )}
                   </div>
-                  <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, margin: 0 }}>{ev.overview}</p>
-                  <div style={{ marginTop: 4 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                      <span style={{ fontSize: 11, color: "#999" }}>Volunteer spots</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: spotsLeft <= 3 ? "#e85d7a" : "#555" }}>{spotsLeft} left of {ev.totalSpots}</span>
-                    </div>
-                    <div style={{ height: 5, backgroundColor: "#f0ece8", borderRadius: 3, overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${pct}%`, backgroundColor: spotsLeft <= 3 ? "#e85d7a" : "#4caf89", borderRadius: 3, transition: "width 0.4s" }} />
-                    </div>
+                  <div style={{ marginTop: "auto", paddingTop: 12 }}>
+                    {participation ? (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          color: statusMeta[participation.status]?.color ?? "var(--portal-muted-strong)",
+                          backgroundColor: statusMeta[participation.status]?.bg ?? "var(--portal-neutral)",
+                          borderRadius: 20,
+                          padding: "8px 14px",
+                        }}
+                      >
+                        <IcoCheck size={12} />
+                        {statusMeta[participation.status] ? t(statusMeta[participation.status].labelKey) : participation.status}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => register(ev.id)}
+                        disabled={busyEvent != null}
+                        style={{ width: "100%", padding: "10px", borderRadius: 10, border: "none", cursor: busyEvent == null ? "pointer" : "default", fontSize: "0.8125rem", fontWeight: 700, backgroundColor: "var(--portal-pink)", color: "#fff", transition: "all 0.15s", opacity: busyEvent != null ? 0.6 : 1 }}
+                      >
+                        {busyEvent === ev.id ? t("registering") : t("registerForEvent")}
+                      </button>
+                    )}
                   </div>
-                  <button onClick={() => setRegistered((prev) => isReg ? prev.filter((id) => id !== ev.id) : [...prev, ev.id])} style={{ marginTop: 6, padding: "10px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, backgroundColor: isReg ? "#f0ece8" : "#e85d7a", color: isReg ? "#888" : "#fff", transition: "all 0.15s" }}>
-                    {isReg ? "Cancel registration" : "Register for this event"}
-                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {mine.length > 0 && (
+        <section style={{ marginTop: 48 }}>
+          <p style={sectionEyebrowStyle}>{t("myEventsEyebrow")}</p>
+          <h2 style={{ ...sectionTitleStyle, marginBottom: 20 }}>{t("myEventsTitle")}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {mine.map(({ event, status: pStatus }) => {
+              const tag = eventTag(event.type);
+              const meta = statusMeta[pStatus] ?? { labelKey: pStatus, color: "var(--portal-muted-strong)", bg: "var(--portal-neutral)" };
+              return (
+                <div key={event.id} style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 14, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                    <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: tag.color, backgroundColor: tag.bg, borderRadius: 20, padding: "3px 10px", flexShrink: 0 }}>{t(tag.labelKey)}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--portal-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{event.title}</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)" }}>{formatWeekdayDayMonthAt(event.startsAt, locale)} · {formatEventTime(event.startsAt, event.endsAt)}</div>
+                    </div>
+                  </div>
+                  <span style={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, color: meta.color, backgroundColor: meta.bg, borderRadius: 20, padding: "5px 12px", whiteSpace: "nowrap" }}>{statusMeta[pStatus] ? t(meta.labelKey) : meta.labelKey}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
 
-function DonatePage() {
-  const [selected, setSelected] = useState(50);
+function DonatePage({ name }: { name: string }) {
+  const router = useRouter();
+  const { t } = usePortalText();
+  const [kind, setKind] = useState<"one-time" | "recurring">("one-time");
+  const [amount, setAmount] = useState(100);
+  const [customActive, setCustomActive] = useState(false);
   const [custom, setCustom] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [donated, setDonated] = useState(false);
-  const finalAmount = custom ? Number(custom) : selected;
-  const inputStyle = { width: "100%", padding: "10px 14px", border: "1.5px solid #e8e3de", borderRadius: 10, fontSize: 14, color: "#1a1a1a", outline: "none", boxSizing: "border-box" as const, fontFamily: "inherit", backgroundColor: "#fafaf9" };
+  const [frequency, setFrequency] = useState<Frequency>("monthly");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<{ amount: number } | null>(null);
 
-  if (donated) {
+  const customNumber = Number(custom);
+  const customValid = Number.isFinite(customNumber) && customNumber > 0;
+  const finalAmount = customActive ? (customValid ? customNumber : 0) : amount;
+  const canSubmit = finalAmount > 0 && !submitting;
+
+  const freqLabel = (value: Frequency) => {
+    switch (value) {
+      case "monthly":
+        return t("freqMonthly");
+      case "quarterly":
+        return t("freqQuarterly");
+      default:
+        return t("freqYearly");
+    }
+  };
+
+  const tiers = [
+    { amount: 100, labelKey: "tierHero", descKey: "tierHeroDesc", icon: <IcoStar size={22} /> },
+    { amount: 250, labelKey: "tierPatron", descKey: "tierPatronDesc", icon: <IcoTrophy size={22} /> },
+    { amount: 500, labelKey: "tierGuardian", descKey: "tierGuardianDesc", icon: <IcoNutrition size={22} /> },
+  ];
+
+  async function submit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setError(null);
+    const result = await recordDonation({
+      amountCents: Math.round(finalAmount * 100),
+      kind: kind === "recurring" ? "recurring" : "one_time",
+      frequency: kind === "recurring" ? frequency : null,
+    });
+    setSubmitting(false);
+    if (!result.ok) {
+      setError(result.error ?? t("errorGeneric"));
+      return;
+    }
+    setConfirmation({ amount: finalAmount });
+    router.refresh();
+  }
+
+  async function downloadCertificate() {
+    const certId = generateDonorCertId();
+    const issueDate = new Date().toLocaleDateString("en-HK", { year: "numeric", month: "long", day: "numeric" });
+    const html = buildDonorCertificateHtml({
+      name: name.trim() || "Valued Donor",
+      amount: confirmation?.amount ?? finalAmount,
+      certId,
+      issueDate,
+      logoSrc: "/assets/images/love21_logo.png",
+    });
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "donor-certificate.html";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  if (confirmation) {
     return (
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20, color: "#e85d7a" }}><IcoHeart size={56} /></div>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", marginBottom: 12 }}>Thank you, {name || "friend"}!</h1>
-        <p style={{ fontSize: 16, color: "#666", maxWidth: 480, margin: "0 auto 32px" }}>Your donation of <strong>${finalAmount}</strong> is making a real difference for families in our community.</p>
-        <button onClick={() => setDonated(false)} style={{ padding: "12px 32px", borderRadius: 12, border: "none", backgroundColor: "#e85d7a", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Donate again</button>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20, color: "var(--portal-pink)" }}><IcoHeart size={56} /></div>
+        <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 12 }}>{t("thankYouTitle", { name: name.trim() ? firstName(name) : t("friend") })}</h1>
+        <p style={{ fontSize: "1rem", color: "var(--portal-muted)", maxWidth: 480, margin: "0 auto 8px" }}>
+          {t("confirmationBody", {
+            kind: kind === "recurring" ? `${freqLabel(frequency)} ${t("kindRecurring")}` : t("kindOneTime"),
+            amount: formatCurrency(confirmation.amount),
+          })}
+        </p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-4)", maxWidth: 480, margin: "0 auto 32px" }}>
+          {t("demoNote")}
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <button type="button" onClick={downloadCertificate} style={{ padding: "12px 24px", borderRadius: 12, border: "1.5px solid var(--portal-pink)", backgroundColor: "#fff", color: "var(--portal-pink)", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer" }}>
+            {t("downloadCertificate")}
+          </button>
+          <button type="button" onClick={() => setConfirmation(null)} style={{ padding: "12px 24px", borderRadius: 12, border: "none", backgroundColor: "var(--portal-pink)", color: "#fff", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer" }}>
+            {t("donateAgain")}
+          </button>
+        </div>
       </main>
     );
   }
 
   return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 48px" }}>
+    <main style={pageStyle}>
       <div style={{ marginBottom: 40 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 6px" }}>Give Back</p>
-        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a1a1a", margin: "0 0 8px" }}>Your donation matters.</h1>
-        <p style={{ fontSize: 14, color: "#888", margin: 0, maxWidth: 520 }}>Every dollar goes directly to programmes supporting children and families across Western Sydney.</p>
+        <p style={eyebrowStyle}>{t("giveBack")}</p>
+        <h1 style={pageTitleStyle}>{t("donationMattersTitle")}</h1>
+        <p style={{ ...pageSubtitleStyle, maxWidth: 520 }}>{t("donationMattersSub")}</p>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 48 }}>
-        {impactStats.map((item) => (
-          <div key={item.label} style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 14, padding: "24px 20px" }}>
-            <div style={{ fontSize: 30, fontWeight: 800, color: item.color, marginBottom: 4 }}>{item.value}</div>
-            <div style={{ fontSize: 12, color: "#777" }}>{item.label}</div>
-          </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+        {(["one-time", "recurring"] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setKind(value)}
+            style={{ padding: "9px 18px", borderRadius: 20, border: `1.5px solid ${kind === value ? "var(--portal-pink)" : "var(--portal-border-2)"}`, backgroundColor: kind === value ? "var(--portal-pink-soft)" : "#fff", color: kind === value ? "var(--portal-pink-deep)" : "var(--portal-muted-2)", fontSize: "0.8125rem", fontWeight: kind === value ? 700 : 500, cursor: "pointer" }}
+          >
+            {value === "one-time" ? t("oneTimeTab") : t("recurringTab")}
+          </button>
         ))}
       </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 32, alignItems: "start" }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 16px" }}>Choose your impact</p>
+          <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "var(--portal-pink)", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 16px" }}>{t("chooseImpact")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-            {donationTiers.map((tier) => {
-              const active = selected === tier.amount && !custom;
+            {tiers.map((tier) => {
+              const active = !customActive && amount === tier.amount;
               return (
-                <button key={tier.amount} onClick={() => { setSelected(tier.amount); setCustom(""); }} style={{ padding: "20px", borderRadius: 14, textAlign: "left", cursor: "pointer", border: `2px solid ${active ? "#e85d7a" : "#ede8e3"}`, backgroundColor: active ? "#fdf0f2" : "#fff", boxShadow: active ? "0 0 0 3px #fcd8df" : "none", transition: "all 0.15s" }}>
+                <button
+                  key={tier.amount}
+                  type="button"
+                  onClick={() => { setAmount(tier.amount); setCustomActive(false); setCustom(""); }}
+                  style={{ padding: "20px", borderRadius: 14, textAlign: "left", cursor: "pointer", border: `2px solid ${active ? "var(--portal-pink)" : "var(--portal-border)"}`, backgroundColor: active ? "var(--portal-pink-soft)" : "#fff", boxShadow: active ? "0 0 0 3px var(--portal-pink-border)" : "none", transition: "all 0.15s" }}
+                >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    <span style={{ color: active ? "#e85d7a" : "#888", display: "flex" }}>{tier.icon}</span>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: active ? "#e85d7a" : "#1a1a1a" }}>${tier.amount}</span>
+                    <span style={{ color: active ? "var(--portal-pink)" : "var(--portal-muted-3)", display: "flex" }}>{tier.icon}</span>
+                    <span style={{ fontSize: "1.25rem", fontWeight: 800, color: active ? "var(--portal-pink)" : "var(--portal-ink)" }}>{formatCurrency(tier.amount)}</span>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", marginBottom: 4 }}>{tier.label}</div>
-                  <div style={{ fontSize: 12, color: "#888", lineHeight: 1.5 }}>{tier.desc}</div>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 4 }}>{t(tier.labelKey)}</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)", lineHeight: 1.5 }}>{t(tier.descKey)}</div>
                 </button>
               );
             })}
+            <div
+              onClick={() => { setCustomActive(true); setAmount(0); }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCustomActive(true); setAmount(0); } }}
+              style={{ padding: "20px", borderRadius: 14, cursor: "pointer", border: `2px solid ${customActive ? "var(--portal-pink)" : "var(--portal-border)"}`, backgroundColor: customActive ? "var(--portal-pink-soft)" : "#fff", boxShadow: customActive ? "0 0 0 3px var(--portal-pink-border)" : "none", transition: "all 0.15s" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ color: customActive ? "var(--portal-pink)" : "var(--portal-muted-3)", display: "flex" }}><IcoDollar size={22} /></span>
+                <span style={{ fontSize: "1.25rem", fontWeight: 800, color: customActive ? "var(--portal-pink)" : "var(--portal-ink)" }}>{customActive && customValid ? formatCurrency(customNumber) : t("customAmount")}</span>
+              </div>
+              <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 4 }}>{t("customAmount")}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)", lineHeight: 1.5 }}>{t("customAmountDesc")}</div>
+              {customActive && (
+                <input
+                  type="number"
+                  value={custom}
+                  onChange={(e) => setCustom(e.target.value)}
+                  placeholder={t("enterAmount")}
+                  autoFocus
+                  aria-label={t("customAmountAria")}
+                  style={{ ...inputStyle, marginTop: 12, border: `1.5px solid ${customValid ? "var(--portal-pink)" : "var(--portal-border-2)"}` }}
+                />
+              )}
+            </div>
           </div>
-          <div style={{ position: "relative" }}>
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontWeight: 700, color: "#888", fontSize: 15 }}>$</span>
-            <input type="number" value={custom} onChange={(e) => { setCustom(e.target.value); setSelected(0); }} placeholder="Enter a custom amount" style={{ ...inputStyle, paddingLeft: 28, border: `1.5px solid ${custom ? "#e85d7a" : "#e8e3de"}` }} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { if (!custom) e.target.style.borderColor = "#e8e3de"; }} />
-          </div>
+          {kind === "recurring" && (
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: "0.6875rem", color: "var(--portal-muted-4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{t("frequencyLabel")}</p>
+              <select value={frequency} onChange={(e) => setFrequency(e.target.value as Frequency)} style={inputStyle}>
+                {frequencies.map((f) => (
+                  <option key={f.value} value={f.value}>{freqLabel(f.value)}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
-        <div style={{ backgroundColor: "#faf8f6", border: "1px solid #ede8e3", borderRadius: 18, padding: "28px" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#e85d7a", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 20px" }}>Your details</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 }}>
-            {([
-              ["Full name", name, setName, "Sarah Chan"],
-              ["Email", email, setEmail, "sarah@email.com"],
-            ] as [string, string, React.Dispatch<React.SetStateAction<string>>, string][]).map(([label, val, setter, ph]) => (
-              <div key={label}>
-                <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{label}</div>
-                <input value={val} onChange={(e) => setter(e.target.value)} placeholder={ph} style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
-              </div>
-            ))}
-            <div>
-              <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Card number</div>
-              <input placeholder=".... .... .... ...." style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
+
+        <div style={{ backgroundColor: "var(--portal-soft-bg)", border: "1px solid var(--portal-border)", borderRadius: 18, padding: "28px" }}>
+          <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "var(--portal-pink)", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 20px" }}>{t("yourGift")}</p>
+          <div style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 10, padding: "14px 16px", marginBottom: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8125rem", color: "var(--portal-muted-strong)", marginBottom: 6 }}>
+              <span>{kind === "recurring" ? t("recurringDonation") : t("donationAmount")}</span>
+              <span style={{ fontWeight: 700, color: "var(--portal-ink)" }}>{finalAmount > 0 ? formatCurrency(finalAmount) : "-"}</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div>
-                <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Expiry</div>
-                <input placeholder="MM / YY" style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
+            {kind === "recurring" && (
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--portal-muted-5)" }}>
+                <span>{freqLabel(frequency)}</span>
+                <span />
               </div>
-              <div>
-                <div style={{ fontSize: 11, color: "#999", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>CVC</div>
-                <input placeholder="..." style={inputStyle} onFocus={(e) => { e.target.style.borderColor = "#e85d7a"; }} onBlur={(e) => { e.target.style.borderColor = "#e8e3de"; }} />
-              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--portal-muted-5)", marginTop: 6 }}>
+              <span>{t("processingFee")}</span>
+              <span>$0.00</span>
             </div>
           </div>
-          <div style={{ backgroundColor: "#fff", border: "1px solid #ede8e3", borderRadius: 10, padding: "14px 16px", marginBottom: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#555", marginBottom: 6 }}><span>Donation amount</span><span style={{ fontWeight: 700, color: "#1a1a1a" }}>${finalAmount || "-"}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#aaa" }}><span>Processing fee</span><span>$0.00</span></div>
-          </div>
-          <button onClick={() => { if (finalAmount > 0) setDonated(true); }} style={{ width: "100%", padding: "13px", borderRadius: 11, border: "none", backgroundColor: finalAmount > 0 ? "#e85d7a" : "#f0ece8", color: finalAmount > 0 ? "#fff" : "#bbb", fontSize: 15, fontWeight: 700, cursor: finalAmount > 0 ? "pointer" : "default", transition: "all 0.15s" }}>
-            Donate ${finalAmount || "-"}
+          {error && (
+            <div role="alert" style={{ backgroundColor: "var(--portal-pink-soft)", border: "1px solid var(--portal-pink-chip)", borderRadius: 10, padding: "10px 14px", fontSize: "0.8125rem", color: "var(--portal-pink-deep)", marginBottom: 12 }}>
+              {error}
+            </div>
+          )}
+          <button type="button" onClick={submit} disabled={!canSubmit} style={{ width: "100%", padding: "13px", borderRadius: 11, border: "none", backgroundColor: canSubmit ? "var(--portal-pink)" : "var(--portal-neutral)", color: canSubmit ? "#fff" : "var(--portal-muted-6)", fontSize: "0.9375rem", fontWeight: 700, cursor: canSubmit ? "pointer" : "default", transition: "all 0.15s" }}>
+            {submitting ? t("recording") : t("donateNow", { amount: finalAmount > 0 ? formatCurrency(finalAmount) : "" })}
           </button>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, color: "#bbb", fontSize: 11 }}>
-            <IcoShield size={13} /> Secure payment - Tax receipt emailed automatically
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, color: "var(--portal-muted-6)", fontSize: 11 }}>
+            <IcoShield size={13} /> {t("securePayment")}
           </div>
         </div>
+      </div>
+    </main>
+  );
+}
+
+function ProfilePage({ name, data, onBack }: { name: string; data: ContributorPortalData; onBack: () => void }) {
+  const { t, locale } = usePortalText();
+  const isApproved = data.application?.status === "approved";
+  const isDonor = data.donationCount > 0;
+  const totalDonated = formatCurrency(data.totalDonationCents / 100);
+
+  const stats = [
+    { value: `${data.totalHours}`, label: t("statHoursGiven"), color: "var(--portal-pink)" },
+    { value: String(data.attendedSessions), label: t("statSessions"), color: "var(--portal-blue)" },
+    { value: totalDonated, label: t("statTotalGiven"), color: "var(--portal-orange)" },
+    { value: String(data.donationCount), label: t("statDonations"), color: "var(--portal-gold)" },
+  ];
+
+  return (
+    <main style={pageStyle}>
+      <button type="button" onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.8125rem", color: "var(--portal-muted-3)", display: "flex", alignItems: "center", gap: 6, marginBottom: 28, padding: 0 }}>
+        <IcoChevronLeft size={14} /> {t("backToPortal")}
+      </button>
+
+      <div style={{ backgroundColor: "var(--portal-pink-soft)", borderRadius: 20, padding: "36px 40px", marginBottom: 32, position: "relative", overflow: "hidden" }}>
+        <div className={styles.deco} style={{ position: "absolute", right: -20, top: -30, width: 140, height: 140, borderRadius: "50%", backgroundColor: "var(--portal-mint)", opacity: 0.18 }} />
+        <div className={styles.deco} style={{ position: "absolute", right: 60, bottom: -40, width: 100, height: 100, borderRadius: "50%", backgroundColor: "var(--portal-pink)", opacity: 0.1 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 28, position: "relative", zIndex: 1 }}>
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <div style={{ width: 88, height: 88, borderRadius: "50%", backgroundColor: "var(--portal-avatar)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.75rem", fontWeight: 800, color: "#fff", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>{initials(name)}</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <h1 style={{ fontSize: "1.625rem", fontWeight: 700, color: "var(--portal-ink)", margin: "0 0 4px" }}>{name}</h1>
+            <p style={{ fontSize: "0.8125rem", color: "var(--portal-muted-3)", margin: "0 0 12px" }}>{t("roleContributor")}</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
+              <span style={{ fontSize: "0.75rem", backgroundColor: "var(--portal-pink-chip)", color: "var(--portal-pink-deep)", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>{t("badgeContributor")}</span>
+              {isApproved && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.75rem", backgroundColor: "var(--portal-teal-soft)", color: "var(--portal-teal-deep)", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}><IcoLeaf size={11} />{t("badgeApprovedVolunteer")}</span>
+              )}
+              {isDonor && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.75rem", backgroundColor: "var(--portal-blue-soft)", color: "var(--portal-blue-deep)", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}><IcoHeart size={11} />{t("badgeDonor")}</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 32, marginTop: 28, paddingTop: 24, borderTop: "1px solid var(--portal-hairline)", position: "relative", zIndex: 1, flexWrap: "wrap" as const }}>
+          {stats.map((stat) => (
+            <div key={stat.label}>
+              <div style={{ fontSize: "1.375rem", fontWeight: 800, color: stat.color }}>{stat.value}</div>
+              <div style={{ fontSize: "0.6875rem", color: "var(--portal-muted-3)", marginTop: 2 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 14, padding: "28px", marginBottom: 20 }}>
+        <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "var(--portal-pink)", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 20px" }}>{t("yourCertificates")}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+          <VolunteerCertificateButton name={name} hours={data.totalHours} locale={locale} />
+          <DonorCertificateButton name={name} totalCents={data.totalDonationCents} locale={locale} />
+        </div>
+        <p style={{ fontSize: "0.75rem", color: "var(--portal-muted-4)", margin: "16px 0 0" }}>
+          {t("certificateNote")}
+        </p>
       </div>
     </main>
   );
@@ -1031,58 +1657,102 @@ function DonatePage() {
 
 export function ContributorPortalExperience({
   initialNav,
-  name: _name,
+  name: nameProp,
+  data,
 }: {
   initialNav: "My Portal" | "My Donations" | "My Volunteer" | "Events" | "Donate" | "Profile";
   name?: string;
+  data: ContributorPortalData;
 }) {
-  void _name;
+  const name = nameProp?.trim() || "Contributor";
   const [activeNav, setActiveNav] = useState(initialNav === "Profile" ? "My Portal" : initialNav);
   const [showProfile, setShowProfile] = useState(initialNav === "Profile");
+  const locale = useSyncExternalStore(
+    portalLocaleStore.subscribe,
+    portalLocaleStore.getSnapshot,
+    portalLocaleStore.getServerSnapshot,
+  );
+  const prefs = useAccessibilityPrefs();
+
+  const t = useMemo(() => makeT(locale), [locale]);
+
+  function changeLocale(next: Locale) {
+    try {
+      window.localStorage.setItem(PORTAL_LOCALE_KEY, next);
+      window.dispatchEvent(new Event(PORTAL_LOCALE_EVENT));
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  function go(nav: Nav) {
+    setActiveNav(nav);
+    setShowProfile(false);
+  }
 
   return (
-    <div style={{ backgroundColor: "#fff", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <header style={{ backgroundColor: "#fff", borderBottom: "1px solid #f0ece8", padding: "0 48px", display: "flex", alignItems: "center", height: 56, gap: 24, position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 8, flexShrink: 0 }}>
-          <div style={{ width: 28, height: 28, backgroundColor: "#e85d7a", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 13 }}>21</div>
-          <span style={{ fontWeight: 600, fontSize: 14, color: "#1a1a1a" }}>Volunteer Portal</span>
-        </div>
-        <nav style={{ display: "flex", gap: 2, flex: 1 }}>
-          {navLinks.map((link) => (
-            <button key={link} onClick={() => { setActiveNav(link); setShowProfile(false); }} style={{ padding: "5px 12px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: 12, fontWeight: !showProfile && activeNav === link ? 600 : 400, backgroundColor: !showProfile && activeNav === link ? "#fcd8df" : "transparent", color: !showProfile && activeNav === link ? "#c13057" : "#555", transition: "all 0.15s", whiteSpace: "nowrap" }}>
-              {link}
-            </button>
-          ))}
-        </nav>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-          <button style={{ background: "none", border: "none", cursor: "pointer", color: "#888", display: "flex", alignItems: "center" }}><IcoBell size={20} /></button>
-          <button onClick={() => setShowProfile(!showProfile)} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 8, transition: "background 0.15s", backgroundColor: showProfile ? "#fdf0f2" : "transparent" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#8bbdd9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>SC</div>
-            <span style={{ fontSize: 13, fontWeight: 500, color: showProfile ? "#c13057" : "#1a1a1a" }}>Sarah Chan</span>
-          </button>
-          <div className={styles.headerActions}>
-            <Link href="/" className={styles.websiteButton}>
-              Go to website
+    <LocaleContext.Provider value={{ locale, t }}>
+      <div className={styles.portal} style={{ backgroundColor: "#fff", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+        <header style={{ backgroundColor: "#fff", borderBottom: "1px solid var(--portal-neutral)", padding: "0 48px", display: "flex", alignItems: "center", height: 56, gap: 24, position: "sticky", top: 0, zIndex: 100 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8, flexShrink: 0 }}>
+            <Link href="/" aria-label="Go to Love 21 website" style={{ display: "flex", alignItems: "center" }}>
+              <Image
+                src="/assets/images/love21_logo.png?v=3"
+                alt="Love 21 Foundation"
+                width={330}
+                height={202}
+                priority
+                style={{ height: 34, width: "auto", objectFit: "contain" }}
+              />
             </Link>
-            <SignOutButton className={styles.logoutButton} />
+            <span style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--portal-ink)", whiteSpace: "nowrap" }}>{t("portalLabel")}</span>
           </div>
+          <nav style={{ display: "flex", gap: 2, flex: 1 }}>
+            {navLinks.map((link) => (
+              <button
+                key={link}
+                onClick={() => { setActiveNav(link); setShowProfile(false); }}
+                style={{ padding: "5px 12px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: !showProfile && activeNav === link ? 600 : 400, backgroundColor: !showProfile && activeNav === link ? "var(--portal-pink-border)" : "transparent", color: !showProfile && activeNav === link ? "var(--portal-pink-deep)" : "var(--portal-muted-strong)", transition: "all 0.15s", whiteSpace: "nowrap" }}
+              >
+                {t(NAV_LABEL_KEYS[link])}
+              </button>
+            ))}
+          </nav>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+            <button type="button" aria-label={t("notifications")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--portal-muted-3)", display: "flex", alignItems: "center" }}><IcoBell size={20} /></button>
+            <button onClick={() => setShowProfile(!showProfile)} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 8, transition: "background 0.15s", backgroundColor: showProfile ? "var(--portal-pink-soft)" : "transparent" }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "var(--portal-avatar)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, color: "#fff" }}>{initials(name)}</div>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: showProfile ? "var(--portal-pink-deep)" : "var(--portal-ink)" }}>{name}</span>
+            </button>
+            <div className={styles.headerActions}>
+              <Link href="/" className={styles.websiteButton}>
+                {t("goToWebsite")}
+              </Link>
+              <SignOutButton className={styles.logoutButton} label={t("logOut")} pendingLabel={t("loggingOut")} />
+            </div>
+          </div>
+        </header>
+
+        <div className={toolsStyles.floatingTools} aria-label={t("siteTools")}>
+          <AccessibilityMenu
+            locale={locale}
+            simpleView={prefs.simpleView}
+            highContrast={prefs.highContrast}
+            textSize={prefs.textSize}
+            onToggleSimpleView={prefs.toggleSimpleView}
+            onToggleHighContrast={prefs.toggleHighContrast}
+            onAdjustTextSize={prefs.adjustTextSize}
+          />
+          <PortalLangMenu locale={locale} onChange={changeLocale} />
         </div>
-      </header>
 
-      <SiteToolsTray locale="en" paths={localePaths("/portal")} />
-
-      {showProfile ? <ProfilePage onBack={() => setShowProfile(false)} />
-        : activeNav === "My Donations" ? <MyDonationsPage />
-        : activeNav === "My Volunteer" ? <MyVolunteerPage />
-        : activeNav === "Events" ? <EventsPage />
-        : activeNav === "Donate" ? <DonatePage />
-        : <Dashboard />}
-
-      {activeNav === "My Portal" && !showProfile ? (
-        <main style={{ maxWidth: 1200, margin: "0 auto", padding: "0 48px 56px" }}>
-          <CommunityVoices />
-        </main>
-      ) : null}
-    </div>
+        {showProfile ? <ProfilePage name={name} data={data} onBack={() => setShowProfile(false)} />
+          : activeNav === "My Donations" ? <MyDonationsPage data={data} />
+          : activeNav === "My Volunteer" ? <MyVolunteerPage data={data} go={go} />
+          : activeNav === "Events" ? <EventsPage data={data} go={go} />
+          : activeNav === "Donate" ? <DonatePage name={name} />
+          : <Dashboard name={name} data={data} go={go} />}
+      </div>
+    </LocaleContext.Provider>
   );
 }

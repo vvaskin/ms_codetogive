@@ -2,60 +2,49 @@
 
 import { useState } from "react";
 import {
-  buildVolunteerCertificateHtml,
-  generateVolunteerCertId,
-} from "@/lib/volunteer-certificate";
+  buildDonorCertificateHtml,
+  generateDonorCertId,
+} from "@/lib/donor-certificate";
 import styles from "./VolunteerCertificateButton.module.css";
 
 type Locale = "en" | "zh" | "cn";
 
-const COPY: Record<Locale, { note: string; preparing: string; withHours: (hours: number) => string; download: string }> = {
-  en: {
-    note: "Claim your volunteer certificate",
-    preparing: "Preparing…",
-    withHours: (hours) => `Download certificate (${hours} ${hours === 1 ? "hour" : "hours"})`,
-    download: "Download certificate",
-  },
-  zh: {
-    note: "領取你的義工證書",
-    preparing: "準備中…",
-    withHours: (hours) => `下載證書（${hours} 小時）`,
-    download: "下載證書",
-  },
-  cn: {
-    note: "领取你的义工证书",
-    preparing: "准备中…",
-    withHours: (hours) => `下载证书（${hours} 小时）`,
-    download: "下载证书",
-  },
+const COPY: Record<Locale, { note: string; preparing: string; download: string }> = {
+  en: { note: "Claim your donor certificate", preparing: "Preparing…", download: "Download certificate" },
+  zh: { note: "領取你的捐款者證書", preparing: "準備中…", download: "下載證書" },
+  cn: { note: "领取你的捐赠者证书", preparing: "准备中…", download: "下载证书" },
 };
 
-export function VolunteerCertificateButton({
+/**
+ * Client-side donor e-certificate download, backed by the same builder as the
+ * public donate flow. Disabled until the donor has a completed/active gift.
+ */
+export function DonorCertificateButton({
   name,
-  hours,
+  totalCents,
   locale = "en",
 }: {
   name: string;
-  hours: number;
+  totalCents: number;
   locale?: Locale;
 }) {
   const [busy, setBusy] = useState(false);
   const copy = COPY[locale];
 
   async function download() {
-    if (busy) return;
+    if (busy || totalCents <= 0) return;
     setBusy(true);
     try {
-      const certId = generateVolunteerCertId();
+      const certId = generateDonorCertId();
       const issueDate = new Date().toLocaleDateString("en-HK", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
       const logoSrc = await logoDataUri();
-      const html = buildVolunteerCertificateHtml({
-        name: name.trim() || "Valued Volunteer",
-        hours,
+      const html = buildDonorCertificateHtml({
+        name: name.trim() || "Valued Donor",
+        amount: totalCents / 100,
         certId,
         issueDate,
         logoSrc,
@@ -64,7 +53,7 @@ export function VolunteerCertificateButton({
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "volunteer-certificate.html";
+      link.download = "donor-certificate.html";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -102,9 +91,9 @@ export function VolunteerCertificateButton({
         type="button"
         className={styles.button}
         onClick={download}
-        disabled={busy || hours <= 0}
+        disabled={busy || totalCents <= 0}
       >
-        {busy ? copy.preparing : hours > 0 ? copy.withHours(hours) : copy.download}
+        {busy ? copy.preparing : copy.download}
       </button>
     </div>
   );
