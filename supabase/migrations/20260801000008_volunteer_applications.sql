@@ -56,7 +56,8 @@ create trigger volunteer_applications_set_updated_at
   for each row execute function public.set_updated_at();
 
 -- ---------------------------------------------------------------------------
--- handle_new_user: contributor signups get an application + a proper role.
+-- handle_new_user: contributor signups get a proper role. No automatic
+-- volunteer_applications row — the application is created on first submit.
 -- ---------------------------------------------------------------------------
 
 create or replace function public.handle_new_user()
@@ -87,14 +88,6 @@ begin
     requested_role
   )
   on conflict (id) do nothing;
-
-  -- Every contributor gets a volunteer application in the 'registered' state
-  -- so they can complete it from the portal.
-  if requested_role = 'contributor'::public.user_role then
-    insert into public.volunteer_applications (user_id, status)
-    values (new.id, 'registered'::public.volunteer_application_status)
-    on conflict (user_id) do nothing;
-  end if;
 
   return new;
 end;
