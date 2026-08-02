@@ -1,6 +1,7 @@
 .band {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
