@@ -65,7 +65,13 @@ export function VolunteerCertificateButton({
   }
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.band}>
+      <p className={styles.note}>
+        Claim your volunteer certificate
+        <span className={styles.arrow} aria-hidden="true">
+          →
+        </span>
+      </p>
       <button
         type="button"
         className={styles.button}
