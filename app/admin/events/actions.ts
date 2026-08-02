@@ -181,3 +181,49 @@ export async function deleteEvent(formData: FormData) {
   revalidateEventPages();
   redirect("/admin/events");
 }
+
+function parseParticipationId(value: string) {
+  if (!/^\d+$/.test(value)) throw new Error("Invalid participation id.");
+
+  const id = Number(value);
+  if (!Number.isSafeInteger(id) || id < 1) {
+    throw new Error("Invalid participation id.");
+  }
+
+  return id;
+}
+
+function parseHours(value: string) {
+  const hours = Number(value);
+  if (!Number.isFinite(hours) || hours < 0) {
+    throw new Error("Hours must be zero or more.");
+  }
+  if (hours > 24) {
+    throw new Error("Hours cannot exceed 24.");
+  }
+  return hours;
+}
+
+export async function updateParticipationHours(formData: FormData) {
+  const supabase = await requireStaff();
+
+  const id = parseParticipationId(textValue(formData, "participationId"));
+  const eventId = parseEventId(formData);
+  const hours = parseHours(textValue(formData, "hours"));
+
+  const { data, error } = await supabase
+    .from("event_participations")
+    .update({ hours_logged: hours, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("event_id", eventId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw new Error(`Unable to log hours: ${error.message}`);
+  if (!data) throw new Error("Participation record not found.");
+
+  revalidatePath(`/admin/events/${eventId}`);
+  revalidatePath("/admin/events");
+  revalidatePath("/portal/volunteering");
+  revalidatePath("/portal");
+}

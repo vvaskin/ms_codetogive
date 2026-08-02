@@ -141,7 +141,7 @@ export function TestimonialForm({
   const [english, ...otherLanguages] = translations;
 
   return (
-    <form action={action} className={styles.form} encType="multipart/form-data">
+    <form action={action} className={styles.form}>
       {record ? <input type="hidden" name="id" value={record.id} /> : null}
       <input type="hidden" name="translations" value={JSON.stringify(translations)} />
 

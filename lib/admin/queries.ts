@@ -102,6 +102,7 @@ export type AdminEventParticipation = Pick<
   | "event_id"
   | "status"
   | "certificate_path"
+  | "hours_logged"
   | "created_at"
   | "updated_at"
 >;
@@ -508,6 +509,57 @@ export async function getVolunteerApplications(): Promise<
   }));
 }
 
+export async function getVolunteerApplicationById(
+  applicationId: number,
+): Promise<AdminVolunteerApplication | null> {
+  if (!Number.isSafeInteger(applicationId) || applicationId < 1) {
+    return null;
+  }
+
+  const admin = await staffAdminClient();
+  const { data: row, error } = await admin
+    .from("volunteer_applications")
+    .select(
+      "id, user_id, status, submitted_at, reviewed_at, rejection_reason, rejection_reason_visible, age_group, gender, referral_source, bio",
+    )
+    .eq("id", applicationId)
+    .maybeSingle();
+
+  if (error) {
+    throw actionableError(
+      `Unable to load application ${applicationId}.`,
+      error.message,
+    );
+  }
+  if (!row) return null;
+
+  const { data: user, error: userError } = await admin
+    .from("users")
+    .select("id, name, email")
+    .eq("id", row.user_id)
+    .maybeSingle();
+
+  if (userError) {
+    throw actionableError("Unable to load the application profile.", userError.message);
+  }
+
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: user?.name ?? "Profile unavailable",
+    email: user?.email ?? null,
+    status: row.status,
+    submittedAt: row.submitted_at,
+    reviewedAt: row.reviewed_at,
+    rejectionReason: row.rejection_reason,
+    rejectionReasonVisible: row.rejection_reason_visible,
+    ageGroup: row.age_group,
+    gender: row.gender,
+    referralSource: row.referral_source,
+    bio: row.bio,
+  };
+}
+
 export async function getAdminEventList(): Promise<AdminEventListItem[]> {
   const admin = await staffAdminClient();
   const [events, participations] = await Promise.all([
@@ -574,7 +626,7 @@ export async function getAdminEventDetail(
       admin
         .from("event_participations")
         .select(
-          "id, user_id, event_id, status, certificate_path, created_at, updated_at",
+          "id, user_id, event_id, status, certificate_path, hours_logged, created_at, updated_at",
         )
         .eq("event_id", eventId)
         .order("created_at", { ascending: false })

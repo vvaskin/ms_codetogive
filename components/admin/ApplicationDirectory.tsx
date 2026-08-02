@@ -162,66 +162,12 @@ export function ApplicationDirectory({
                     </span>
                   </td>
                   <td>
-                    <details className={styles.applicationDetails}>
-                      <summary>Review details</summary>
-                      <div className={styles.applicationPanel}>
-                        <div className={styles.applicationPanelHeading}>
-                          <div>
-                            <h3>{application.name}</h3>
-                            {application.email ? (
-                              <a href={`mailto:${application.email}`}>
-                                {application.email}
-                              </a>
-                            ) : (
-                              <span className={styles.muted}>Email unavailable</span>
-                            )}
-                          </div>
-                          <span
-                            className={`${styles.status} ${applicationStatusClass(application.status)}`}
-                          >
-                            {formatApplicationStatus(application.status)}
-                          </span>
-                        </div>
-
-                        <dl className={styles.applicationGrid}>
-                          <div>
-                            <dt>Applied</dt>
-                            <dd>{formatApplicationDate(application.submittedAt)}</dd>
-                          </div>
-                          <div>
-                            <dt>Reviewed</dt>
-                            <dd>{formatApplicationDate(application.reviewedAt)}</dd>
-                          </div>
-                          <div>
-                            <dt>Age group</dt>
-                            <dd>{application.ageGroup ?? "Not provided"}</dd>
-                          </div>
-                          <div>
-                            <dt>Gender</dt>
-                            <dd>{application.gender ?? "Not provided"}</dd>
-                          </div>
-                          <div className={styles.wideDetail}>
-                            <dt>Referral source</dt>
-                            <dd>{application.referralSource ?? "Not provided"}</dd>
-                          </div>
-                          <div className={styles.wideDetail}>
-                            <dt>Bio</dt>
-                            <dd>{application.bio || "No bio provided."}</dd>
-                          </div>
-                          {application.rejectionReason ? (
-                            <div className={styles.wideDetail}>
-                              <dt>Rejection reason</dt>
-                              <dd>
-                                {application.rejectionReason}
-                                {application.rejectionReasonVisible
-                                  ? ""
-                                  : " (hidden from applicant)"}
-                              </dd>
-                            </div>
-                          ) : null}
-                        </dl>
-                      </div>
-                    </details>
+                    <a
+                      className={styles.reviewLink}
+                      href={`/admin/people/applications/${application.id}`}
+                    >
+                      Review details
+                    </a>
                   </td>
                 </tr>
               ))}
