@@ -34,7 +34,7 @@ const navigationGroups: readonly NavigationGroup[] = [
     label: "Content",
     items: [
       { href: "/admin/events", label: "Events" },
-      { href: "/admin/content/news", label: "News & Stories" },
+      { href: "/admin/content/testimonials", label: "Testimonials" },
     ],
   },
 ];
