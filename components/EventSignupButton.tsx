@@ -6,6 +6,7 @@ import { registerForEvent } from "@/app/actions/registrations";
 import { VOLUNTEER_INTERESTS, type VolunteerInterest } from "@/lib/volunteer-interests";
 import type { Locale } from "@/content/site-data";
 import type { UserRole } from "@/lib/roles";
+import { GuestVolunteerSignupForm } from "./GuestVolunteerSignupForm";
 import styles from "./EventSignupButton.module.css";
 
 type Props = {
@@ -33,28 +34,23 @@ export function EventSignupButton({
   const [done, setDone] = useState(signedUp);
   const [error, setError] = useState<string | null>(null);
   const [interest, setInterest] = useState<VolunteerInterest | null>(null);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
 
-  async function submit(
-    interestValue: VolunteerInterest | null,
-    name?: string,
-    email?: string,
-  ) {
+  async function submit(interestValue: VolunteerInterest | null) {
     setSubmitting(true);
     setError(null);
     const res = await registerForEvent({
       eventId,
       interest: isApprovedVolunteer ? interestValue : null,
-      guestName: sessionRole ? null : name ?? null,
-      guestEmail: sessionRole ? null : email ?? null,
     });
     setSubmitting(false);
     if (res.ok) {
       setDone(true);
       setOpen(false);
     } else {
-      setError(res.error ?? pick(locale, "Something went wrong.", "出了點問題。", "出了点问题。"));
+      setError(
+        res.error ??
+          pick(locale, "Something went wrong.", "出了點問題。", "出了点问题。"),
+      );
     }
   }
 
@@ -62,8 +58,7 @@ export function EventSignupButton({
     return (
       <div className={styles.wrap}>
         <p className={styles.done}>
-          ✓{" "}
-          {pick(locale, "You’re signed up", "你已報名", "你已报名")}
+          ✓ {pick(locale, "You’re signed up", "你已報名", "你已报名")}
         </p>
         {sessionRole ? (
           <Link className={styles.link} href="/portal/events">
@@ -103,8 +98,7 @@ export function EventSignupButton({
         </div>
         {chosen ? (
           <p className={styles.selected}>
-            ✓{" "}
-            {pick(locale, "Selected", "已選", "已选")}: {chosen.icon} {chosen.label}
+            ✓ {pick(locale, "Selected", "已選", "已选")}: {chosen.icon} {chosen.label}
           </p>
         ) : null}
         {error ? <p className={styles.error}>{error}</p> : null}
@@ -157,45 +151,16 @@ export function EventSignupButton({
       </button>
     );
   }
+
   return (
-    <form
-      className={styles.wrap}
-      onSubmit={(event) => {
-        event.preventDefault();
-        submit(null, guestName, guestEmail);
+    <GuestVolunteerSignupForm
+      eventId={eventId}
+      locale={locale}
+      onCancel={() => setOpen(false)}
+      onDone={() => {
+        setDone(true);
+        setOpen(false);
       }}
-    >
-      <input
-        className={styles.input}
-        placeholder={pick(locale, "Your name", "你的姓名", "你的姓名")}
-        value={guestName}
-        onChange={(event) => setGuestName(event.target.value)}
-        required
-      />
-      <input
-        className={styles.input}
-        type="email"
-        placeholder={pick(locale, "Email", "電郵", "电邮")}
-        value={guestEmail}
-        onChange={(event) => setGuestEmail(event.target.value)}
-        required
-      />
-      {error ? <p className={styles.error}>{error}</p> : null}
-      <div className={styles.row}>
-        <button
-          className={styles.button}
-          onClick={() => setOpen(false)}
-          disabled={submitting}
-          type="button"
-        >
-          {pick(locale, "Cancel", "取消", "取消")}
-        </button>
-        <button className={styles.primary} disabled={submitting} type="submit">
-          {submitting
-            ? pick(locale, "Saving…", "儲存中…", "储存中…")
-            : pick(locale, "Sign up", "報名", "报名")}
-        </button>
-      </div>
-    </form>
+    />
   );
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { uploadVolunteerDocument } from "@/lib/server/upload-volunteer-document";
 import {
   getVolunteerApplication,
   hasActiveApplication,
@@ -13,6 +14,8 @@ export interface SubmitVolunteerApplicationInput {
   referralSource: string;
   bio?: string | null;
   chineseName?: string | null;
+  scrcFile?: File | null;
+  parentalConsentFile?: File | null;
 }
 
 export interface SubmitVolunteerApplicationResult {
@@ -47,6 +50,18 @@ export async function submitVolunteerApplication(
     return { ok: false, error: "Please tell us how you heard about us." };
   }
 
+  const isMinor = ageGroup === "14-15" || ageGroup === "16-17";
+  const isAdult = ageGroup === "18+";
+  if (isAdult && !input.scrcFile) {
+    return { ok: false, error: "Please upload your SCRC certificate." };
+  }
+  if (isMinor && !input.parentalConsentFile) {
+    return {
+      ok: false,
+      error: "Please upload a signed parental / guardian consent form.",
+    };
+  }
+
   const existing = await getVolunteerApplication(user.id, supabase);
   if (hasActiveApplication(existing)) {
     return {
@@ -62,6 +77,23 @@ export async function submitVolunteerApplication(
     ? [`Chinese name: ${chineseName}`, bio].filter(Boolean).join("\n")
     : bio;
 
+  let scrcPath: string | null = null;
+  let parentalConsentPath: string | null = null;
+  try {
+    if (isAdult && input.scrcFile) {
+      scrcPath = await uploadVolunteerDocument(user.id, "scrc", input.scrcFile);
+    }
+    if (isMinor && input.parentalConsentFile) {
+      parentalConsentPath = await uploadVolunteerDocument(
+        user.id,
+        "parental-consent",
+        input.parentalConsentFile,
+      );
+    }
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
+  }
+
   const payload = {
     user_id: user.id,
     status: "submitted" as const,
@@ -70,6 +102,8 @@ export async function submitVolunteerApplication(
     gender,
     referral_source: referral,
     bio: bioWithChineseName,
+    scrc_path: scrcPath,
+    parental_consent_path: parentalConsentPath,
     reviewed_at: null,
     reviewed_by: null,
     rejection_reason: null,

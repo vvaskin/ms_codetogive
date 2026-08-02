@@ -345,11 +345,13 @@ export type Database = {
           created_at: string
           gender: string | null
           id: number
+          parental_consent_path: string | null
           referral_source: string | null
           rejection_reason: string | null
           rejection_reason_visible: boolean
           reviewed_at: string | null
           reviewed_by: string | null
+          scrc_path: string | null
           status:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
@@ -363,11 +365,13 @@ export type Database = {
           created_at?: string
           gender?: string | null
           id?: never
+          parental_consent_path?: string | null
           referral_source?: string | null
           rejection_reason?: string | null
           rejection_reason_visible?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
+          scrc_path?: string | null
           status?:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
@@ -381,11 +385,13 @@ export type Database = {
           created_at?: string
           gender?: string | null
           id?: never
+          parental_consent_path?: string | null
           referral_source?: string | null
           rejection_reason?: string | null
           rejection_reason_visible?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
+          scrc_path?: string | null
           status?:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
@@ -424,7 +430,13 @@ export type Database = {
       event_audience: "members" | "volunteers" | "everyone"
       event_status: "published" | "cancelled"
       event_type: "sport" | "nutrition" | "family_support"
-      participation_status: "registered" | "attended" | "no_show" | "cancelled"
+      participation_status:
+        | "accepted"
+        | "attended"
+        | "no_show"
+        | "cancelled"
+        | "pending"
+        | "rejected"
       user_role: "member" | "contributor" | "staff"
       volunteer_application_status:
         | "submitted"
@@ -1018,7 +1030,14 @@ export const Constants = {
       event_audience: ["members", "volunteers", "everyone"],
       event_status: ["published", "cancelled"],
       event_type: ["sport", "nutrition", "family_support"],
-      participation_status: ["registered", "attended", "no_show", "cancelled"],
+      participation_status: [
+        "accepted",
+        "attended",
+        "no_show",
+        "cancelled",
+        "pending",
+        "rejected",
+      ],
       user_role: ["member", "contributor", "staff"],
       volunteer_application_status: [
         "submitted",

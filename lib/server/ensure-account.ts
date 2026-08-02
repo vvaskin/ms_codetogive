@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { findUserByEmail, normalizeEmail, normalizePhone } from "@/lib/server/account-lookup";
 import type { UserRole } from "@/lib/roles";
 
 interface EnsureAccountInput {
@@ -54,7 +55,7 @@ export async function ensureAccount({
   origin,
 }: EnsureAccountInput): Promise<EnsureAccountResult> {
   const admin = createAdminClient();
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
   const normalizedPhone = normalizePhone(phone);
 
   const existing = await findUserByEmail(normalizedEmail);
@@ -111,30 +112,3 @@ export async function ensureAccount({
   };
 }
 
-/**
- * Best-effort E.164 normaliser: strips whitespace, dashes and parentheses.
- * Assumes Hong Kong (`+852`) when the input has no country code. Not a
- * full-blown validator — Supabase's phone provider will still reject bad
- * numbers.
- */
-function normalizePhone(phone: string): string {
-  const cleaned = phone.replace(/[\s\-()]/g, "");
-  if (cleaned.startsWith("+")) return cleaned;
-  if (cleaned.startsWith("00")) return `+${cleaned.slice(2)}`;
-  return `+852${cleaned}`;
-}
-
-async function findUserByEmail(email: string): Promise<string | null> {
-  const admin = createAdminClient();
-  for (let page = 1; page <= 5; page += 1) {
-    const { data, error } = await admin.auth.admin.listUsers({
-      page,
-      perPage: 200,
-    });
-    if (error || !data.users.length) break;
-    const match = data.users.find((u) => u.email?.toLowerCase() === email);
-    if (match) return match.id;
-    if (data.users.length < 200) break;
-  }
-  return null;
-}

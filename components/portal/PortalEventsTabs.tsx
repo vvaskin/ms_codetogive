@@ -29,17 +29,21 @@ const typeColors: Record<EventType, string> = {
 };
 
 const participationLabels: Record<ParticipationStatus, string> = {
-  registered: "Registered",
+  pending: "Pending review",
+  accepted: "Confirmed",
   attended: "Attended",
   no_show: "No-show",
   cancelled: "Cancelled",
+  rejected: "Not approved",
 };
 
 const participationClass: Record<ParticipationStatus, string> = {
-  registered: styles.statusRegistered,
+  pending: styles.statusRegistered,
+  accepted: styles.statusRegistered,
   attended: styles.statusAttended,
   no_show: styles.statusNoShow,
   cancelled: styles.statusCancelled,
+  rejected: styles.statusCancelled,
 };
 
 type Tab = "upcoming" | "mine";
