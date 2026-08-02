@@ -1,0 +1,176 @@
+.primaryAction,
+.secondaryAction,
+.cardActions a,
+.cardActions button,
+.detailActions button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.primaryAction {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.cardActions .publishAction {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.cardActions .publishAction:hover {
+  border-color: var(--color-pink-dark);
+  background: var(--color-pink-dark);
+  color: var(--color-white);
+}
+
+.cardActions .cancelAction {
+  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
+  color: var(--color-coral);
+}
+
+.cardActions .cancelAction:hover {
+  border-color: var(--color-coral);
+  background: var(--color-coral);
+  color: var(--color-white);
+}
+
+.secondaryAction:hover,
+.cardActions a:hover,
+.cardActions button:hover,
+.detailActions button:hover {
+  border-color: var(--color-pink);
+  color: var(--color-pink-dark);
+}
+
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible,
+.cardActions a:focus-visible,
+.cardActions button:focus-visible,
+.detailActions button:focus-visible,
+.participantTable:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cardActions,
+.cardActions form,
+.detailActions,
+.detailActions form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cardActions {
+  flex-wrap: nowrap;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  overflow-x: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+.cardActions form {
+  flex: 0 0 auto;
+}
+
+.detailMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.detailGrid {
+  display: grid;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.eventDefinitionList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.eventDefinitionList > div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.eventDefinitionList dt {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eventDefinitionList dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.detailActions {
+  flex-wrap: wrap;
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.dangerOutline {
+  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border)) !important;
+  color: var(--color-coral) !important;
+}
+
+.participantTable {
+  overflow-x: auto;
+}
+
+.participantTable table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.participantTable th,
+.participantTable td {
+  padding: 0.8rem 0.7rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.participantTable th {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.participantTable tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 800px) {
+  .detailMetrics,
+  .eventDefinitionList {
+    grid-template-columns: 1fr;
+  }
+}

@@ -135,6 +135,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   // Portal pages use a slim header: logo + accessibility + language only,
   // with the marketing navigation removed.
   const isPortal = pathname.startsWith("/portal");
+  const isAdmin = pathname.startsWith("/admin");
   const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -149,6 +150,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const contactPath = pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
   const eventsPath = pick("/events", "/zh/events-hk/", "/cn/events");
   const storiesPath = pick("/stories/", "/zh/stories-hk/", "/cn/stories/");
+  const hubPath = "/neurodiversity-hub/";
   const portalPath = "/portal";
   const loginPath = pick("/login/", "/zh/login-hk/", "/cn/login-hk/");
   const portalLabel = pick("My portal", "個人頁面", "个人页面");
@@ -167,6 +169,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const donateLabel = pick("Donate", "捐贈", "捐赠");
   const eventsLabel = pick("Events", "活動", "活动");
   const storiesLabel = pick("Member Stories", "會員故事", "会员故事");
+  const hubLabel = pick("Neurodiversity Hub", "神經多樣性中心", "神经多样性中心");
   const homePath = cn ? "/cn/" : zh ? "/zh/" : "/";
   const missionLine = cn
     ? "通过运动、营养及全面支援，为唐氏综合症和自闭症社群带来机会与包容。"
@@ -178,9 +181,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   };
 
-  // Portal routes render their own chrome (PortalShell); the site header and
-  // footer are hidden entirely to match the Figma "console" design.
-  if (isPortal) {
+  // Portal and admin routes render their own chrome (PortalShell / AdminLayout);
+  // the site header and footer are hidden entirely.
+  if (isPortal || isAdmin) {
     return <>{children}</>;
   }
 
@@ -202,6 +205,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             </Link>
             <Link href={storiesPath} className={styles.navLink}>
               {storiesLabel}
+            </Link>
+            <Link href={hubPath} className={styles.navLink}>
+              {hubLabel}
             </Link>
             <Link href={contactPath} className={styles.navLink}>
               {pick("Contact Us", "聯絡我們", "联系我们")}
@@ -264,6 +270,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             }
           }}
         >
+          <Link href={hubPath} className={styles.mobileNavLink}>
+            {hubLabel}
+          </Link>
           <Link href={aboutPath} className={styles.mobileNavLink}>
             {aboutLabel}
           </Link>

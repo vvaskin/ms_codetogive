@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { isStaffRole } from "@/lib/admin";
-import { isUserRole, type UserRole } from "@/lib/roles";
 import {
   createAdminClient,
   getAdminAuthState,
@@ -12,8 +11,8 @@ function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function parseRole(value: string): UserRole {
-  if (!isUserRole(value)) {
+function parseRole(value: string): string {
+  if (!(value in directoryPaths)) {
     throw new Error("Invalid account type.");
   }
   return value;
@@ -24,6 +23,11 @@ async function requireAdmin() {
   if (!user || !isStaff) redirect("/admin/login");
   return user;
 }
+
+const directoryPaths: Record<string, string> = {
+  member: "/admin/people/members",
+  contributor: "/admin/people/contributors",
+};
 
 async function removeUserStorage(
   admin: ReturnType<typeof createAdminClient>,
@@ -91,5 +95,5 @@ export async function deleteUser(formData: FormData) {
     console.error("Account deleted, but one or more storage files remain.");
   }
 
-  redirect(`/admin?view=${currentView}`);
+  redirect(directoryPaths[currentView]);
 }

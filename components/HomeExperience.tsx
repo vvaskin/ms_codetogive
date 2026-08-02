@@ -9,6 +9,7 @@ import {
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
 import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
+import { AbilityFlipBook } from "./AbilityFlipBook";
 import { CountUp } from "./CountUp";
 import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./HomeExperience.module.css";
@@ -27,7 +28,7 @@ function FeedCard({ item, locale }: { item: HomepageFeedCard; locale: Locale }) 
         <span className={styles.feedMeta}>
           <span className={styles.feedMetaLogo} aria-hidden="true">
             <Image
-              src="/assets/images/love21_logo.png"
+              src="/assets/images/love21_logo.png?v=3"
               alt=""
               width={330}
               height={202}
@@ -78,7 +79,7 @@ function InstagramFeedCard({
         <span className={styles.feedMeta}>
           <span className={styles.feedMetaLogo} aria-hidden="true">
             <Image
-              src="/assets/images/love21_logo.png"
+              src="/assets/images/love21_logo.png?v=3"
               alt=""
               width={330}
               height={202}
@@ -123,6 +124,8 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
+      <AbilityFlipBook locale={locale} />
+
       <section className={styles.hero} aria-labelledby="homepage-title">
         <span className={styles.heroBlobOne} aria-hidden="true" />
         <span className={styles.heroBlobTwo} aria-hidden="true" />

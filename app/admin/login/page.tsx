@@ -22,7 +22,7 @@ export default async function AdminLoginPage() {
         title="Administrator access required"
         description="This account is not authorized to access the admin portal. Sign out and use an approved administrator account."
       >
-        <SignOutButton />
+        <SignOutButton redirectTo="/admin/login" />
       </AuthPage>
     );
   }
