@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DonationForm } from "@/components/portal/DonationForm";
+import { ContributorPortalExperience } from "@/components/portal/ContributorPortalExperience";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -14,15 +14,5 @@ export default async function DonatePage() {
   if (!profile) redirect("/login?next=/portal/donate");
   if (profile.role !== "contributor") redirect("/portal");
 
-  return (
-    <div className="portal-subpage">
-      <header className="portal-subpage-head">
-        <p className="eyebrow">SUPPORT LOVE 21</p>
-        <h1>Make a donation</h1>
-        <p>Give once or set up recurring support for our programmes.</p>
-      </header>
-
-      <DonationForm guest={false} donorName={profile.name} />
-    </div>
-  );
+  return <ContributorPortalExperience initialNav="Donate" name={profile.name} />;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ProfileEditor } from "@/components/portal/ProfileEditor";
+import { ContributorPortalExperience } from "../../../components/portal/ContributorPortalExperience";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -13,24 +13,6 @@ export default async function ProfilePage() {
 
   if (!profile) redirect("/login?next=/portal/profile");
 
-  return (
-    <div className="portal-subpage">
-      <header className="portal-subpage-head">
-        <p className="eyebrow">ACCOUNT</p>
-        <h1>My profile</h1>
-        <p>Keep your details current so we can stay in touch.</p>
-      </header>
-
-      <ProfileEditor
-        initial={{
-          userId: profile.id,
-          name: profile.name,
-          email: profile.email,
-          avatarUrl: profile.avatarUrl,
-          phone: profile.phoneNumber,
-          address: profile.address,
-        }}
-      />
-    </div>
-  );
+  if (profile.role !== "contributor") redirect("/portal");
+  return <ContributorPortalExperience initialNav="Profile" name={profile.name} />;
 }
