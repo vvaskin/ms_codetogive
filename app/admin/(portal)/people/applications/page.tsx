@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ApplicationDirectory } from "@/components/admin/ApplicationDirectory";
-import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { getVolunteerApplications } from "@/lib/admin/queries";
 
 export const metadata: Metadata = { title: "Volunteer applications" };

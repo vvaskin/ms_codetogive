@@ -354,7 +354,7 @@ export default function NeurodiversityHubPage() {
           <Link href="/stories/" className={styles.ctaPrimary}>
             See our community in action
           </Link>
-          <Link href="/signup?role=volunteer" className={styles.ctaSecondary}>
+          <Link href="/signup?role=contributor" className={styles.ctaSecondary}>
             Volunteer with us
           </Link>
         </div>
