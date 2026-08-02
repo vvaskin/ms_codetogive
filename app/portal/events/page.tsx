@@ -60,7 +60,7 @@ export default async function PortalEventsPage({
 
   const nowIso = new Date().toISOString();
 
-  const [upcomingResult, mineResult] = await Promise.all([
+  const [upcomingResult, mineResult, hoursResult] = await Promise.all([
     supabase
       .from("events")
       .select(EVENT_COLUMNS)
@@ -75,6 +75,10 @@ export default async function PortalEventsPage({
       .select(`status, event:events(${EVENT_COLUMNS})`)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("event_participations")
+      .select("hours_logged")
+      .eq("user_id", user.id),
   ]);
 
   const upcoming: EventRow[] = upcomingResult.data ?? [];
@@ -88,11 +92,20 @@ export default async function PortalEventsPage({
       })
       .filter((v): v is MyEvent => v !== null);
 
+  const totalHours = (hoursResult.data ?? []).reduce(
+    (sum, row) => sum + (row.hours_logged ?? 0),
+    0,
+  );
+
   return (
     <>
       <DashboardHead
         title="My Volunteering"
         subtitle="Browse what's coming up and see the events you've signed up for."
+        stat={{
+          value: String(totalHours),
+          label: "Total hours volunteered",
+        }}
       />
       <PortalEventsTabs upcoming={upcoming} mine={mine} locale={locale} />
     </>
