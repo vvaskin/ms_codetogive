@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   homepageContent,
-  hrefFor,
   t,
 } from "../content/homepage";
 import {
@@ -13,14 +12,17 @@ import {
   mediaText,
 } from "../content/media";
 import { mediaArticles, type Locale } from "../content/site-data";
+import { readHomepageTestimonials } from "../lib/testimonials";
 import { InstagramFeed } from "./InstagramFeed";
+import { TestimonialCarousel } from "./TestimonialCarousel";
 import { HeartIcon } from "./ui/HeartIcon";
 import { SectionShell } from "./ui/SectionShell";
 import styles from "./MediaExperience.module.css";
 
-export function MediaExperience({ locale }: { locale: Locale }) {
+export async function MediaExperience({ locale }: { locale: Locale }) {
   const zh = locale !== "en";
   const feedItems = mediaFeedItems();
+  const testimonials = await readHomepageTestimonials(locale);
 
   return (
     <article className={`${styles.page} ${zh ? styles.zh : ""}`}>
@@ -56,32 +58,7 @@ export function MediaExperience({ locale }: { locale: Locale }) {
               <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFour}`} />
               <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFive}`} />
             </span>
-            <article className={styles.testimonialCard}>
-              <div className={styles.testimonialImage}>
-                <Image
-                  src={homepageContent.featuredStory.image}
-                  alt={t(homepageContent.featuredStory.imageAlt, locale)}
-                  fill
-                  sizes="(max-width: 820px) 100vw, 62vw"
-                />
-              </div>
-              <div className={styles.testimonialPanel}>
-                <p>{t(homepageContent.featuredStory.panelLabel, locale)}</p>
-                <h3>{t(homepageContent.featuredStory.panelTitle, locale)}</h3>
-                <p className={styles.testimonialContext}>
-                  {t(homepageContent.featuredStory.context, locale)}
-                </p>
-                <blockquote className={styles.testimonialQuote}>
-                  <p>“{t(homepageContent.featuredStory.quote, locale)}”</p>
-                </blockquote>
-                <div className={styles.testimonialFooter}>
-                  <cite>{t(homepageContent.featuredStory.attribution, locale)}</cite>
-                  <Link href={hrefFor(homepageContent.featuredStory.action, locale)}>
-                    {t(homepageContent.featuredStory.action.label, locale)} ↗
-                  </Link>
-                </div>
-              </div>
-            </article>
+            <TestimonialCarousel testimonials={testimonials} locale={locale} />
           </div>
         </div>
       </SectionShell>
