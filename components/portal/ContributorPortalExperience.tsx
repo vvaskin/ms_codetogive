@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import React from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/components/SignOutButton";
+import { SiteToolsTray } from "@/components/SiteTools";
+import { localePaths } from "@/content/site-data";
 import styles from "./ContributorPortalExperience.module.css";
 
 const s = (w = 20) => ({ width: w, height: w, display: "block" as const });
@@ -1066,6 +1068,8 @@ export function ContributorPortalExperience({
           </div>
         </div>
       </header>
+
+      <SiteToolsTray locale="en" paths={localePaths("/portal")} />
 
       {showProfile ? <ProfilePage onBack={() => setShowProfile(false)} />
         : activeNav === "My Donations" ? <MyDonationsPage />
