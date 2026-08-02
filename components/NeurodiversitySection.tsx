@@ -93,9 +93,9 @@ const facts = [
 
 const routes = {
   hub: {
-    en: "/neurodiversity/",
-    zh: "/zh/neurodiversity-hk/",
-    cn: "/cn/neurodiversity/",
+    en: "/neurodiversity-hub/",
+    zh: "/neurodiversity-hub/",
+    cn: "/neurodiversity-hub/",
   },
 };
 
