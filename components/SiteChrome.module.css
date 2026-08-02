@@ -632,7 +632,6 @@
   width: min(var(--layout-container-wide), 100% - var(--layout-gutter) * 2);
   margin-inline: auto;
   padding: var(--space-5) var(--layout-gutter) var(--space-6);
-  border-top: 1px solid color-mix(in srgb, var(--color-text-on-dark) 14%, transparent);
 }
 
 .footerBottomRow {

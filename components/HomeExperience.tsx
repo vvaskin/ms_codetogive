@@ -9,6 +9,7 @@ import {
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
 import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
+import { AbilityFlipBook } from "./AbilityFlipBook";
 import { CountUp } from "./CountUp";
 import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./HomeExperience.module.css";
@@ -123,6 +124,8 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
+      <AbilityFlipBook locale={locale} />
+
       <section className={styles.hero} aria-labelledby="homepage-title">
         <span className={styles.heroBlobOne} aria-hidden="true" />
         <span className={styles.heroBlobTwo} aria-hidden="true" />
