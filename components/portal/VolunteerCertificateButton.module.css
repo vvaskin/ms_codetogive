@@ -20,6 +20,10 @@
   line-height: 1.3;
 }
 
+.noteBlue {
+  color: var(--color-blue);
+}
+
 .arrow {
   font-size: 1.35em;
   line-height: 1;
@@ -44,6 +48,15 @@
 
 .button:hover:not(:disabled) {
   background: #ff3669;
+  color: #fff;
+}
+
+.buttonBlue {
+  border-color: var(--color-blue);
+}
+
+.buttonBlue:hover:not(:disabled) {
+  background: var(--color-blue);
   color: #fff;
 }
 

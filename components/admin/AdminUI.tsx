@@ -79,7 +79,7 @@ export function AdminPageHeader({
   return (
     <header className={styles.pageHeader}>
       <div className={styles.pageHeaderCopy}>
-        <p className={styles.eyebrow}>{eyebrow}</p>
+        {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
         <h1>{title}</h1>
         {description ? <p className={styles.pageDescription}>{description}</p> : null}
       </div>

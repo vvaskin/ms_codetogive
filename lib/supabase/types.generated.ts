@@ -293,6 +293,85 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonial_translations: {
+        Row: {
+          attribution: string | null
+          body: string
+          image_alt: string | null
+          locale: Database["public"]["Enums"]["testimonial_locale"]
+          quote: string | null
+          story_label: string
+          testimonial_id: number
+        }
+        Insert: {
+          attribution?: string | null
+          body: string
+          image_alt?: string | null
+          locale: Database["public"]["Enums"]["testimonial_locale"]
+          quote?: string | null
+          story_label: string
+          testimonial_id: number
+        }
+        Update: {
+          attribution?: string | null
+          body?: string
+          image_alt?: string | null
+          locale?: Database["public"]["Enums"]["testimonial_locale"]
+          quote?: string | null
+          story_label?: string
+          testimonial_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonial_translations_testimonial_id_fkey"
+            columns: ["testimonial_id"]
+            isOneToOne: false
+            referencedRelation: "testimonials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: number
+          image_path: string
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["testimonial_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          image_path: string
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["testimonial_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          image_path?: string
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["testimonial_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           about: string | null
@@ -437,6 +516,8 @@ export type Database = {
         | "cancelled"
         | "pending"
         | "rejected"
+      testimonial_locale: "en" | "zh" | "cn"
+      testimonial_status: "draft" | "published"
       user_role: "member" | "contributor" | "staff"
       volunteer_application_status:
         | "submitted"

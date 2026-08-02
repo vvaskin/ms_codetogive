@@ -390,6 +390,32 @@
   cursor: pointer;
 }
 
+.reviewLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.reviewLink:hover {
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+}
+
+.reviewLink:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 32%, transparent);
+  outline-offset: 2px;
+}
+
 .applicationDetails {
   min-width: 9rem;
 }
@@ -434,6 +460,59 @@
   grid-column: 1 / -1;
 }
 
+.statusForm {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: var(--space-2);
+  align-items: end;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.reasonField {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.reasonField input,
+.statusSave {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+}
+
+.reasonField input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font: 600 0.9rem/1.3 var(--font-body);
+}
+
+.reasonField input:focus-visible,
+.statusSave:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.statusSave {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+  font: 800 0.85rem/1.2 var(--font-body);
+  cursor: pointer;
+}
+
+.statusSave:hover {
+  border-color: var(--color-pink-dark);
+  background: var(--color-pink-dark);
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -467,6 +546,10 @@
   }
 
   .applicationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statusForm {
     grid-template-columns: 1fr;
   }
 

@@ -1,4 +1,3 @@
-import { AdminPageHeader } from "./AdminUI";
 import {
   PeopleDirectory,
   type PeopleDirectoryRow,
@@ -8,23 +7,10 @@ import { getPeopleDirectory } from "@/lib/admin/queries";
 
 export async function PeoplePage({
   role,
-  title,
-  description,
 }: {
   role: PeopleDirectoryRole;
-  title: string;
-  description: string;
 }) {
-  return (
-    <>
-      <AdminPageHeader
-        eyebrow="People"
-        title={title}
-        description={description}
-      />
-      <PeopleDirectoryContent role={role} />
-    </>
-  );
+  return <PeopleDirectoryContent role={role} />;
 }
 
 export async function PeopleDirectoryContent({

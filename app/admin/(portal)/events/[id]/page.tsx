@@ -12,6 +12,7 @@ import {
 import {
   deleteEvent,
   updateEventStatus,
+  updateParticipationHours,
 } from "@/app/admin/events/actions";
 import { formatAdminDate, formatAdminDateTime } from "@/lib/admin/format";
 import { getAdminEventDetail } from "@/lib/admin/queries";
@@ -112,7 +113,7 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
         ) : (
           <div className={styles.participantTable} role="region" aria-label="Event participants" tabIndex={0}>
             <table>
-              <thead><tr><th>Name</th><th>Email</th><th>Account type</th><th>Status</th><th>Registered</th></tr></thead>
+              <thead><tr><th>Name</th><th>Email</th><th>Account type</th><th>Status</th><th>Hours logged</th><th>Registered</th></tr></thead>
               <tbody>
                 {detail.participants.map(({ participation, profile }) => (
                   <tr key={participation.id}>
@@ -120,6 +121,27 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
                     <td>{profile?.email ?? "Unavailable"}</td>
                     <td>{profile?.role ?? "Unknown"}</td>
                     <td><AdminStatusBadge status={participation.status} label={participation.status.replaceAll("_", " ")} /></td>
+                    <td>
+                      <form className={styles.hoursForm} action={updateParticipationHours}>
+                        <input type="hidden" name="participationId" value={participation.id} />
+                        <input type="hidden" name="id" value={event.id} />
+                        <label>
+                          <span className={styles.srOnly}>Hours logged</span>
+                          <input
+                            type="number"
+                            name="hours"
+                            min={0}
+                            max={24}
+                            step={0.5}
+                            inputMode="decimal"
+                            defaultValue={participation.hours_logged ?? ""}
+                            placeholder="0"
+                            aria-label={`Hours logged for ${profile?.name ?? "participant"}`}
+                          />
+                        </label>
+                        <button type="submit">Save</button>
+                      </form>
+                    </td>
                     <td>{formatAdminDate(participation.created_at)}</td>
                   </tr>
                 ))}

@@ -256,11 +256,11 @@ const STRINGS: Record<string, { en: string; zh: string; cn: string }> = {
   recurringTab: { en: "Recurring", zh: "定期捐款", cn: "定期捐款" },
   chooseImpact: { en: "Choose your impact", zh: "選擇你的影響", cn: "选择你的影响" },
   tierHero: { en: "Hero", zh: "英雄", cn: "英雄" },
-  tierHeroDesc: { en: "Sponsors a full volunteer shift for one programme", zh: "資助一個計劃的完整義工班次", cn: "资助一个计划的完整义工班次" },
+  tierHeroDesc: { en: "Supports two hours of employment training for a Love 21 member", zh: "可為 Love 21 會員提供兩小時的職業培訓", cn: "可为 Love 21 会员提供两小时的职业培训" },
   tierPatron: { en: "Patron", zh: "贊助人", cn: "赞助人" },
-  tierPatronDesc: { en: "Covers a week of family support for one household", zh: "資助一個家庭一星期的家庭支援", cn: "资助一个家庭一星期的家庭支援" },
+  tierPatronDesc: { en: "Provides one session of sport class for 12 members", zh: "可為12位Love 21會員提供1節體育活動", cn: "可为12位Love 21会员提供1节体育活动" },
   tierGuardian: { en: "Guardian", zh: "守護者", cn: "守护者" },
-  tierGuardianDesc: { en: "Funds a full programme day for a group of families", zh: "資助一群家庭一整天的計劃活動", cn: "资助一群家庭一整天的计划活动" },
+  tierGuardianDesc: { en: "Supports a Love 21 family with two sessions of counselling services", zh: "為 Love 21 家長提供兩節輔導服務", cn: "为 Love 21 家长提供两节辅导服务" },
   customAmount: { en: "Custom amount", zh: "自訂金額", cn: "自订金额" },
   customAmountDesc: { en: "You choose the amount", zh: "金額由你決定", cn: "金额由你决定" },
   enterAmount: { en: "Enter an amount", zh: "輸入金額", cn: "输入金额" },
@@ -1406,8 +1406,8 @@ function DonatePage({ name }: { name: string }) {
 
   const tiers = [
     { amount: 100, labelKey: "tierHero", descKey: "tierHeroDesc", icon: <IcoStar size={22} /> },
-    { amount: 250, labelKey: "tierPatron", descKey: "tierPatronDesc", icon: <IcoTrophy size={22} /> },
-    { amount: 500, labelKey: "tierGuardian", descKey: "tierGuardianDesc", icon: <IcoNutrition size={22} /> },
+    { amount: 500, labelKey: "tierPatron", descKey: "tierPatronDesc", icon: <IcoTrophy size={22} /> },
+    { amount: 1000, labelKey: "tierGuardian", descKey: "tierGuardianDesc", icon: <IcoNutrition size={22} /> },
   ];
 
   async function submit() {
@@ -1431,12 +1431,13 @@ function DonatePage({ name }: { name: string }) {
   async function downloadCertificate() {
     const certId = generateDonorCertId();
     const issueDate = new Date().toLocaleDateString("en-HK", { year: "numeric", month: "long", day: "numeric" });
+    const logoSrc = await logoDataUri();
     const html = buildDonorCertificateHtml({
       name: name.trim() || "Valued Donor",
       amount: confirmation?.amount ?? finalAmount,
       certId,
       issueDate,
-      logoSrc: "/assets/images/love21_logo.png",
+      logoSrc,
     });
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -1447,6 +1448,22 @@ function DonatePage({ name }: { name: string }) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  async function logoDataUri(): Promise<string> {
+    try {
+      const response = await fetch("/assets/images/love21_logo.png");
+      if (!response.ok) return "/assets/images/love21_logo.png";
+      const blob = await response.blob();
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve("/assets/images/love21_logo.png");
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return "/assets/images/love21_logo.png";
+    }
   }
 
   if (confirmation) {
