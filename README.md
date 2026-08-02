@@ -3,8 +3,6 @@
 ## About This Project
 This is a modern Next.js App Router implementation of the LOVE 21 Foundation website, supporting both English and Traditional Chinese (zh-HK). It integrates Supabase for secure authentication, database storage, and asset management, creating a highly interactive experience for members, volunteers, and donors.
 
----
-
 ## Visual Showcase
 
 ### Homepage
@@ -40,15 +38,11 @@ Designed specifically for volunteers and donors, the contributor portal offers a
   </tr>
 </table>
 
----
-
 ## Unique Features
 * **Instagram Feed Sync**: Automatically retrieves and syncs posts from Instagram via webhooks, storing them in Supabase to display cached social feeds on the stories page.
 * **Downloadable E-Certificates**: Dynamically generates download-ready HTML e-certificates with custom metrics for both donors (reflecting their support totals) and volunteers (reflecting their contribution hours).
 * **Staff/Admin Portal**: A staff-only portal accessible at `/admin` that allows administrators to review volunteer applications, compile testimonials, and schedule calendar events.
 * **Contributor Portal**: A client-side localized workspace where volunteers and donors can manage registrations, check their logged hours or donations, and update profile metadata.
-
----
 
 ## Getting Started
 
@@ -80,8 +74,6 @@ Designed specifically for volunteers and donors, the contributor portal offers a
    npm run dev
    ```
 
----
-
 ## Database Architecture
 
 ### Setup & Migrations
@@ -102,8 +94,6 @@ Below is the database schema diagram illustrating the relationships between auth
   </tr>
 </table>
 
----
-
 ## Authentication & Security
 * Authenticated sessions are managed securely via `@supabase/ssr` cookies and validated on each request by Next.js Middleware.
 * Public registrations default to roles like `member`, `donor`, or `volunteer`.
@@ -112,16 +102,12 @@ Below is the database schema diagram illustrating the relationships between auth
   npm run staff:promote -- admin@example.com
   ```
 
----
-
 ## Database Troubleshooting
 * **`supabase: command not found`**: Run commands prefixed with `npx` (e.g. `npx supabase link`) or install it globally.
 * **`Supabase is not configured`**: Make sure your local `.env.local` variables are present and restart the development server.
 * **Email confirmation errors**: Ensure that the user clicked the confirmation link in their email inbox, and check that your redirect URLs match `http://localhost:3000/auth/callback`.
 * **RLS Errors**: Check your schema policies. Row Level Security limits operations to resource owners. Use the server service-role key for backend overrides.
 * **`JWT issued at future` (WSL Clock Drift)**: If you are running Supabase via WSL and your machine went to sleep, the WSL container clocks may drift. Fix it by running `sudo hwclock -s` in your WSL terminal, or restarting WSL using `wsl --shutdown`.
-
----
 
 ## Project Structure & Styling
 * `app/` — App Router layouts, actions, and pages.
