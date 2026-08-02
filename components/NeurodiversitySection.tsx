@@ -74,7 +74,7 @@ const facts = [
   {
     value: { en: "~1 in 100", zh: "~1/100", cn: "~1/100" },
     label: {
-      en: "people worldwide are on the autism spectrum. Neurodiversity isn’t rare — it’s part of being human.",
+      en: "people worldwide are on the autism spectrum. Neurodiversity isn't rare — it's part of being human.",
       zh: "全球人口處於自閉症譜系。神經多樣性並不罕見——它是人類的一部分。",
       cn: "全球人口处于自闭症谱系。神经多样性并不罕见——它是人类的一部分。",
     },
@@ -132,7 +132,9 @@ export function NeurodiversitySection({ locale }: { locale: Locale }) {
               key={t(fact.value, locale)}
               className={`${styles.factCard} ${styles[`fact_${fact.tone}`]}`}
             >
-              <strong>{t(fact.value, locale)}</strong>
+              <strong>
+                <CountUp value={t(fact.value, locale)} className={styles.countUp} />
+              </strong>
               <span>{t(fact.label, locale)}</span>
             </article>
           ))}

@@ -12,6 +12,7 @@ import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage
 import { CountUp } from "./CountUp";
 import type { UpcomingEvent } from "./EventsCarousel";
 import { GiveSection } from "./GiveSection";
+import { NeurodiversitySection } from "./NeurodiversitySection";
 import { HeartIcon } from "./ui/HeartIcon";
 import { VolunteerSection } from "./VolunteerSection";
 import styles from "./HomeExperience.module.css";
@@ -115,35 +116,6 @@ function InstagramFeedCard({
     </article>
   );
 }
-
-const neurodiversity = {
-  eyebrow: { en: "EXPLORE NEURODIVERSITY", zh: "探索神經多樣性", cn: "探索神经多样性" },
-  title: {
-    en: "It starts with understanding.\nStigma ends when knowledge begins.",
-    zh: "從了解開始。\n偏見在知識面前消失。",
-    cn: "从了解开始。\n偏见在知识面前消失。",
-  },
-  description: {
-    en: "Most people in Hong Kong have never met someone with Down syndrome. Meeting our community — and knowing the facts — is how stigma falls away.",
-    zh: "香港大多數人從未見過唐氏綜合症人士。認識我們的社群——了解事實——正是消除偏見的方式。",
-    cn: "香港大多数人从未见过唐氏综合症人士。认识我们的社群——了解事实——正是消除偏见的方式。",
-  },
-  points: [
-    { value: "~15%", description: { en: "of neurodiverse adults worldwide are in competitive employment — hired for their talent, not as a favour.", zh: "全球神經多樣性成人處於競爭性就業——因才能而非恩惠被聘用。", cn: "全球神经多样性成人处于竞争性就业——因才能而非恩惠被聘用。" } },
-    { value: "~70%", description: { en: "of our families are single-parent households, most led by a full-time caretaker.", zh: "我們的家庭為單親家庭，大多由全職照顧者帶領。", cn: "我们的家庭为单亲家庭，大多由全职照顾者带领。" } },
-    { value: "1 goal", description: { en: "to be seen for ability, not judged for difference. Opportunity changes everything.", zh: "被看見能力，而非被評判差異。機會改變一切。", cn: "被看见能力，而非被评判差异。机会改变一切。" } },
-  ],
-  factsTitle: { en: "Neurodiversity, in numbers (worldwide)", zh: "神經多樣性的全球數據", cn: "神经多样性的全球数据" },
-  facts: [
-    { value: "~1 in 100", label: { en: "people worldwide are on the autism spectrum. Neurodiversity isn't rare — it's part of being human.", zh: "全球人口處於自閉症譜系。神經多樣性並不罕見——它是人類的一部分。", cn: "全球人口处于自闭症谱系。神经多样性并不罕见——它是人类的一部分。" } },
-    { value: "~1 in 1,000", label: { en: "babies worldwide are born with Down syndrome — each with their own path, personality, and potential.", zh: "全球嬰兒出生時患有唐氏綜合症——每一位都有自己的道路、個性和潛力。", cn: "全球婴儿出生时患有唐氏综合症——每一位都有自己的道路、个性和潜力。" } },
-  ],
-  source: { en: "Source: World Health Organization", zh: "來源：世界衛生組織", cn: "来源：世界卫生组织" },
-  action: {
-    label: { en: "Explore the neurodiversity hub", zh: "探索神經多樣性專區", cn: "探索神经多样性专区" },
-    href: { en: "/neurodiversity/", zh: "/zh/neurodiversity-hk/", cn: "/cn/neurodiversity/" },
-  },
-};
 
 const upcomingEvents: UpcomingEvent[] = [
   {
@@ -430,43 +402,8 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
       {/* ─── GIVE — TIME OR MONEY ─── */}
       <GiveSection locale={locale} />
 
-      {/* ─── NEURODIVERSITY HUB ─── */}
-      <section className={styles.education} aria-labelledby="neurodiversity-title">
-        <div className={styles.standardInner}>
-          <header className={styles.educationIntro}>
-            <p className={styles.pinkEyebrow}>{t(neurodiversity.eyebrow, locale)}</p>
-            <h2 id="neurodiversity-title">{t(neurodiversity.title, locale)}</h2>
-            <p className={styles.educationLead}>{t(neurodiversity.description, locale)}</p>
-          </header>
-          <ul className={styles.educationPoints}>
-            {neurodiversity.points.map((point) => (
-              <li key={point.value}>
-                <strong>
-                  <CountUp value={point.value} className={styles.countUp} />
-                </strong>
-                <span>{t(point.description, locale)}</span>
-              </li>
-            ))}
-          </ul>
-          <div className={styles.educationFactsBlock}>
-            <h3>{t(neurodiversity.factsTitle, locale)}</h3>
-            <div className={styles.educationFacts}>
-              {neurodiversity.facts.map((fact, index) => (
-                <article key={fact.value}>
-                  <strong className={index === 0 ? styles.factBlue : styles.factTeal}>
-                    <CountUp value={fact.value} className={styles.countUp} />
-                  </strong>
-                  <span>{t(fact.label, locale)}</span>
-                </article>
-              ))}
-            </div>
-            <p className={styles.sourceNote}>{t(neurodiversity.source, locale)}</p>
-          </div>
-          <Link className={styles.blueButton} href={hrefFor(neurodiversity.action, locale)}>
-            {t(neurodiversity.action.label, locale)}
-          </Link>
-        </div>
-      </section>
+      {/* ─── NEURODIVERSITY HUB (compact) ─── */}
+      <NeurodiversitySection locale={locale} />
 
       {/* ─── SOCIAL FEED ─── */}
       <section className={styles.socialFeed} aria-labelledby="social-feed-title">
