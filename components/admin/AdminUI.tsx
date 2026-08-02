@@ -13,6 +13,7 @@ export type AdminMetricTone =
 export type AdminStatus =
   | "pending"
   | "approved"
+  | "accepted"
   | "rejected"
   | "active"
   | "inactive"
@@ -39,6 +40,7 @@ const metricToneClasses: Record<AdminMetricTone, string> = {
 const statusClasses: Record<AdminStatus, string> = {
   pending: styles.statusPending,
   approved: styles.statusApproved,
+  accepted: styles.statusRegistered,
   rejected: styles.statusRejected,
   active: styles.statusActive,
   inactive: styles.statusInactive,

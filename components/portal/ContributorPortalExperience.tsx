@@ -174,7 +174,7 @@ const IcoChevronLeft = ({ size = 16 }) => (
   </svg>
 );
 
-const navLinks = ["My Portal", "My Donations", "My Volunteer", "Events", "Donate"];
+const navLinks = ["My Portal", "My Donations", "My Volunteer", "Events", "Donate"] as const;
 
 const donorJourneySteps = [
   { label: "First donation", done: true },

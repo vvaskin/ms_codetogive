@@ -74,7 +74,7 @@ export function PortalEventsTabs({
         search.trim().length === 0 ||
         title.toLowerCase().includes(search.trim().toLowerCase()) ||
         (event.type ?? "").toLowerCase().includes(search.trim().toLowerCase());
-      const matchesDate = !dateFrom || event.date >= dateFrom;
+      const matchesDate = !dateFrom || (event.date ?? "") >= dateFrom;
       const matchesType = !selectedType || event.type === selectedType;
       return matchesSearch && matchesDate && matchesType;
     });
@@ -87,7 +87,7 @@ export function PortalEventsTabs({
         search.trim().length === 0 ||
         title.toLowerCase().includes(search.trim().toLowerCase()) ||
         (event.type ?? "").toLowerCase().includes(search.trim().toLowerCase());
-      const matchesDate = !dateFrom || event.date >= dateFrom;
+      const matchesDate = !dateFrom || (event.date ?? "") >= dateFrom;
       const matchesType = !selectedType || event.type === selectedType;
       return matchesSearch && matchesDate && matchesType;
     });

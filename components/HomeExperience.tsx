@@ -344,7 +344,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
                   {t(content.featuredStory.context, locale)}
                 </p>
                 <blockquote className={styles.featuredStoryQuote}>
-                  <p>"{t(content.featuredStory.quote, locale)}"</p>
+                  <p>“{t(content.featuredStory.quote, locale)}”</p>
                 </blockquote>
                 <div className={styles.featuredStoryFooter}>
                   <cite>{t(content.featuredStory.attribution, locale)}</cite>
