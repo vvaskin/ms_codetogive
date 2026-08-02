@@ -12,7 +12,7 @@ import type {
   EventType,
 } from "@/lib/supabase/types";
 
-const EVENT_STATUSES = ["draft", "published", "cancelled"] as const;
+const EVENT_STATUSES = ["published", "cancelled"] as const;
 const EVENT_TYPES = ["sport", "nutrition", "family_support"] as const;
 
 type EventInsert = Database["public"]["Tables"]["events"]["Insert"];

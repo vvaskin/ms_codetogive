@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { upcomingEvents } from "@/lib/portal/mock-data";
-import { EventCarousel } from "./EventCarousel";
 import type { UserRole } from "@/lib/roles";
+import { DashboardHead } from "./DashboardHead";
+import { EventCarousel } from "./EventCarousel";
+import styles from "./dashboard.module.css";
 
-const roleContent: Record<UserRole, { intro: string; placeholder: string }> = {
+const roleContent: Record<
+  UserRole,
+  { intro: string; placeholder: string }
+> = {
   member: {
     intro: "Your personal Love 21 member space.",
     placeholder: "Member updates and programme information will appear here.",
@@ -17,6 +22,11 @@ const roleContent: Record<UserRole, { intro: string; placeholder: string }> = {
     placeholder:
       "Volunteer opportunities and event information will appear here.",
   },
+  // TODO: staff admin console. For now, staff falls through to the member view.
+  staff: {
+    intro: "Your Love 21 staff space.",
+    placeholder: "Admin tools will appear here.",
+  },
 };
 
 export function PlaceholderDashboard({
@@ -29,36 +39,41 @@ export function PlaceholderDashboard({
   const content = roleContent[role] ?? roleContent.member;
 
   return (
-    <div className="portal-dashboard">
-      <header className="portal-dashboard-head">
-        <p className="eyebrow">YOUR LOVE 21 PORTAL</p>
-        <h1>Welcome, {name}</h1>
-        <p>{content.intro}</p>
-      </header>
+    <>
+      <DashboardHead
+        title={`Welcome, ${name.split(" ")[0]}`}
+        subtitle={content.intro}
+      />
 
-      <div className="dashboard-grid">
-        <section className="dashboard-card dashboard-card-wide">
-          <div className="dashboard-card-head">
-            <h2>Upcoming events</h2>
-            <Link href="/events">View all ➜</Link>
+      <div className={styles.grid}>
+        <section className={`${styles.card} ${styles.gridFull}`}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Upcoming events</h2>
+            <Link href="/events" className={styles.cardHeadLink}>
+              View all ➜
+            </Link>
           </div>
           <EventCarousel events={upcomingEvents} />
         </section>
 
-        <section className="dashboard-card">
-          <div className="dashboard-card-head">
-            <h2>My profile</h2>
-            <Link href="/portal/profile">Edit ➜</Link>
+        <section className={styles.card}>
+          <div className={styles.cardStack}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>My profile</h2>
+              <Link href="/portal/profile" className={styles.cardHeadLink}>
+                Edit ➜
+              </Link>
+            </div>
+            <p className={styles.cardNote}>
+              Keep your contact details up to date so we can reach you.
+            </p>
+            <Link href="/portal/profile" className={styles.cta}>
+              Update profile
+            </Link>
           </div>
-          <p className="dashboard-card-note">
-            Keep your contact details up to date so we can reach you.
-          </p>
-          <Link className="dashboard-cta" href="/portal/profile">
-            Update profile
-          </Link>
         </section>
 
-        <section className="dashboard-card portal-placeholder-card">
+        <section className={styles.placeholderCard}>
           <span aria-hidden="true">♡</span>
           <div>
             <h2>Your portal is ready</h2>
@@ -66,6 +81,6 @@ export function PlaceholderDashboard({
           </div>
         </section>
       </div>
-    </div>
+    </>
   );
 }

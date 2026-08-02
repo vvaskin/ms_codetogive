@@ -8,6 +8,7 @@ import {
   type HomepageFeedCard,
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
+import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
 import { CountUp } from "./CountUp";
 import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./HomeExperience.module.css";
@@ -24,7 +25,14 @@ function FeedCard({ item, locale }: { item: HomepageFeedCard; locale: Locale }) 
     <article className={styles.feedCard}>
       <Link href={item.href} className={styles.feedCardLink}>
         <span className={styles.feedMeta}>
-          <span aria-hidden="true">21</span>
+          <span className={styles.feedMetaLogo} aria-hidden="true">
+            <Image
+              src="/assets/images/love21_logo.png"
+              alt=""
+              width={330}
+              height={202}
+            />
+          </span>
           <span>
             <strong>{t(item.network, locale)}</strong>
             <time>{item.date}</time>
@@ -47,12 +55,71 @@ function FeedCard({ item, locale }: { item: HomepageFeedCard; locale: Locale }) 
   );
 }
 
-export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
+function InstagramFeedCard({
+  post,
+  locale,
+}: {
+  post: InstagramPost;
+  locale: Locale;
+}) {
+  const date = new Date(post.timestamp).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return (
+    <article className={styles.feedCard}>
+      <a
+        href={post.permalink}
+        target="_blank"
+        rel="noreferrer"
+        className={styles.feedCardLink}
+      >
+        <span className={styles.feedMeta}>
+          <span className={styles.feedMetaLogo} aria-hidden="true">
+            <Image
+              src="/assets/images/love21_logo.png"
+              alt=""
+              width={330}
+              height={202}
+            />
+          </span>
+          <span>
+            <strong>Instagram</strong>
+            <time>{date}</time>
+          </span>
+        </span>
+        <span className={`${styles.feedImage} ${styles.tonePink}`}>
+          <Image
+            src={post.imageUrl}
+            alt={post.caption || "Instagram post"}
+            fill
+            unoptimized
+            sizes="(max-width: 600px) 78vw, (max-width: 1000px) 42vw, 260px"
+          />
+        </span>
+        <span className={styles.feedBody}>
+          <strong>{post.caption || "Instagram post"}</strong>
+          <span>
+            {locale === "en"
+              ? "Read more →"
+              : locale === "zh"
+                ? "閱讀更多 →"
+                : "阅读更多 →"}
+          </span>
+        </span>
+      </a>
+    </article>
+  );
+}
+
+export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
   const content = homepageContent;
   const isChinese = locale !== "en";
   const heroPhotos = content.hero.photos;
   const impactFeatured = content.impactShowcase.featured;
   const [impactLeft, impactRight] = content.impactShowcase.sides;
+  const instagramPosts = await readInstagramPosts();
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
@@ -215,22 +282,6 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
-      <section className={styles.statBand} aria-label={t(content.impactStats.label, locale)}>
-        <div className={styles.wideInner}>
-          <ul>
-            {content.impactStats.items.map((metric) => (
-              <li key={metric.value}>
-                <strong>
-                  <CountUp value={metric.value} className={styles.countUp} />
-                </strong>
-                <span>{t(metric.label, locale)}</span>
-                {metric.source && <small>{t(metric.source, locale)}</small>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* Featured Stories + Stories of Ability temporarily hidden; content kept in homepage.ts */}
 
       <section className={styles.education} aria-labelledby="education-title">
@@ -287,6 +338,9 @@ export function HomeExperience({ locale = "en" }: { locale?: Locale }) {
             </div>
           </div>
           <div className={styles.cardScroller}>
+            {instagramPosts.map((post) => (
+              <InstagramFeedCard post={post} locale={locale} key={post.id} />
+            ))}
             {content.socialFeed.items.map((item) => (
               <FeedCard item={item} locale={locale} key={item.id} />
             ))}

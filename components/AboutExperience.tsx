@@ -6,6 +6,8 @@ import {
   t,
   type AboutLocale,
 } from "../content/about";
+import { financeContent } from "../content/finance";
+import { FinanceContent } from "./FinanceContent";
 import { StatusPill } from "./ui/StatusPill";
 import styles from "./AboutExperience.module.css";
 
@@ -70,23 +72,32 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               key={item.key}
               className={`${styles.programmeCard} ${styles[`tone_${item.tone}`]}`}
             >
-              <span className={styles.programmeIcon} aria-hidden="true" />
-              <h3>{t(item.title, locale)}</h3>
-              <p>{t(item.description, locale)}</p>
+              <div className={styles.programmeMedia}>
+                <Image
+                  src={item.image}
+                  alt={t(item.imageAlt, locale)}
+                  fill
+                  sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              </div>
+              <div className={styles.programmeBody}>
+                <h3>{t(item.title, locale)}</h3>
+                <p>{t(item.description, locale)}</p>
+              </div>
             </article>
           ))}
         </div>
       </section>
 
-      <section className={styles.impact} aria-label={t(c.hero.badge, locale)}>
-        <ul className={styles.impactList}>
-          {c.impact.items.map((item) => (
-            <li key={item.value}>
-              <strong>{item.value}</strong>
-              <span>{t(item.label, locale)}</span>
-            </li>
-          ))}
-        </ul>
+      <section className={styles.trustSection} aria-labelledby="about-trust-title">
+        <div className={styles.trustIntro}>
+          <StatusPill tone="blue">
+            {t(financeContent.hero.badge, locale)}
+          </StatusPill>
+          <h2 id="about-trust-title">{t(financeContent.hero.title, locale)}</h2>
+          <p>{t(financeContent.hero.description, locale)}</p>
+        </div>
+        <FinanceContent locale={locale} />
       </section>
 
       <section className={styles.governance} aria-labelledby="about-board-title">
@@ -159,7 +170,6 @@ export function AboutExperience({ locale }: { locale: AboutLocale }) {
               </li>
             ))}
           </ul>
-          <p className={styles.boardNote}>{t(c.governance.boardNote, locale)}</p>
           <Link className={styles.governanceLink} href={financeHref}>
             {t(c.governance.financeLink.label, locale)}{" "}
             <span aria-hidden="true">→</span>

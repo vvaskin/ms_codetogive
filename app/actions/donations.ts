@@ -14,6 +14,7 @@ export interface RecordDonationInput {
   /** Guest details — required only when the visitor is logged out. */
   email?: string;
   name?: string;
+  phone?: string;
 }
 
 export interface RecordDonationResult {
@@ -21,6 +22,10 @@ export interface RecordDonationResult {
   error?: string;
   /** True when a guest account was created for this donation. */
   createdAccount?: boolean;
+  /** Which channel the set-password message went out on ("sms" / "email"). */
+  notifiedVia?: "sms" | "email" | "none";
+  /** Non-fatal warning (e.g. SMS provider not configured, fell back to email). */
+  warning?: string;
 }
 
 /**
@@ -61,11 +66,16 @@ export async function recordDonation(
     return { ok: true };
   }
 
-  // Guest: need contact details to create/find their account.
+  // Guest: need contact details to create/find their account. Phone is now
+  // required because SMS is the primary set-password channel.
   const email = input.email?.trim();
   const name = input.name?.trim();
-  if (!email || !name) {
-    return { ok: false, error: "Please enter your name and email." };
+  const phone = input.phone?.trim();
+  if (!email || !name || !phone) {
+    return {
+      ok: false,
+      error: "Please enter your name, email, and phone number.",
+    };
   }
 
   try {
@@ -73,6 +83,7 @@ export async function recordDonation(
     const account = await ensureAccount({
       email,
       name,
+      phone,
       role: "donor",
       origin,
     });
@@ -83,12 +94,18 @@ export async function recordDonation(
       .insert({ donor_id: account.userId, ...row });
     if (error) return { ok: false, error: error.message };
 
-    if (account.setPasswordLink) {
-      // Dev aid — the email also goes out via Supabase.
-      console.log(`[guest donation] set-password link for ${email}: ${account.setPasswordLink}`);
+    if (account.actionLink) {
+      console.log(
+        `[guest donation] ${account.notifiedVia} link for ${email}: ${account.actionLink}`,
+      );
     }
 
-    return { ok: true, createdAccount: account.created };
+    return {
+      ok: true,
+      createdAccount: account.created,
+      notifiedVia: account.notifiedVia,
+      warning: account.warning,
+    };
   } catch (err) {
     return { ok: false, error: (err as Error).message };
   }

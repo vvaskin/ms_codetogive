@@ -14,7 +14,7 @@ export type EventFormValues = {
   locationZh?: string;
   type?: "sport" | "nutrition" | "family_support";
   subtype?: string;
-  status?: "draft" | "published" | "cancelled";
+  status?: "published" | "cancelled";
 };
 
 const eventTypeLabels = {
@@ -140,8 +140,7 @@ export function EventForm({
       {!publishOnSave && (
         <label>
           Status
-          <select name="status" defaultValue={initialValues.status ?? "draft"}>
-            <option value="draft">Draft</option>
+          <select name="status" defaultValue={initialValues.status ?? "published"}>
             <option value="published">Published</option>
             <option value="cancelled">Cancelled</option>
           </select>

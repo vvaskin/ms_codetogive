@@ -60,27 +60,6 @@ const textSizeStore = {
   getServerSnapshot: () => 0,
 };
 
-const enAbout = [
-  ["Our Story", "/our-story/"],
-  ["Trust & Transparency", "/our-finance/"],
-  ["Leadership & Staff", "/leadership/"],
-  ["Media", "/media/"],
-];
-
-const zhAbout = [
-  ["關於我們", "/zh/our-story-hk/"],
-  ["信任與透明", "/zh/our-finance-hk/"],
-  ["管理層與員工", "/zh/leadership-hk/"],
-  ["媒體報導", "/zh/media-hk/"],
-];
-
-const cnAbout = [
-  ["关于我们", "/cn/our-story/"],
-  ["信任与透明", "/cn/our-finance/"],
-  ["管理层与员工", "/cn/leadership/"],
-  ["媒体报道", "/cn/media/"],
-];
-
 function GlobeIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -310,6 +289,7 @@ function AccessibilityMenu({
   onToggleSimpleView,
   onToggleHighContrast,
   onAdjustTextSize,
+  className,
 }: {
   locale: Locale;
   simpleView: boolean;
@@ -318,6 +298,7 @@ function AccessibilityMenu({
   onToggleSimpleView: () => void;
   onToggleHighContrast: () => void;
   onAdjustTextSize: (delta: number) => void;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -407,7 +388,7 @@ function AccessibilityMenu({
   );
 
   return (
-    <div ref={rootRef} className={styles.accessMenu}>
+    <div ref={rootRef} className={`${styles.accessMenu} ${className ?? ""}`}>
       <button
         type="button"
         className={`${styles.accessTrigger} ${open ? styles.accessTriggerOpen : ""}`}
@@ -429,79 +410,6 @@ function AccessibilityMenu({
   );
 }
 
-function MenuGroup({
-  locale,
-  label,
-  href,
-  items,
-  open = false,
-  onToggle,
-  variant = "desktop",
-}: {
-  locale: Locale;
-  label: string;
-  href: string;
-  items: string[][];
-  open?: boolean;
-  onToggle?: () => void;
-  variant?: "desktop" | "mobile";
-}) {
-  if (variant === "mobile") {
-    return (
-      <div className={`${styles.mobileNavGroup} ${open ? styles.mobileNavGroupOpen : ""}`}>
-        <div className={styles.mobileNavGroupHeader}>
-          <Link href={href} className={styles.mobileNavGroupLink}>
-            {label}
-          </Link>
-          <button
-            type="button"
-            className={styles.mobileNavGroupTrigger}
-            aria-expanded={open}
-            aria-label={
-              open
-                ? locale === "zh"
-                  ? "收起選單"
-                  : locale === "cn"
-                    ? "收起选单"
-                    : "Collapse menu"
-                : locale === "zh"
-                  ? "展開選單"
-                  : locale === "cn"
-                    ? "展开选单"
-                    : "Expand menu"
-            }
-            onClick={onToggle}
-          >
-            <span aria-hidden="true">⌄</span>
-          </button>
-        </div>
-        <div className={styles.mobileNavDropdown}>
-          {items.map(([text, href]) => (
-            <Link href={href} key={`${text}-${href}`}>
-              {text}
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.navGroup}>
-      <Link href={href} className={styles.navGroupLink}>
-        {label}
-      </Link>
-      <div className={styles.navDropdown}>
-        {items.map(([text, href]) => (
-          <Link href={href} key={`${text}-${href}`}>
-            {text}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
@@ -514,9 +422,11 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const cn = locale === "cn";
   const pick = (en: string, zht: string, zhc: string) =>
     cn ? zhc : zh ? zht : en;
+  // Portal pages use a slim header: logo + accessibility + language only,
+  // with the marketing navigation removed.
+  const isPortal = pathname.startsWith("/portal");
   const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const simpleView = useSyncExternalStore(
     simpleViewStore.subscribe,
     simpleViewStore.getSnapshot,
@@ -578,7 +488,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   };
 
   const trio = localePaths(pathname);
-  const aboutItems = cn ? cnAbout : zh ? zhAbout : enAbout;
+  const aboutPath = pick("/about/", "/zh/about-hk/", "/cn/about/");
+  const aboutLabel = pick("About", "關於", "关于");
   const contactPath = pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
   const eventsPath = pick("/events", "/zh/events-hk/", "/cn/events");
   const storiesPath = pick("/stories/", "/zh/stories-hk/", "/cn/stories/");
@@ -609,24 +520,27 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   const closeMobileNav = () => {
     setMobileOpen(false);
-    setOpenGroup(null);
   };
+
+  // Portal routes render their own chrome (PortalShell); the site header and
+  // footer are hidden entirely to match the Figma "console" design.
+  if (isPortal) {
+    return <>{children}</>;
+  }
 
   return (
     <>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${isPortal ? styles.headerPortal : ""}`}>
         <div className={styles.headerInner}>
           <div className={styles.headerBrand}>
             <BrandLockup href={homePath} compact />
           </div>
 
+          {!isPortal && (
           <nav className={styles.primaryNav} aria-label="Primary">
-            <MenuGroup
-              locale={locale}
-              label={pick("About", "關於", "关于")}
-              href={pick("/our-story/", "/zh/our-story-hk/", "/cn/our-story/")}
-              items={aboutItems}
-            />
+            <Link href={aboutPath} className={styles.navLink}>
+              {aboutLabel}
+            </Link>
             <Link href={eventsPath} className={styles.navLink}>
               {eventsLabel}
             </Link>
@@ -637,6 +551,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               {pick("Contact Us", "聯絡我們", "联系我们")}
             </Link>
           </nav>
+          )}
 
           <div className={styles.headerActions}>
             {session ? (
@@ -683,6 +598,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        {!isPortal && (
         <nav
           className={`${styles.mobileNav} ${mobileOpen ? styles.mobileNavOpen : ""}`}
           aria-label="Mobile"
@@ -692,15 +608,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             }
           }}
         >
-          <MenuGroup
-            locale={locale}
-            label={pick("About", "關於", "关于")}
-            href={pick("/our-story/", "/zh/our-story-hk/", "/cn/our-story/")}
-            items={aboutItems}
-            open={openGroup === "about"}
-            onToggle={() => setOpenGroup(openGroup === "about" ? null : "about")}
-            variant="mobile"
-          />
+          <Link href={aboutPath} className={styles.mobileNavLink}>
+            {aboutLabel}
+          </Link>
           <Link href={eventsPath} className={styles.mobileNavLink}>
             {eventsLabel}
           </Link>
@@ -740,6 +650,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </nav>
+        )}
       </header>
 
       <div className={styles.floatingTools} aria-label={pick("Site tools", "網站工具", "网站工具")}>
@@ -775,11 +686,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <span className={styles.footerSubheading}>
                 {pick("About Us", "關於我們", "关于我们")}
               </span>
-              {aboutItems.map(([text, href]) => (
-                <Link key={href} href={href}>
-                  {text}
-                </Link>
-              ))}
+              <Link href={aboutPath}>{aboutLabel}</Link>
               <Link href={eventsPath}>{eventsLabel}</Link>
               <Link href={storiesPath}>{storiesLabel}</Link>
             </div>

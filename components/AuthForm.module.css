@@ -113,6 +113,11 @@
   font-size: var(--font-size-small);
 }
 
+.required {
+  color: var(--color-pink);
+  font-weight: 700;
+}
+
 .rolePicker {
   padding: 0;
   border: 0;

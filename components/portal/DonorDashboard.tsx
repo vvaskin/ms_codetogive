@@ -1,61 +1,87 @@
 import Link from "next/link";
-import { upcomingEvents } from "@/lib/portal/mock-data";
+import {
+  donationHistory,
+  formatCurrency,
+  upcomingEvents,
+} from "@/lib/portal/mock-data";
+import { DashboardHead } from "./DashboardHead";
 import { EventCarousel } from "./EventCarousel";
 import { ImpactPanel } from "./ImpactPanel";
+import styles from "./dashboard.module.css";
 
 export function DonorDashboard({ name }: { name: string }) {
-  return (
-    <div className="portal-dashboard">
-      <header className="portal-dashboard-head">
-        <p className="eyebrow">YOUR LOVE 21 PORTAL</p>
-        <h1>Welcome back, {name}</h1>
-        <p>Here is what is happening and the difference you are making.</p>
-      </header>
+  const totalDonated = donationHistory.reduce((sum, r) => sum + r.amount, 0);
 
-      <div className="dashboard-grid">
-        <section className="dashboard-card dashboard-card-wide">
-          <div className="dashboard-card-head">
-            <h2>Upcoming events</h2>
-            <Link href="/events">View all ➜</Link>
+  return (
+    <>
+      <DashboardHead
+        title={`Welcome back, ${name.split(" ")[0]}`}
+        subtitle="Here is what is happening and the difference you are making."
+        stat={{
+          value: formatCurrency(totalDonated),
+          label: "Total donated",
+        }}
+      />
+
+      <div className={styles.grid}>
+        <section className={`${styles.card} ${styles.gridFull}`}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Upcoming events</h2>
+            <Link href="/events" className={styles.cardHeadLink}>
+              View all ➜
+            </Link>
           </div>
           <EventCarousel events={upcomingEvents} />
         </section>
 
-        <section className="dashboard-card">
-          <div className="dashboard-card-head">
-            <h2>My impact</h2>
-            <Link href="/portal/impact">Details ➜</Link>
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>My impact</h2>
+            <Link href="/portal/impact" className={styles.cardHeadLink}>
+              Details ➜
+            </Link>
           </div>
           <ImpactPanel variant="compact" />
         </section>
 
-        <section className="dashboard-card">
-          <div className="dashboard-card-head">
-            <h2>My profile</h2>
-            <Link href="/portal/profile">Edit ➜</Link>
+        <section className={styles.card}>
+          <div className={styles.cardStack}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>My profile</h2>
+              <Link href="/portal/profile" className={styles.cardHeadLink}>
+                Edit ➜
+              </Link>
+            </div>
+            <p className={styles.cardNote}>
+              Keep your contact details up to date so we can reach you about the
+              programmes you support.
+            </p>
+            <Link href="/portal/profile" className={styles.cta}>
+              Update profile
+            </Link>
           </div>
-          <p className="dashboard-card-note">
-            Keep your contact details up to date so we can reach you about the
-            programmes you support.
-          </p>
-          <Link className="dashboard-cta" href="/portal/profile">
-            Update profile
-          </Link>
         </section>
 
-        <section className="dashboard-card dashboard-card-donate">
-          <div className="dashboard-card-head">
-            <h2>Make a donation</h2>
-            <Link href="/portal/donate">Give ➜</Link>
+        <section className={`${styles.card} ${styles.gridFull}`}>
+          <div className={styles.cardStack}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>Make a donation</h2>
+              <Link href="/portal/donate" className={styles.cardHeadLink}>
+                Give ➜
+              </Link>
+            </div>
+            <p className={styles.cardNote}>
+              Support Love 21 with a one-time gift or set up recurring giving.
+            </p>
+            <Link
+              href="/portal/donate"
+              className={`${styles.cta} ${styles.ctaPrimary}`}
+            >
+              Donate now
+            </Link>
           </div>
-          <p className="dashboard-card-note">
-            Support Love 21 with a one-time gift or set up recurring giving.
-          </p>
-          <Link className="dashboard-cta dashboard-cta-primary" href="/portal/donate">
-            Donate now
-          </Link>
         </section>
       </div>
-    </div>
+    </>
   );
 }

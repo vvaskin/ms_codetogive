@@ -50,5 +50,6 @@ next-env.d.ts
 
 #context
 context.txt
+ai.md
 
 /research/

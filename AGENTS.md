@@ -13,7 +13,7 @@ CSS Modules are the official component-styling approach.
 - Global CSS is limited to:
   - `styles/tokens.css` — design tokens
   - `styles/base.css` — reset, element defaults, accessibility (text size / high contrast / Calm mode `html.simple-view`), reduced motion
-  - `app/globals.css` — entrypoint (imports tokens/base) plus the quiet development ribbon
+  - `app/globals.css` — entrypoint (imports tokens/base)
 - Do not add new globally named component classes.
 - New visual patterns must use shared tokens from `styles/tokens.css`.
 - Tailwind is not used.
@@ -60,10 +60,9 @@ Presentational only (no API, persistence, or business rules):
 - Contact: `content/contact.ts` + `ContactExperience` (`template: "contact"`); it reuses the locally validating `ContactForm` from `DemoForms`
 - About: `content/about.ts` + `AboutExperience` (`template: "about"`)
 - Finance / Trust & Transparency: `content/finance.ts` + `FinanceExperience` (`template: "reports"`); annual PDFs under `public/assets/reports/`
-- Primary nav: About (dropdown), Events (`/events` — no dropdown), Member Stories (`/stories/`), Contact Us. Get Involved remains routable but is not linked in chrome.
-- Events: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for `/events` and volunteer-calendar routes. Includes a compact Sports / Nutrition / Family Care programmes band (banner images from repository programme assets; copy aligned with approved programmes content). The August 2026 listings are explicitly presentational; calendar selection is client-side and booking previews remain disabled.
-- News & Media: `content/media.ts` + `MediaExperience` (`template: "media-index"`) for bilingual media and member-story routes. The "From our feeds" grid mixes presentational feed cards with live Instagram posts served by `InstagramFeed` (data from `/api/instagram-webhook`, persisted to gitignored `data/instagram-posts.json`); external social links are the Love 21 Facebook and Instagram URLs.
-- Get Involved: `content/get-involved.ts` + `GetInvolvedExperience` (`template: "get-involved"`) kept for `/get-involved/` (and locale variants) but omitted from primary nav/footer. Opportunity signup and corporate “Book a session” are disabled previews; live paths remain volunteer form (`/our-volunteer/`), events, donate, and contact.
+- Primary nav: About (dropdown), Events (`/events` — no dropdown), Member Stories (`/stories/`), Contact Us.
+- Events: `content/activities.ts` + `ActivitiesExperience` (`template: "calendar"`) for `/events`. Includes a compact Sports / Nutrition / Family Care programmes band (banner images from repository programme assets; copy aligned with approved programmes content). The August 2026 listings are explicitly presentational; calendar selection is client-side. Event sign-ups (`EventSignupButton` + `registerForEvent` in `app/actions/registrations.ts`) write real rows to `event_participations` (registered users) or `event_guest_signups` (logged-out guests): authenticated volunteers pick an interest (Coach / Class Assistant / Event Helper — options in `lib/volunteer-interests.ts`); authenticated members/donors sign up under their own `user_id` (no interest); logged-out guests store `guest_name` + `guest_email` (no account is created). Registered events appear at `/portal/events` (portal sidebar "Events").
+- News & Media: `content/media.ts` + `MediaExperience` (`template: "media-index"`) for bilingual media and member-story routes. The "From our feeds" grid mixes presentational feed cards with live Instagram posts served by `InstagramFeed` (data from `/api/instagram-webhook`, persisted to the `instagram_posts` Supabase table; the legacy gitignored `data/instagram-posts.json` is read once as a seed when the table is empty); external social links are the Love 21 Facebook and Instagram URLs.
 - Programmes experience code remains (`ProgrammesExperience`, `content/programmes.ts`) but is not routed; Our Programmes and How Families Join pages were removed.
 - Other templates: `PageRenderer.module.css`
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
@@ -93,7 +92,7 @@ Presentational only (no API, persistence, or business rules):
 
 - Authentication, schema, role, migration, and authorization changes require an explicit user request
 - Keep public staff signup disabled and enforce staff authorization independently in every admin mutation
-- Do not add payment processing, reservations, attendee registration, wishlist pledges, campaigns, or analytics
+- Event volunteer/guest sign-ups are supported (see Events above); do not add other attendee registration, payment processing, reservations, wishlist pledges, campaigns, or analytics
 - Repository content and assets are authoritative; mockups are visual/composition authority only
 - Do not invent unverified impact claims from design mockups
 

@@ -20,6 +20,7 @@ const copy = {
     signupIntro:
       "Choose the account type that best describes how you connect with Love 21.",
     fullName: "Full name",
+    phoneNumber: "Phone number",
     emailAddress: "Email address",
     password: "Password",
     passwordHelp: "Use at least 8 characters.",
@@ -61,6 +62,7 @@ const copy = {
     loginIntro: "登入以繼續前往您的個人頁面。",
     signupIntro: "請選擇最能描述您與 Love 21 關係的帳戶類型。",
     fullName: "姓名",
+    phoneNumber: "電話號碼",
     emailAddress: "電郵地址",
     password: "密碼",
     passwordHelp: "請使用至少 8 個字元。",
@@ -100,6 +102,7 @@ const copy = {
     loginIntro: "登录以继续前往您的个人页面。",
     signupIntro: "请选择最能描述您与 Love 21 关系的账户类型。",
     fullName: "姓名",
+    phoneNumber: "电话号码",
     emailAddress: "电邮地址",
     password: "密码",
     passwordHelp: "请使用至少 8 个字符。",
@@ -200,9 +203,10 @@ export function AuthForm({
     const supabase = createClient();
 
     if (isSignup && role === "volunteer") {
+      const phone = String(formData.get("phone") ?? "").trim();
       window.sessionStorage.setItem(
         VOLUNTEER_SIGNUP_DRAFT_KEY,
-        JSON.stringify({ name, email, password }),
+        JSON.stringify({ name, email, password, phone }),
       );
       document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=1; Path=/; Max-Age=1800; SameSite=Lax`;
       router.push("/signup/volunteer");
@@ -212,23 +216,35 @@ export function AuthForm({
 
     try {
       if (isSignup) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            // Consumed by the handle_new_user() trigger to build the profile.
-            data: { name: String(formData.get("name") ?? "").trim(), role },
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-          },
-        });
+        const name = String(formData.get("name") ?? "").trim();
+        const phone = String(formData.get("phone") ?? "").trim();
+
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              // `name` and `role` are consumed by the handle_new_user() trigger
+              // to seed the profile row; `phone` is written below because the
+              // trigger doesn't touch phone_number.
+              data: { name, role, ...(phone ? { phone } : {}) },
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+            },
+          });
 
         if (signUpError) {
           setError(readableError(signUpError.message, lang));
           return;
         }
 
-        // Email confirmation is disabled, so signup returns a session and we
-        // fall through to the redirect below.
+        // Email confirmation is disabled, so signup returns a session — persist
+        // the phone into the profile row (RLS: users can update their own row).
+        if (phone && signUpData.user) {
+          await supabase
+            .from("users")
+            .update({ phone_number: phone })
+            .eq("id", signUpData.user.id);
+        }
       } else {
         const { error: signInError } =
           await supabase.auth.signInWithPassword({ email, password });
@@ -271,20 +287,48 @@ export function AuthForm({
       </div>
 
       {isSignup && (
-        <label>
-          {lang.fullName}
-          <input
-            name="name"
-            type="text"
-            autoComplete="name"
-            required
-            disabled={isSubmitting}
-          />
-        </label>
+        <>
+          <label>
+            <span>
+              {lang.fullName}
+              <span className={styles.required} aria-hidden="true">
+                {" *"}
+              </span>
+            </span>
+            <input
+              name="name"
+              type="text"
+              autoComplete="name"
+              required
+              disabled={isSubmitting}
+            />
+          </label>
+          <label>
+            <span>
+              {lang.phoneNumber}
+              <span className={styles.required} aria-hidden="true">
+                {" *"}
+              </span>
+            </span>
+            <input
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              placeholder="+852 XXXX XXXX"
+              required
+              disabled={isSubmitting}
+            />
+          </label>
+        </>
       )}
 
       <label>
-        {lang.emailAddress}
+        <span>
+          {lang.emailAddress}
+          <span className={styles.required} aria-hidden="true">
+            {" *"}
+          </span>
+        </span>
         <input
           name="email"
           type="email"
@@ -296,7 +340,12 @@ export function AuthForm({
       </label>
 
       <label>
-        {lang.password}
+        <span>
+          {lang.password}
+          <span className={styles.required} aria-hidden="true">
+            {" *"}
+          </span>
+        </span>
         <div className={styles.passwordField}>
           <input
             name="password"

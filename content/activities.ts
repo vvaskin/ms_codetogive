@@ -1,3 +1,4 @@
+import { formatMonthDay } from "@/lib/format-date";
 import { images, type Locale } from "./site-data";
 
 export type ActivityCategory = "sports" | "nutrition" | "family" | "csr" | "event";
@@ -10,6 +11,8 @@ export interface LocalizedText {
 
 export interface ActivityEvent {
   id: string;
+  /** Numeric primary key in `public.events`. Absent for static demo content. */
+  dbId?: number;
   date: string;
   time: string;
   category: ActivityCategory;
@@ -61,7 +64,7 @@ export const august2026Events: ActivityEvent[] = [
 export const upcomingActivities: ActivityCard[] = august2026Events.slice(0, 6).map((item) => ({
   ...item,
   dayLabel: {
-    en: new Intl.DateTimeFormat("en-HK", { month: "short", day: "numeric" }).format(new Date(`${item.date}T12:00:00`)),
+    en: formatMonthDay(item.date),
     zh: new Intl.DateTimeFormat("zh-HK", { month: "numeric", day: "numeric" }).format(new Date(`${item.date}T12:00:00`)),
     cn: new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(new Date(`${item.date}T12:00:00`)),
   },

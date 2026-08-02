@@ -298,7 +298,7 @@ full Love 21 visual system (palette, typography, shared UI, Calm mode).
 | --- | --- |
 | `styles/tokens.css` | Design tokens and `--love-*` compatibility aliases |
 | `styles/base.css` | Document resets, body defaults, focus, Calm mode, reduced motion |
-| `app/globals.css` | Global entrypoint (tokens → base) plus quiet development ribbon |
+| `app/globals.css` | Global entrypoint (tokens → base) |
 | `components/ui/*` | Shared presentational primitives |
 | `*.module.css` | Colocated component styles (camelCase selectors) |
 

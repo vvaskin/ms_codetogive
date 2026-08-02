@@ -8,6 +8,8 @@ import {
 } from "../content/site-data";
 import type { DonationModeId } from "../content/donation";
 import { getPublishedCalendarEvents } from "../lib/supabase/calendar-events";
+import { createClient } from "../lib/supabase/server";
+import { getSessionProfile } from "../lib/supabase/profile";
 import {
   AccountForm,
   VolunteerForm,
@@ -17,7 +19,6 @@ import { ActivitiesExperience } from "./ActivitiesExperience";
 import { ContactExperience } from "./ContactExperience";
 import { DonateExperience } from "./DonateExperience";
 import { FinanceExperience } from "./FinanceExperience";
-import { GetInvolvedExperience } from "./GetInvolvedExperience";
 import { MediaExperience } from "./MediaExperience";
 import { ProgrammesExperience } from "./ProgrammesExperience";
 import styles from "./PageRenderer.module.css";
@@ -170,8 +171,6 @@ export async function PageRenderer({
       return <PersonPage page={page} />;
     case "volunteer":
       return <VolunteerPage page={page} />;
-    case "get-involved":
-      return <GetInvolvedExperience locale={page.locale} />;
     case "contact":
       return <ContactExperience locale={page.locale} />;
     case "donate":
@@ -183,12 +182,28 @@ export async function PageRenderer({
           <AccountForm title={page.title} locale={page.locale} />
         </article>
       );
-    case "calendar":
+    case "calendar": {
+      const calendarEvents = await getPublishedCalendarEvents();
+      const profile = await getSessionProfile();
+      let registeredEventIds: number[] = [];
+      if (profile) {
+        const supabase = await createClient();
+        const { data } = await supabase
+          .from("event_participations")
+          .select("event_id")
+          .eq("user_id", profile.id);
+        registeredEventIds = (data ?? []).map((row) => row.event_id);
+      }
       return (
         <ActivitiesExperience
           locale={page.locale}
-          events={await getPublishedCalendarEvents()}
+          events={calendarEvents}
+          sessionRole={
+            profile && profile.role !== "staff" ? profile.role : null
+          }
+          registeredEventIds={registeredEventIds}
         />
       );
+    }
   }
 }

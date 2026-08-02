@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { SignOutButton } from "@/components/SignOutButton";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import type { UserRole } from "@/lib/roles";
+import styles from "./PortalSidebar.module.css";
 
 export interface PortalUser {
   name: string;
@@ -16,23 +19,41 @@ const roleLabels: Record<UserRole, string> = {
   member: "Member",
   donor: "Donor",
   volunteer: "Volunteer",
+  staff: "Staff",
 };
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: string;
-  external?: boolean;
-  donorOnly?: boolean;
+const consoleLabels: Record<UserRole, string> = {
+  member: "Member Console",
+  donor: "Donor Console",
+  volunteer: "Volunteer Console",
+  // TODO: staff admin console — falls through to member's flat nav for now.
+  staff: "Staff Console",
 };
 
-const navItems: NavItem[] = [
-  { href: "/portal", label: "Dashboard", icon: "▤" },
-  { href: "/portal/profile", label: "My Profile", icon: "☺" },
-  { href: "/portal/impact", label: "My Impact", icon: "✦", donorOnly: true },
-  { href: "/portal/donate", label: "Donation", icon: "♡", donorOnly: true },
-  { href: "/events", label: "Events", icon: "◷", external: true },
-];
+type NavItem = { href: string; label: string; icon: string; external?: boolean };
+
+// Flat nav list per role. Only routes we actually have.
+function navItemsFor(role: UserRole): NavItem[] {
+  const items: NavItem[] = [
+    { href: "/portal", label: "Home", icon: "🏠" },
+  ];
+
+  if (role === "donor") {
+    items.push(
+      { href: "/portal/impact", label: "Impact", icon: "✦" },
+      { href: "/portal/events", label: "Events", icon: "📅" },
+      { href: "/portal/donate", label: "Donate", icon: "♡" },
+    );
+  } else if (role === "volunteer") {
+    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
+  } else {
+    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
+  }
+
+  items.push({ href: "/portal/profile", label: "Profile", icon: "☺" });
+
+  return items;
+}
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -41,54 +62,98 @@ function initials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function isItemActive(pathname: string | null, item: NavItem): boolean {
+  if (item.external || !pathname) return false;
+  if (item.href === "/portal") return pathname === "/portal";
+  return pathname.startsWith(item.href);
+}
+
 export function PortalSidebar({ user }: { user: PortalUser }) {
+  const router = useRouter();
   const pathname = usePathname();
-  const isDonor = user.role === "donor";
+  const [signingOut, setSigningOut] = useState(false);
+  const items = navItemsFor(user.role);
+
+  async function signOut() {
+    setSigningOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/login");
+    router.refresh();
+  }
 
   return (
-    <aside className="portal-sidebar">
-      <div className="portal-sidebar-profile">
-        <div className="portal-avatar">
-          {user.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.image} alt={user.name} />
-          ) : (
-            <span aria-hidden="true">{initials(user.name)}</span>
-          )}
-        </div>
-        <p className="portal-avatar-name">{user.name}</p>
-        <span className={`role-badge role-${user.role}`}>
-          {roleLabels[user.role]}
+    <aside className={styles.sidebar} aria-label="Portal navigation">
+      <Link
+        href="/"
+        className={styles.brand}
+        aria-label="Love 21 — return to website"
+      >
+        <Image
+          src="/assets/images/love21_logo.png"
+          alt=""
+          width={330}
+          height={202}
+          priority
+          className={styles.brandLogo}
+        />
+        <span className={styles.brandText}>
+          <span className={styles.brandSubtitle}>
+            {consoleLabels[user.role]}
+          </span>
         </span>
-      </div>
+      </Link>
 
-      <nav className="portal-nav" aria-label="Portal">
-        {navItems
-          .filter((item) => !item.donorOnly || isDonor)
-          .map((item) => {
-            const active = item.external
-              ? false
-              : item.href === "/portal"
-                ? pathname === "/portal"
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`portal-nav-link ${active ? "is-active" : ""}`}
-                aria-current={active ? "page" : undefined}
-              >
-                <span className="portal-nav-icon" aria-hidden="true">
-                  {item.icon}
-                </span>
-                {item.label}
-              </Link>
-            );
-          })}
+      <nav className={styles.nav} aria-label="Portal sections">
+        {items.map((item) => {
+          const active = isItemActive(pathname, item);
+          return (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <span className={styles.navIcon} aria-hidden="true">
+                {item.icon}
+              </span>
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
-      <div className="portal-sidebar-footer">
-        <SignOutButton />
+      <div className={styles.footer}>
+        <Link href="/" className={styles.backLink}>
+          <span className={styles.backIcon} aria-hidden="true">
+            ←
+          </span>
+          Back to website
+        </Link>
+        <div className={styles.userRow}>
+          <div className={styles.avatar}>
+            {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.image} alt={user.name} />
+            ) : (
+              <span aria-hidden="true">{initials(user.name)}</span>
+            )}
+          </div>
+          <div className={styles.footerText}>
+            <span className={styles.footerName}>{user.name}</span>
+            <span className={styles.footerRole}>{roleLabels[user.role]}</span>
+          </div>
+          <button
+            type="button"
+            className={styles.signOut}
+            onClick={signOut}
+            disabled={signingOut}
+            aria-label={signingOut ? "Signing out" : "Sign out"}
+            title="Sign out"
+          >
+            {signingOut ? "…" : "↦"}
+          </button>
+        </div>
       </div>
     </aside>
   );

@@ -106,10 +106,6 @@ export interface HomepageContent {
   };
   readonly impactShowcase: HomepageImpactShowcase;
   readonly featuredStory: HomepageFeaturedStory;
-  readonly impactStats: {
-    readonly label: LocalizedString;
-    readonly items: readonly HomepageMetric[];
-  };
   readonly featuredStories: {
     readonly eyebrow: LocalizedString;
     readonly title: LocalizedString;
@@ -168,9 +164,9 @@ const routes = {
   },
   stories: { en: "/stories/", zh: "/zh/stories-hk/", cn: "/cn/stories/" },
   ourStory: {
-    en: "/our-story/",
-    zh: "/zh/our-story-hk/",
-    cn: "/cn/our-story/",
+    en: "/about/",
+    zh: "/zh/about-hk/",
+    cn: "/cn/about/",
   },
 } as const;
 
@@ -327,50 +323,6 @@ export const homepageContent: HomepageContent = {
       zh: "Crystal 媽媽 · 2024–25 年度報告",
       cn: "Crystal 妈妈 · 2024–25 年度报告",
     },
-  },
-  impactStats: {
-    label: {
-      en: "Love 21 impact statistics",
-      zh: "Love 21 影響力數據",
-      cn: "Love 21 影响力数据",
-    },
-    items: [
-      {
-        value: "490",
-        label: { en: "families supported", zh: "個受惠家庭", cn: "个受惠家庭" },
-        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
-      },
-      {
-        value: "6,859",
-        label: { en: "sessions delivered", zh: "節活動", cn: "节活动" },
-        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
-      },
-      {
-        value: "84",
-        label: {
-          en: "activity types offered",
-          zh: "種活動類型",
-          cn: "种活动类型",
-        },
-        source: { en: "FY2024–25", zh: "2024–25 年度", cn: "2024–25 年度" },
-      },
-      {
-        value: "600+",
-        label: {
-          en: "members and families",
-          zh: "會員及家庭",
-          cn: "会员及家庭",
-        },
-      },
-      {
-        value: "90%+",
-        label: {
-          en: "of donations reach families",
-          zh: "捐款用於服務家庭",
-          cn: "捐款用于服务家庭",
-        },
-      },
-    ],
   },
   featuredStories: {
     eyebrow: { en: "featured stories", zh: "精選故事", cn: "精选故事" },
@@ -575,19 +527,19 @@ export const homepageContent: HomepageContent = {
     },
     points: [
       {
-        value: "600+",
+        value: "6,859",
         description: {
-          en: "members and families in our community",
-          zh: "位社群會員及家庭",
-          cn: "位社群会员及家庭",
+          en: "sessions delivered in FY2024–25",
+          zh: "節活動於 2024–25 年度提供",
+          cn: "节活动于 2024–25 年度提供",
         },
       },
       {
-        value: "HK$0",
+        value: "84",
         description: {
-          en: "charged to Love 21 families",
-          zh: "向 Love 21 家庭收取的費用",
-          cn: "向 Love 21 家庭收取的费用",
+          en: "activity types offered in FY2024–25",
+          zh: "種活動類型於 2024–25 年度提供",
+          cn: "种活动类型于 2024–25 年度提供",
         },
       },
       {
@@ -614,11 +566,11 @@ export const homepageContent: HomepageContent = {
         },
       },
       {
-        value: "84",
+        value: "90%+",
         label: {
-          en: "activity types offered in FY2024–25",
-          zh: "種活動於 2024–25 年度提供",
-          cn: "种活动于 2024–25 年度提供",
+          en: "of donations reach families",
+          zh: "捐款用於服務家庭",
+          cn: "捐款用于服务家庭",
         },
       },
     ],

@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   activitiesContent,
   activityCategories,
@@ -11,8 +10,10 @@ import {
   type ActivityEvent,
 } from "../content/activities";
 import type { Locale } from "../content/site-data";
+import type { UserRole } from "../lib/roles";
 import { ButtonLink } from "./ui/ButtonLink";
 import { SectionShell } from "./ui/SectionShell";
+import { EventSignupButton } from "./EventSignupButton";
 import styles from "./ActivitiesExperience.module.css";
 
 function hongKongDateKey() {
@@ -37,17 +38,25 @@ function shiftedMonth(month: string, offset: number) {
 export function ActivitiesExperience({
   locale,
   events,
+  sessionRole = null,
+  registeredEventIds = [],
 }: {
   locale: Locale;
   events: ActivityEvent[];
+  sessionRole?: UserRole | null;
+  registeredEventIds?: number[];
 }) {
   const today = hongKongDateKey();
+  const nextEventDate =
+    events.find((event) => event.date >= today)?.date ?? events.at(-1)?.date ?? null;
   const [visibleMonth, setVisibleMonth] = useState(() => {
-    const nextEvent = events.find((event) => event.date >= today);
-    return (nextEvent ?? events.at(-1))?.date.slice(0, 7) ?? today.slice(0, 7);
+    return (nextEventDate ?? today).slice(0, 7);
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ActivityCategory | "all">("all");
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
   const zh = locale === "zh" || locale === "cn";
   const intlLocale = locale === "cn" ? "zh-CN" : locale === "zh" ? "zh-HK" : "en-HK";
   const pick = (en: string, zht: string, zhc: string) =>
@@ -72,6 +81,35 @@ export function ActivitiesExperience({
     return () => window.removeEventListener("keydown", clearOnEscape);
   }, []);
 
+  useEffect(() => {
+    carouselRef.current?.scrollTo({ left: 0 });
+  }, [activeCategory]);
+
+  function updateCarouselArrows() {
+    const row = carouselRef.current;
+    if (!row) return;
+    setCanScrollPrev(row.scrollLeft > 4);
+    setCanScrollNext(row.scrollLeft + row.clientWidth < row.scrollWidth - 4);
+  }
+
+  useEffect(() => {
+    const row = carouselRef.current;
+    if (!row) return;
+    updateCarouselArrows();
+    row.addEventListener("scroll", updateCarouselArrows, { passive: true });
+    window.addEventListener("resize", updateCarouselArrows);
+    return () => {
+      row.removeEventListener("scroll", updateCarouselArrows);
+      window.removeEventListener("resize", updateCarouselArrows);
+    };
+  }, []);
+
+  function scrollCarousel(direction: 1 | -1) {
+    const row = carouselRef.current;
+    if (!row) return;
+    row.scrollBy({ left: row.clientWidth * direction, behavior: "smooth" });
+  }
+
   const eventsByDate = useMemo(
     () =>
       events.reduce<Record<string, ActivityEvent[]>>((groups, event) => {
@@ -80,13 +118,12 @@ export function ActivitiesExperience({
       }, {}),
     [events],
   );
-  const selectedEvents = selectedDate ? eventsByDate[selectedDate] ?? [] : [];
+  const panelDate = selectedDate ?? nextEventDate;
+  const panelEvents = panelDate ? eventsByDate[panelDate] ?? [] : [];
   const upcomingEvents = events.filter((event) => event.date >= today);
-  const filteredActivities = upcomingEvents
-    .filter(
-      (activity) => activeCategory === "all" || activity.category === activeCategory,
-    )
-    .slice(0, 6);
+  const filteredActivities = upcomingEvents.filter(
+    (activity) => activeCategory === "all" || activity.category === activeCategory,
+  );
   const visibleCategories = activityCategories.filter((category) =>
     upcomingEvents.some((event) => event.category === category.id),
   );
@@ -99,45 +136,64 @@ export function ActivitiesExperience({
 
   return (
     <article className={`${styles.page} ${zh ? styles.zh : ""}`}>
-      <SectionShell tone="canvas" className={styles.hero}>
-        <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>{activityText(c.hero.eyebrow, locale)}</p>
-          <h1>
-            {activityText(c.hero.title, locale)} <span>{activityText(c.hero.accent, locale)}</span>
-          </h1>
-          <p>{activityText(c.hero.description, locale)}</p>
-          <div className={styles.heroActions}>
-            <a className={styles.primaryButton} href="#calendar">{activityText(c.hero.primary, locale)}</a>
-            <ButtonLink href={pick("/get-involved/#opportunities", "/zh/get-involved-hk/#opportunities", "/cn/get-involved/#opportunities")} variant="outline">
-              {activityText(c.hero.secondary, locale)}
-            </ButtonLink>
-          </div>
-        </div>
-      </SectionShell>
-
-      <SectionShell tone="canvas" className={styles.programmes}>
+      <SectionShell tone="canvas" className={styles.upcoming}>
         <div className={styles.sectionHeading}>
-          <p className={styles.eyebrow}>{activityText(c.programmes.eyebrow, locale)}</p>
-          <h2>{activityText(c.programmes.title, locale)}</h2>
-          <p>{activityText(c.programmes.description, locale)}</p>
+          <p className={styles.eyebrow}>{pick("What’s coming up", "即將舉行", "即将举行")}</p>
+          <h2>{pick("Upcoming activities", "即將舉行的活動", "即将举行的活动")}</h2>
+          <p>{pick("Browse the latest activities published by the Love 21 team.", "瀏覽Love 21團隊最新發佈的活動。", "浏览 Love 21 团队最新发布的活动。")}</p>
         </div>
-        <div className={styles.programmeGrid}>
-          {c.programmes.pillars.map((pillar) => (
-            <article className={styles.programmeCard} key={pillar.id}>
-              <div className={styles.programmeBanner}>
-                <Image
-                  src={pillar.image}
-                  alt={activityText(pillar.imageAlt, locale)}
-                  fill
-                  sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
-                />
-              </div>
-              <div className={styles.programmeBody}>
-                <h3>{activityText(pillar.title, locale)}</h3>
-                <p>{activityText(pillar.description, locale)}</p>
-              </div>
-            </article>
-          ))}
+        <div className={styles.filters} aria-label={pick("Filter activities by category", "活動類別篩選", "活动类别筛选")}>
+          <button type="button" onClick={() => setActiveCategory("all")} aria-pressed={activeCategory === "all"}>{pick("All activities", "全部", "全部")}</button>
+          {visibleCategories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id}>{activityText(category.label, locale)}</button>)}
+        </div>
+        {filteredActivities.length > 0 ? (
+          <div className={styles.upcomingCarousel}>
+            <button
+              type="button"
+              className={`${styles.carouselArrow} ${styles.carouselPrev}`}
+              onClick={() => scrollCarousel(-1)}
+              disabled={!canScrollPrev}
+              aria-label={pick("Previous activities", "上一頁活動", "上一页活动")}
+            >
+              ‹
+            </button>
+            <div className={styles.carouselRow} ref={carouselRef}>
+              {filteredActivities.map((activity) => (
+                <article className={`${styles.activityCard} ${styles.carouselCard}`} key={activity.id}>
+                  <span className={styles.cardDate}>{new Intl.DateTimeFormat(intlLocale, { month: "short", day: "numeric" }).format(new Date(`${activity.date}T12:00:00`))}</span>
+                  <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
+                  <h3>{activityText(activity.title, locale)}</h3>
+                  <p>{activity.time} · {activityText(activity.location, locale)}</p>
+                  {activity.dbId ? (
+                    <EventSignupButton
+                      eventId={activity.dbId}
+                      locale={locale}
+                      sessionRole={sessionRole}
+                      signedUp={registeredEventIds.includes(activity.dbId)}
+                    />
+                  ) : (
+                    <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
+                  )}
+                </article>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={`${styles.carouselArrow} ${styles.carouselNext}`}
+              onClick={() => scrollCarousel(1)}
+              disabled={!canScrollNext}
+              aria-label={pick("Next activities", "下一頁活動", "下一页活动")}
+            >
+              ›
+            </button>
+          </div>
+        ) : (
+          <p className={styles.emptyActivities}>{pick("No upcoming published activities yet.", "暫時沒有即將舉行的已發佈活動。", "暂时没有即将举行的已发布活动。")}</p>
+        )}
+        <div className={styles.viewAll}>
+          <ButtonLink href={pick("/volunteer-events", "/volunteer-events?lang=zh", "/volunteer-events?lang=cn")} variant="pink">
+            {pick("View all events", "查看所有活動", "查看所有活动")}
+          </ButtonLink>
         </div>
       </SectionShell>
 
@@ -145,9 +201,9 @@ export function ActivitiesExperience({
         <div className={styles.sectionHeading}>
           <p className={styles.eyebrow}>{pick("Activity calendar", "活動日曆", "活动日历")}</p>
           <h2>{pick("Pick a date. See what’s on.", "選擇日期，查看當日活動。", "选择日期，查看当日活动。")}</h2>
-          <p>{pick("Days with coloured dots have activities. Select the same day again, or clear your selection, to return to the full calendar.", "有彩色圓點的日期代表有活動。按相同日期或清除選擇可回到完整日曆。", "有彩色圆点的日期代表有活动。按相同日期或清除选择可回到完整日历。")}</p>
+          <p>{pick("The next activity is previewed on the right. Select any date with coloured dots to see that day’s schedule.", "右方顯示下一個活動。選擇有彩色圓點的日期可查看當日活動。", "右侧显示下一个活动。选择有彩色圆点的日期可查看当日活动。")}</p>
         </div>
-        <div className={`${styles.calendarLayout} ${selectedDate ? styles.calendarSelected : ""}`}>
+        <div className={styles.calendarLayout}>
           <div className={styles.calendarCard}>
             <div className={styles.calendarHeader}>
               <h3>{monthLabel}</h3>
@@ -170,7 +226,7 @@ export function ActivitiesExperience({
                 </button>
                 {selectedDate && (
                   <button type="button" className={styles.clearSelection} onClick={() => setSelectedDate(null)}>
-                    {pick("Clear selection", "清除選擇", "清除选择")}
+                    {pick("Show next event", "顯示下一個活動", "显示下一个活动")}
                   </button>
                 )}
               </div>
@@ -184,7 +240,7 @@ export function ActivitiesExperience({
                 const day = index + 1;
                 const key = dateKey(visibleMonth, day);
                 const dayEvents = eventsByDate[key] ?? [];
-                const isSelected = selectedDate === key;
+                const isActive = panelDate === key;
                 const dateLabel = new Intl.DateTimeFormat(intlLocale, {
                   weekday: "long",
                   month: "long",
@@ -194,9 +250,9 @@ export function ActivitiesExperience({
                   <button
                     type="button"
                     key={key}
-                    className={`${styles.dayButton} ${isSelected ? styles.daySelected : ""}`}
-                    onClick={() => setSelectedDate(isSelected ? null : key)}
-                    aria-pressed={isSelected}
+                    className={`${styles.dayButton} ${isActive ? styles.daySelected : ""}`}
+                    onClick={() => setSelectedDate(isActive ? null : key)}
+                    aria-pressed={isActive}
                     aria-label={`${dateLabel}${dayEvents.length ? `, ${dayEvents.length} ${pick(dayEvents.length === 1 ? "activity" : "activities", "項活動", "项活动")}` : ""}`}
                   >
                     <span>{day}</span>
@@ -213,18 +269,20 @@ export function ActivitiesExperience({
             </div>
           </div>
 
-          {selectedDate && (
+          {panelDate && (
             <aside className={styles.dayPanel} aria-live="polite">
               <div className={styles.panelHeading}>
                 <div>
-                  <p>{pick("Selected date", "已選日期", "已选日期")}</p>
-                  <h3>{new Intl.DateTimeFormat(intlLocale, { month: "long", day: "numeric" }).format(new Date(`${selectedDate}T12:00:00`))}</h3>
+                  <p>{selectedDate ? pick("Selected date", "已選日期", "已选日期") : pick("Next up", "下一個活動", "下一个活动")}</p>
+                  <h3>{new Intl.DateTimeFormat(intlLocale, { month: "long", day: "numeric" }).format(new Date(`${panelDate}T12:00:00`))}</h3>
                 </div>
-                <button type="button" onClick={() => setSelectedDate(null)} aria-label={pick("Close selected day events", "關閉已選日期活動", "关闭已选日期活动")}>×</button>
+                {selectedDate && (
+                  <button type="button" onClick={() => setSelectedDate(null)} aria-label={pick("Back to the next event", "返回下一個活動", "返回下一个活动")}>×</button>
+                )}
               </div>
-              {selectedEvents.length ? (
+              {panelEvents.length ? (
                 <ul className={styles.dayEvents}>
-                  {selectedEvents.map((event) => (
+                  {panelEvents.map((event) => (
                     <li key={event.id}>
                       <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === event.category)?.color }}>
                         {activityText(activityCategories.find((item) => item.id === event.category)!.label, locale)}
@@ -233,6 +291,16 @@ export function ActivitiesExperience({
                       <span>{event.time} · {activityText(event.location, locale)}</span>
                       {activityText(event.summary, locale) && (
                         <p>{activityText(event.summary, locale)}</p>
+                      )}
+                      {event.dbId ? (
+                        <EventSignupButton
+                          eventId={event.dbId}
+                          locale={locale}
+                          sessionRole={sessionRole}
+                          signedUp={registeredEventIds.includes(event.dbId)}
+                        />
+                      ) : (
+                        <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
                       )}
                     </li>
                   ))}
@@ -263,34 +331,7 @@ export function ActivitiesExperience({
         </div>
       </SectionShell>
 
-      <SectionShell tone="blush" className={styles.upcoming}>
-        <div className={styles.sectionHeading}>
-          <p className={styles.eyebrow}>{pick("What’s coming up", "即將舉行", "即将举行")}</p>
-          <h2>{pick("Upcoming activities", "即將舉行的活動", "即将举行的活动")}</h2>
-          <p>{pick("Browse the latest activities published by the Love 21 team.", "瀏覽Love 21團隊最新發佈的活動。", "浏览 Love 21 团队最新发布的活动。")}</p>
-        </div>
-        <div className={styles.filters} aria-label={pick("Filter activities by category", "活動類別篩選", "活动类别筛选")}>
-          <button type="button" onClick={() => setActiveCategory("all")} aria-pressed={activeCategory === "all"}>{pick("All activities", "全部", "全部")}</button>
-          {visibleCategories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id}>{activityText(category.label, locale)}</button>)}
-        </div>
-        {filteredActivities.length > 0 ? (
-          <div className={styles.activityGrid}>
-            {filteredActivities.map((activity) => (
-              <article className={styles.activityCard} key={activity.id}>
-                <span className={styles.cardDate}>{new Intl.DateTimeFormat(intlLocale, { month: "short", day: "numeric" }).format(new Date(`${activity.date}T12:00:00`))}</span>
-                <span className={styles.eventCategory} style={{ backgroundColor: activityCategories.find((item) => item.id === activity.category)?.color }}>{activityText(activityCategories.find((item) => item.id === activity.category)!.label, locale)}</span>
-                <h3>{activityText(activity.title, locale)}</h3>
-                <p>{activity.time} · {activityText(activity.location, locale)}</p>
-                <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className={styles.emptyActivities}>{pick("No upcoming published activities yet.", "暫時沒有即將舉行的已發佈活動。", "暂时没有即将举行的已发布活动。")}</p>
-        )}
-      </SectionShell>
-
-      <SectionShell tone="white" className={styles.wrapped}>
+      <SectionShell tone="blush" className={styles.wrapped}>
         <div className={styles.sectionHeading}>
           <p className={styles.eyebrow}>{activityText(c.recentlyWrapped.eyebrow, locale)}</p>
           <h2>{activityText(c.recentlyWrapped.title, locale)}</h2>
@@ -299,11 +340,6 @@ export function ActivitiesExperience({
         <ul>
           {c.recentlyWrapped.items.map((item) => <li key={item.title.en}><time>{item.date}</time><span>{activityText(item.title, locale)}</span><em>{activityText(activityCategories.find((category) => category.id === item.category)!.label, locale)}</em></li>)}
         </ul>
-      </SectionShell>
-
-      <SectionShell tone="sky" className={styles.volunteerCta}>
-        <div><h2>{activityText(c.volunteer.title, locale)}</h2><p>{activityText(c.volunteer.description, locale)}</p></div>
-        <div><ButtonLink href={pick("/get-involved/#opportunities", "/zh/get-involved-hk/#opportunities", "/cn/get-involved/#opportunities")} variant="teal">{activityText(c.volunteer.primary, locale)}</ButtonLink><ButtonLink href={pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/")} variant="outline">{activityText(c.volunteer.secondary, locale)}</ButtonLink></div>
       </SectionShell>
     </article>
   );

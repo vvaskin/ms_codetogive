@@ -96,12 +96,55 @@ export type Database = {
           },
         ]
       }
+      event_guest_signups: {
+        Row: {
+          created_at: string
+          event_id: number
+          guest_email: string
+          guest_name: string
+          id: number
+          interest: string | null
+          status: Database["public"]["Enums"]["participation_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: number
+          guest_email: string
+          guest_name: string
+          id?: never
+          interest?: string | null
+          status?: Database["public"]["Enums"]["participation_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number
+          guest_email?: string
+          guest_name?: string
+          id?: never
+          interest?: string | null
+          status?: Database["public"]["Enums"]["participation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_signups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_participations: {
         Row: {
           certificate_path: string | null
           created_at: string
           event_id: number
+          hours_logged: number | null
           id: number
+          interest: string | null
           status: Database["public"]["Enums"]["participation_status"]
           updated_at: string
           user_id: string
@@ -110,7 +153,9 @@ export type Database = {
           certificate_path?: string | null
           created_at?: string
           event_id: number
+          hours_logged?: number | null
           id?: never
+          interest?: string | null
           status?: Database["public"]["Enums"]["participation_status"]
           updated_at?: string
           user_id: string
@@ -119,7 +164,9 @@ export type Database = {
           certificate_path?: string | null
           created_at?: string
           event_id?: number
+          hours_logged?: number | null
           id?: never
+          interest?: string | null
           status?: Database["public"]["Enums"]["participation_status"]
           updated_at?: string
           user_id?: string
@@ -143,93 +190,147 @@ export type Database = {
       }
       events: {
         Row: {
+          audience: Database["public"]["Enums"]["event_audience"]
           created_at: string
           date: string | null
           description: string | null
+          description_cn: string | null
           description_zh: string | null
           ends_at: string | null
           id: number
           image: string | null
           location: string | null
+          location_cn: string | null
           location_link: string | null
           location_zh: string | null
           starts_at: string
           status: Database["public"]["Enums"]["event_status"]
           subtype: string | null
           title: string
+          title_cn: string | null
           title_zh: string | null
           type: Database["public"]["Enums"]["event_type"] | null
           updated_at: string
         }
         Insert: {
+          audience?: Database["public"]["Enums"]["event_audience"]
           created_at?: string
           date?: string | null
           description?: string | null
+          description_cn?: string | null
           description_zh?: string | null
           ends_at?: string | null
           id?: never
           image?: string | null
           location?: string | null
+          location_cn?: string | null
           location_link?: string | null
           location_zh?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
           title: string
+          title_cn?: string | null
           title_zh?: string | null
           type?: Database["public"]["Enums"]["event_type"] | null
           updated_at?: string
         }
         Update: {
+          audience?: Database["public"]["Enums"]["event_audience"]
           created_at?: string
           date?: string | null
           description?: string | null
+          description_cn?: string | null
           description_zh?: string | null
           ends_at?: string | null
           id?: never
           image?: string | null
           location?: string | null
+          location_cn?: string | null
           location_link?: string | null
           location_zh?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
           title?: string
+          title_cn?: string | null
           title_zh?: string | null
           type?: Database["public"]["Enums"]["event_type"] | null
           updated_at?: string
         }
         Relationships: []
       }
+      instagram_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          id: string
+          image_url: string
+          media_type: string
+          permalink: string
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          id: string
+          image_url: string
+          media_type?: string
+          permalink: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          media_type?: string
+          permalink?: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
+          about: string | null
           address: string | null
           created_at: string
           email: string | null
           id: string
           name: string
+          name_cn: string | null
+          name_zh: string | null
           phone_number: string | null
           profile_image: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
+          about?: string | null
           address?: string | null
           created_at?: string
           email?: string | null
           id: string
           name: string
+          name_cn?: string | null
+          name_zh?: string | null
           phone_number?: string | null
           profile_image?: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
+          about?: string | null
           address?: string | null
           created_at?: string
           email?: string | null
           id?: string
           name?: string
+          name_cn?: string | null
+          name_zh?: string | null
           phone_number?: string | null
           profile_image?: string | null
           role?: Database["public"]["Enums"]["user_role"]
@@ -248,7 +349,8 @@ export type Database = {
       donation_frequency: "monthly" | "quarterly" | "yearly"
       donation_kind: "one_time" | "recurring"
       donation_status: "completed" | "active" | "paused" | "cancelled"
-      event_status: "draft" | "published" | "cancelled"
+      event_audience: "members" | "volunteers" | "everyone"
+      event_status: "published" | "cancelled"
       event_type: "sport" | "nutrition" | "family_support"
       participation_status: "registered" | "attended" | "no_show" | "cancelled"
       user_role: "member" | "donor" | "volunteer" | "staff"
@@ -835,7 +937,8 @@ export const Constants = {
       donation_frequency: ["monthly", "quarterly", "yearly"],
       donation_kind: ["one_time", "recurring"],
       donation_status: ["completed", "active", "paused", "cancelled"],
-      event_status: ["draft", "published", "cancelled"],
+      event_audience: ["members", "volunteers", "everyone"],
+      event_status: ["published", "cancelled"],
       event_type: ["sport", "nutrition", "family_support"],
       participation_status: ["registered", "attended", "no_show", "cancelled"],
       user_role: ["member", "donor", "volunteer", "staff"],

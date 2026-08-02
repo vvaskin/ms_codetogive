@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import {
-  readInstagramPosts,
-  saveInstagramPosts,
+  countInstagramPosts,
+  hasInstagramPost,
+  upsertInstagramPosts,
   type InstagramPost,
 } from "@/lib/instagram-storage";
 
@@ -72,17 +73,9 @@ export async function POST(request: Request) {
     timestamp,
   };
 
-  const existing = await readInstagramPosts();
-  const index = existing.findIndex((item) => item.id === post.id);
-  const added = index === -1;
-  let merged: InstagramPost[];
-  if (index === -1) {
-    merged = [post, ...existing];
-  } else {
-    merged = existing.slice();
-    merged[index] = post;
-  }
-  await saveInstagramPosts(merged);
+  const added = !(await hasInstagramPost(post.id));
+  await upsertInstagramPosts([post]);
+  const total = await countInstagramPosts();
 
-  return NextResponse.json({ ok: true, added, total: merged.length });
+  return NextResponse.json({ ok: true, added, total });
 }
