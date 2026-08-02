@@ -24,6 +24,8 @@ const localeLabels: Record<TestimonialLocale, string> = {
   cn: "Simplified Chinese",
 };
 
+// always seed one draft per supported locale — the server action upserts by
+// locale, so untouched languages still need to be present in the payload
 function initialTranslations(record?: AdminTestimonialRecord): TranslationDraft[] {
   return locales.map((locale) => {
     const translation = record?.translations.find((item) => item.locale === locale);
@@ -138,8 +140,12 @@ export function TestimonialForm({
     );
   }
 
+  // relies on `locales` order putting "en" first so english can render
+  // expanded while the rest collapse into <details>
   const [english, ...otherLanguages] = translations;
 
+  // the locale inputs are controlled and unnamed, so the whole multi-locale
+  // draft crosses to the server action as one serialized hidden field
   return (
     <form action={action} className={styles.form}>
       {record ? <input type="hidden" name="id" value={record.id} /> : null}

@@ -20,29 +20,14 @@ const WEEKDAYS_ZH = ["日", "一", "二", "三", "四", "五", "六"];
 
 export type FormatLocale = "en" | "zh" | "cn";
 
-export function formatDayMonthYear(iso: string, time = "T00:00:00"): string {
-  const d = new Date(`${iso}${time}`);
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-export function formatWeekdayDayMonth(iso: string, time = "T12:00:00"): string {
-  const d = new Date(`${iso}${time}`);
-  return `${WEEKDAYS_SHORT[d.getDay()]}, ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
-}
-
-export function formatMonthDay(iso: string, time = "T12:00:00"): string {
-  const d = new Date(`${iso}${time}`);
-  return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`;
-}
-
 /**
  * Weekday + day + month from a full timestamp (e.g. events.starts_at).
- * Distinct from formatWeekdayDayMonth which appends a fake time to a
- * bare `YYYY-MM-DD`. Accepts an optional locale for Chinese variants.
+ * Accepts an optional locale for Chinese variants.
  */
 export function formatWeekdayDayMonthAt(iso: string, locale: FormatLocale = "en"): string {
   const d = new Date(iso);
   if (locale === "zh" || locale === "cn") {
+    // traditional Chinese writes "week" as 週 and simplified as 周; the weekday character is shared
     const weekPrefix = locale === "zh" ? "週" : "周";
     return `${d.getDate()}月${d.getMonth() + 1}日（${weekPrefix}${WEEKDAYS_ZH[d.getDay()]}）`;
   }
@@ -65,6 +50,7 @@ function formatClockTime(iso: string): string {
   let h = d.getHours();
   const m = d.getMinutes();
   const ampm = h >= 12 ? "PM" : "AM";
+  // h % 12 maps noon and midnight to 0, so || 12 puts the "12" back
   h = h % 12 || 12;
   return `${h}:${m.toString().padStart(2, "0")} ${ampm}`;
 }

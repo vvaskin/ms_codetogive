@@ -26,6 +26,7 @@ export function normalizeEmail(email: string): string {
 export async function findUserByEmail(email: string): Promise<string | null> {
   const admin = createAdminClient();
   const target = email.toLowerCase();
+  // cap the scan at 5 pages (1,000 users) so a miss can't page through the whole auth table
   for (let page = 1; page <= 5; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({
       page,

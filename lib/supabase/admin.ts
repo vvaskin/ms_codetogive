@@ -60,6 +60,7 @@ export function createAdminClient() {
 
   return createSupabaseClient<Database>(url, serviceKey, {
     auth: {
+      // a service client holds no user session, so the browser-oriented session machinery stays off
       autoRefreshToken: false,
       detectSessionInUrl: false,
       persistSession: false,

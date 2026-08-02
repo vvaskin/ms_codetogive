@@ -22,6 +22,7 @@ const eventColumns = [
   "image",
 ].join(", ");
 
+// sv-SE renders zero-padded yyyy-mm-dd — stable, sortable keys for grouping the calendar by day
 const dateKeyFormatter = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "Asia/Hong_Kong",
   year: "numeric",
@@ -29,6 +30,7 @@ const dateKeyFormatter = new Intl.DateTimeFormat("sv-SE", {
   day: "2-digit",
 });
 
+// labels and times are formatted in HK wall time because members think in local days, not utc instants
 const dateLabelFormatter = new Intl.DateTimeFormat("en-HK", {
   timeZone: "Asia/Hong_Kong",
   weekday: "short",
@@ -152,6 +154,7 @@ export async function getMemberPortalData(
   const publishedRows = (publishedResult.data ?? []) as unknown as SelectedEvent[];
   const signedEventIds = [...new Set(participationRows.map((row) => row.event_id))];
 
+  // signed-up events need their own lookup — they include past or unpublished events the directory query excludes
   let signedRows: SelectedEvent[] = [];
   if (signedEventIds.length > 0) {
     const signedResult = await supabase

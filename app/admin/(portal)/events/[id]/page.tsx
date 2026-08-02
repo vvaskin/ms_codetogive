@@ -122,6 +122,7 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
                     <td>{profile?.role ?? "Unknown"}</td>
                     <td><AdminStatusBadge status={participation.status} label={participation.status.replaceAll("_", " ")} /></td>
                     <td>
+                      {/* staff-logged hours land on event_participations.hours_logged and are summed on the contributor profile */}
                       <form className={styles.hoursForm} action={updateParticipationHours}>
                         <input type="hidden" name="participationId" value={participation.id} />
                         <input type="hidden" name="id" value={event.id} />

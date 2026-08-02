@@ -13,6 +13,7 @@ const periodLabels = {
 } as const;
 
 export function DonationTrendCard({ trend }: { trend: DonationTrend }) {
+  // floor of 1 keeps the bar-height math safe when every bucket is empty
   const maximumBucketAmount = Math.max(
     ...trend.buckets.map((bucket) => bucket.amountCents),
     1,
@@ -31,6 +32,9 @@ export function DonationTrendCard({ trend }: { trend: DonationTrend }) {
           <h2 id="donation-trend-title">Donation trend</h2>
         </div>
 
+        {/* period/currency live in the query string rather than local state —
+            this card is server-rendered, so a full navigation is how the data
+            refreshes, and filters stay shareable via URL */}
         <div className={styles.filters}>
           {trend.availableCurrencies.length > 1 ? (
             <nav aria-label="Donation currency" className={styles.filterGroup}>

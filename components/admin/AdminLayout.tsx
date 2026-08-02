@@ -40,6 +40,8 @@ const navigationGroups: readonly NavigationGroup[] = [
 ];
 
 function isNavigationItemActive(pathname: string, href: string) {
+  // exact match for the dashboard root, otherwise prefix matching would keep
+  // "Dashboard" highlighted on every admin page
   if (href === "/admin") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -76,9 +78,12 @@ export function AdminLayout({
         )
       : [];
     const previousOverflow = document.body.style.overflow;
+    // lock background scroll and move focus into the drawer while it's open
     document.body.style.overflow = "hidden";
     focusable[0]?.focus();
 
+    // hand-rolled focus trap: tabbing past either end wraps around so
+    // keyboard users can't fall out of the drawer behind the backdrop
     const handleDrawerKeys = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -107,6 +112,8 @@ export function AdminLayout({
     };
   }, [mobileOpen]);
 
+  // the workspace gets `inert` while the drawer is open so the focus trap
+  // above doesn't have to police the whole page, only the drawer itself
   return (
     <div className={styles.shell}>
       <a className={styles.skipLink} href="#admin-main">

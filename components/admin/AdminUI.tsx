@@ -37,6 +37,8 @@ const metricToneClasses: Record<AdminMetricTone, string> = {
   coral: styles.metricCoral,
 };
 
+// several backend statuses deliberately share one pill style — "accepted"
+// and "registered" render identically instead of getting separate colors
 const statusClasses: Record<AdminStatus, string> = {
   pending: styles.statusPending,
   approved: styles.statusApproved,
@@ -122,6 +124,8 @@ export function AdminMetricCard({
   );
   const className = `${styles.metricCard} ${metricToneClasses[tone]}`;
 
+  // with href the entire card is the link — one big hit target and no
+  // nested interactive elements to confuse screen readers
   if (href) {
     return (
       <Link className={className} href={href}>

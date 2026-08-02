@@ -18,6 +18,8 @@ function parseRole(value: string): string {
   return value;
 }
 
+// every mutation re-verifies the caller with the cookie-backed client before
+// anything touches the service-role client, which bypasses RLS entirely
 async function requireAdmin() {
   const { user, isStaff } = await getAdminAuthState();
   if (!user || !isStaff) redirect("/admin/login");
@@ -29,6 +31,8 @@ const directoryPaths: Record<string, string> = {
   contributor: "/admin/people/contributors",
 };
 
+// auth.admin.deleteUser removes the auth row but leaves storage objects behind,
+// so both per-user buckets are paged through and purged by hand
 async function removeUserStorage(
   admin: ReturnType<typeof createAdminClient>,
   bucket: "avatars" | "certificates",
@@ -66,6 +70,8 @@ export async function deleteUser(formData: FormData) {
 
   const id = textValue(formData, "id");
   const currentView = parseRole(textValue(formData, "currentView"));
+  // staff accounts are promoted server-side only and must never be removable
+  // from this UI, including the operator's own
   if (id === staffUser.id) {
     throw new Error("Staff accounts cannot be deleted here.");
   }
@@ -91,6 +97,8 @@ export async function deleteUser(formData: FormData) {
     removeUserStorage(admin, "certificates", id),
   ]);
 
+  // the account is already gone at this point, so leftover files are logged
+  // for manual cleanup rather than failing the request
   if (cleanup.some(({ status }) => status === "rejected")) {
     console.error("Account deleted, but one or more storage files remain.");
   }

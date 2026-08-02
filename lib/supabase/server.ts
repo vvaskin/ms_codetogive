@@ -8,6 +8,7 @@ import type { Database } from "./types";
  * Reads/writes the session cookies managed by `@supabase/ssr`.
  */
 export async function createClient() {
+  // next 15 made the cookie store async — it has to be awaited before any read or write
   const cookieStore = await cookies();
   const { url, anonKey } = supabaseEnv();
 

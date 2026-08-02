@@ -1,5 +1,6 @@
 /** Stable application aliases derived from the generated Supabase schema. */
 
+// app code imports from here, never from types.generated — regenerating the schema stays a one-file swap
 import type { Database as GeneratedDatabase } from "./types.generated";
 
 export type Database = GeneratedDatabase;

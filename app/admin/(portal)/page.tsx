@@ -37,6 +37,8 @@ type AdminDashboardProps = {
   }>;
 };
 
+// the old dashboard switched people views with ?view=; keep those bookmarks
+// working now that people live on dedicated pages
 const legacyPeopleViews: Record<string, string> = {
   member: "/admin/people/members",
   contributor: "/admin/people/contributors",

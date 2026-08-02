@@ -58,6 +58,7 @@ function initials(name: string): string {
 
 function isItemActive(pathname: string | null, item: NavItem): boolean {
   if (item.external || !pathname) return false;
+  // every portal route starts with /portal, so the home item needs an exact match or it stays active everywhere
   if (item.href === "/portal") return pathname === "/portal";
   return pathname.startsWith(item.href);
 }
@@ -72,6 +73,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
     setSigningOut(true);
     const supabase = createClient();
     await supabase.auth.signOut();
+    // replace + refresh forces cached server components to re-render without the session
     router.replace("/login");
     router.refresh();
   }
@@ -124,6 +126,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
           <Link href="/portal/profile" className={styles.userRow}>
             <div className={styles.avatar}>
               {user.image ? (
+                // avatar urls come from per-user auth metadata that next/image remote patterns may not cover
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.image} alt={user.name} />
               ) : (

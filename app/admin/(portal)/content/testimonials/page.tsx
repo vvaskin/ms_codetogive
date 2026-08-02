@@ -59,6 +59,7 @@ export default async function AdminTestimonialsPage() {
         }
       />
 
+      {/* the composer is hidden until the #add-testimonial anchor targets it (css :target); with no stories yet it stays open so the form is discoverable */}
       <section
         className={`${styles.composer} ${testimonials.length === 0 ? styles.composerVisible : ""}`}
         id="add-testimonial"

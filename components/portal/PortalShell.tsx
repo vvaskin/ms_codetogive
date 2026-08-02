@@ -9,6 +9,7 @@ export function PortalShell({
   user: PortalUser;
   children: ReactNode;
 }) {
+  // role-specific behavior lives in the sidebar; this shell only frames the portal layout
   return (
     <div className={styles.shell}>
       <PortalSidebar user={user} />

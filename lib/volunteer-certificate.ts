@@ -1,20 +1,13 @@
-/**
- * Builds the volunteer e-certificate HTML (mirrors app/certificate-demo and
- * the donor certificate builder) with the recipient's name and total
- * volunteered hours injected, ready for client-side download.
- */
-
 export interface VolunteerCertificateDetails {
   name: string;
-  /** Total volunteered hours. */
   hours: number;
   certId: string;
   issueDate: string;
-  /** Absolute URL or data URI for the Love 21 logo. */
   logoSrc?: string;
 }
 
 export function generateVolunteerCertId(): string {
+  // use a static prefix and a random suffix to make a predictable but non-sequential id
   return `VOL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
@@ -25,6 +18,7 @@ export function buildVolunteerCertificateHtml({
   issueDate,
   logoSrc = "/assets/images/love21_logo.png",
 }: VolunteerCertificateDetails): string {
+  // build a self-contained html template so it can be downloaded and viewed offline as a single file
   const hoursLabel = `${hours.toLocaleString("en-HK")} ${hours === 1 ? "hour" : "hours"}`;
 
   return `<!DOCTYPE html>

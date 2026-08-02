@@ -25,6 +25,7 @@ export function useUser() {
 
     const supabase = createClient();
     let active = true;
+    // bumps on every auth change so a slow role query can't overwrite a newer result
     let requestVersion = 0;
 
     function applyUser(nextUser: User | null) {

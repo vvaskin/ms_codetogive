@@ -32,6 +32,8 @@ export function EventForm({
 
   function updateStart(nextStart: string) {
     setStartsAt(nextStart);
+    // drop a now-invalid end time instead of letting the form submit
+    // endsAt <= startsAt and bouncing off the server check
     if (endsAt && endsAt <= nextStart) setEndsAt("");
   }
 

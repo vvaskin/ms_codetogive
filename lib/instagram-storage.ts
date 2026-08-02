@@ -31,12 +31,15 @@ function mapRow(row: InstagramPostRow): InstagramPost {
     mediaType: row.media_type ?? "IMAGE",
     imageUrl: row.image_url ?? "",
     permalink: row.permalink ?? "",
+    // missing timestamps collapse to the epoch so those posts sort last instead of crashing the ordering
     timestamp: row.timestamp ?? new Date(0).toISOString(),
   };
 }
 
 /** Newest posts first. Falls back to the legacy JSON file as a one-time seed. */
 export async function readInstagramPosts(): Promise<InstagramPost[]> {
+  // service-role client: this feeds a statically cached public page, so there
+  // is no cookie session to authenticate against
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("instagram_posts")
@@ -47,6 +50,8 @@ export async function readInstagramPosts(): Promise<InstagramPost[]> {
     throw new Error(`Unable to load Instagram posts: ${error.message}`);
   }
 
+  // only an empty table triggers the seed; once rows exist the database owns
+  // the data and the legacy file is never read again
   if (data.length === 0) {
     const seeded = await seedFromLegacyJson();
     if (seeded.length > 0) return seeded;
@@ -111,9 +116,11 @@ async function seedFromLegacyJson(): Promise<InstagramPost[]> {
     const raw = await readFile(legacyFile, "utf8");
     posts = (JSON.parse(raw) as { posts?: InstagramPost[] }).posts ?? [];
   } catch {
+    // a missing or malformed file just means there is no legacy data to import
     return [];
   }
 
+  // persist the seed immediately so the fallback path runs at most once
   if (posts.length > 0) await upsertInstagramPosts(posts);
   return posts;
 }

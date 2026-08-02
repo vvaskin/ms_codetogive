@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
+// middleware exists to refresh the auth cookie on every request — server components can't set cookies themselves
 export async function middleware(request: NextRequest) {
   return updateSession(request);
 }

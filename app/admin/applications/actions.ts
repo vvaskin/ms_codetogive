@@ -38,6 +38,8 @@ function parseStatus(value: string): VolunteerApplicationStatus {
   return value as VolunteerApplicationStatus;
 }
 
+// the caller is re-verified with the cookie-backed client on every mutation;
+// the returned client is service-role and bypasses RLS
 async function requireStaff() {
   const authState = await getAdminAuthState();
   if (!authState.user || !authState.isStaff) redirect("/admin/login");
@@ -55,6 +57,8 @@ export async function updateVolunteerApplicationStatus(formData: FormData) {
     throw new Error("Please provide a rejection reason.");
   }
 
+  // any non-rejection wipes the stored reason so an old one can't resurface
+  // for the applicant after a status change
   const { error } = await admin
     .from("volunteer_applications")
     .update({
@@ -72,6 +76,7 @@ export async function updateVolunteerApplicationStatus(formData: FormData) {
   }
 
   revalidatePath("/admin/people/applications");
+  // the applicant watches their status from the contributor portal
   revalidatePath("/portal/volunteering");
   revalidatePath("/portal");
 }

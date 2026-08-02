@@ -1,20 +1,13 @@
-/**
- * Builds the donor e-certificate HTML (mirrors
- * app/certificate-demo/donor-cart.html) with the recipient's name and the
- * donated amount injected, ready for client-side download.
- */
-
 export interface DonorCertificateDetails {
   name: string;
-  /** Donated amount in HKD. */
   amount: number;
   certId: string;
   issueDate: string;
-  /** Absolute URL or data URI for the Love 21 logo. */
   logoSrc?: string;
 }
 
 export function generateDonorCertId(): string {
+  // use a static prefix and a random suffix to make a predictable but non-sequential id
   return `DON-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
@@ -25,6 +18,7 @@ export function buildDonorCertificateHtml({
   issueDate,
   logoSrc = "/assets/images/love21_logo.png",
 }: DonorCertificateDetails): string {
+  // build a self-contained html template so it can be downloaded and viewed offline as a single file
   const amountLabel = `HKD $${amount.toLocaleString("en-HK")}`;
 
   return `<!DOCTYPE html>

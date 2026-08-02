@@ -10,5 +10,6 @@ import type { Database } from "./types";
  */
 export function createClient() {
   const { url, anonKey } = supabaseEnv();
+  // the anon key is safe to ship to the browser — rls scopes every query to the signed-in user
   return createBrowserClient<Database>(url, anonKey);
 }

@@ -144,15 +144,21 @@ export async function getContributorPortalData(
 
   let totalHours = 0;
   const attendedProgrammes = new Set<EventRow["type"]>();
-  for (const participation of attendance) {
+  for (const participation of participationRows) {
     const event = eventsById.get(participation.event_id);
-    attendedProgrammes.add(event?.type ?? null);
+    if (participation.status === "attended") {
+      attendedProgrammes.add(event?.type ?? null);
+    }
 
+    // prefer the hours a staff member logged on the participation; fall back to
+    // the event duration for attended sessions that have no logged hours
     if (participation.hours_logged != null) {
       totalHours += participation.hours_logged;
       continue;
     }
-    if (!event || !event.ends_at) continue;
+    if (participation.status !== "attended" || !event || !event.ends_at) {
+      continue;
+    }
     const hours =
       (new Date(event.ends_at).getTime() - new Date(event.starts_at).getTime()) /
       3_600_000;

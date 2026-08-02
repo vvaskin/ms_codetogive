@@ -63,6 +63,7 @@ export async function ensureAccount({
     return { userId: existing, created: false, notifiedVia: "none" };
   }
 
+  // pre-confirm both channels — the guest has no verification step before their first login
   const { data, error } = await admin.auth.admin.createUser({
     email: normalizedEmail,
     phone: normalizedPhone,
@@ -72,6 +73,7 @@ export async function ensureAccount({
   });
 
   if (error || !data.user) {
+    // a parallel request may have won the create race — the account exists now, so treat it as found
     const raced = await findUserByEmail(normalizedEmail);
     if (raced) return { userId: raced, created: false, notifiedVia: "none" };
     throw new Error(error?.message ?? "Could not create the guest account.");

@@ -6,6 +6,7 @@ export function safeRedirect(
   value: string | string[] | undefined,
   fallback = "/portal",
 ): string {
+  // repeated ?next= parameters arrive as an array; the first one wins
   const path = Array.isArray(value) ? value[0] : value;
   return path?.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }

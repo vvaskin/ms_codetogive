@@ -3,7 +3,6 @@ export type Locale = "en" | "zh" | "cn";
 export type PageTemplate =
   | "standard"
   | "about"
-  | "programmes"
   | "reports"
   | "media-index"
   | "article"
@@ -621,10 +620,6 @@ const cnPages: SitePage[] = [
 ];
 
 export const pages = [...enPages, ...zhPages, ...cnPages];
-
-export const alternatePaths: Record<string, string> = Object.fromEntries(
-  pages.map((page) => [page.path, page.alternatePath]),
-);
 
 export interface LocalePaths {
   en: string;

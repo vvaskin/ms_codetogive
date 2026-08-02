@@ -20,7 +20,6 @@ import { ContactExperience } from "./ContactExperience";
 import { DonateExperience } from "./DonateExperience";
 import { FinanceExperience } from "./FinanceExperience";
 import { MediaExperience } from "./MediaExperience";
-import { ProgrammesExperience } from "./ProgrammesExperience";
 import styles from "./PageRenderer.module.css";
 
 function PageHeading({ children }: { children: React.ReactNode }) {
@@ -159,8 +158,6 @@ export async function PageRenderer({
       return <StandardPage page={page} />;
     case "about":
       return <AboutExperience locale={page.locale} />;
-    case "programmes":
-      return <ProgrammesExperience locale={page.locale} />;
     case "reports":
       return <FinanceExperience locale={page.locale} />;
     case "media-index":

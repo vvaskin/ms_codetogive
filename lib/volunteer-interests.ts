@@ -28,6 +28,8 @@ export const VOLUNTEER_INTERESTS: {
   },
 ];
 
+// derived from the same source so server-side validation of submitted values
+// can never drift from what the UI offered
 export const VOLUNTEER_INTEREST_VALUES = VOLUNTEER_INTERESTS.map(
   (option) => option.value,
 );

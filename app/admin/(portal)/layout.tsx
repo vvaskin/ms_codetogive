@@ -15,6 +15,8 @@ export default async function ProtectedAdminLayout({
 }) {
   const { user, isStaff } = await getAdminAuthState();
 
+  // the (portal) group is the staff-only shell; this bounce is the first line
+  // of defense and every page and mutation re-checks the caller anyway
   if (!user || !isStaff) redirect("/admin/login");
 
   const displayName =

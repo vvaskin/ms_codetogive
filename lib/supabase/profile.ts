@@ -33,6 +33,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
     .select(
       "id, email, name, phone_number, address, role, profile_image",
     )
+    // rls already limits this to the caller's own row; the filter keeps the lookup explicit
     .eq("id", user.id)
     .maybeSingle<
       Pick<
@@ -51,6 +52,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   if (!data) throw new Error("This account does not have a profile.");
 
   const profileImage = data?.profile_image ?? null;
+  // getPublicUrl only builds the url string — it doesn't verify the object exists (avatars is a public bucket)
   const avatarUrl = profileImage
     ? supabase.storage.from("avatars").getPublicUrl(profileImage).data.publicUrl
     : null;

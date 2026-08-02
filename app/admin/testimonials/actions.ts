@@ -110,12 +110,15 @@ function parseTranslations(formData: FormData): SubmittedTranslation[] {
   return translations;
 }
 
+// the caller is re-verified with the cookie-backed client on every mutation;
+// the returned client is service-role and bypasses RLS
 async function requireStaff() {
   const authState = await getAdminAuthState();
   if (!authState.user || !authState.isStaff) redirect("/admin/login");
   return { supabase: createAdminClient(), userId: authState.user.id };
 }
 
+// the carousel renders on each localized homepage, so all three are busted
 function revalidateTestimonialPages() {
   revalidatePath("/");
   revalidatePath("/zh");
@@ -175,6 +178,7 @@ function slugFromStoryLabel(label: string) {
     .slice(0, 84)
     .replace(/-+$/g, "");
   const base = readable || "testimonial";
+  // the uuid fragment keeps slugs unique when two stories share a label
   return `${base}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
@@ -249,6 +253,8 @@ export async function createTestimonial(formData: FormData) {
   try {
     await replaceTranslations(supabase, testimonial.id, translations);
   } catch (contentError) {
+    // storage and the database can't share a transaction, so a failed content
+    // save rolls back the row and the uploaded image by hand
     await supabase.from("testimonials").delete().eq("id", testimonial.id);
     await removeUploadedImage(supabase, uploadedPath);
     throw contentError;
@@ -288,6 +294,8 @@ export async function updateTestimonial(formData: FormData) {
   try {
     await replaceTranslations(supabase, id, translations);
   } catch (contentError) {
+    // restore the old path before deleting the new upload so the row never
+    // points at an image that no longer exists
     if (uploadedPath) {
       await supabase
         .from("testimonials")

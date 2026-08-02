@@ -15,5 +15,6 @@ export function pickLocalized<T extends Record<string, unknown>>(
   const localized = row[localizedKey];
   if (typeof localized === "string" && localized.length > 0) return localized;
   const fallback = row[base];
+  // returning null (not "") lets callers hide the element instead of rendering a blank
   return typeof fallback === "string" ? fallback : null;
 }

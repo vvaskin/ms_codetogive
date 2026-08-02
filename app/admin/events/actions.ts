@@ -68,7 +68,11 @@ function parseDateTime(value: string, required: boolean) {
     throw new Error("Invalid event date.");
   }
 
+  // staff enter Hong Kong wall time; a fixed +08:00 is safe because Hong Kong
+  // has no DST, and the persisted value becomes a UTC instant
   const date = new Date(`${value}:00+08:00`);
+  // the round-trip comparison rejects impossible wall times (e.g. Feb 30)
+  // that the Date constructor would otherwise silently roll over
   if (Number.isNaN(date.getTime()) || hongKongDateTime(date) !== value) {
     throw new Error("Invalid event date.");
   }
@@ -90,12 +94,15 @@ function parseStatus(value: string): EventStatus {
   return value as EventStatus;
 }
 
+// the caller is re-verified with the cookie-backed client on every mutation;
+// the returned client is service-role and bypasses RLS
 async function requireStaff() {
   const authState = await getAdminAuthState();
   if (!authState.user || !authState.isStaff) redirect("/admin/login");
   return createAdminClient();
 }
 
+// the localized public calendars read the same events table
 function revalidateEventPages() {
   revalidatePath("/admin/events");
   revalidatePath("/events");
@@ -116,6 +123,7 @@ function eventValues(formData: FormData): EventInsert {
     title_zh: limitedText(formData, "titleZh", 120),
     location: limitedText(formData, "location", 200, true),
     location_zh: limitedText(formData, "locationZh", 200),
+    // the legacy date column mirrors the Hong Kong wall date, not the UTC day
     date: textValue(formData, "startsAt").slice(0, 10),
     type: parseEventType(textValue(formData, "type")),
     subtype: limitedText(formData, "subtype", 120),
@@ -211,6 +219,8 @@ export async function updateParticipationHours(formData: FormData) {
   const eventId = parseEventId(formData);
   const hours = parseHours(textValue(formData, "hours"));
 
+  // matching on event_id as well stops a crafted participationId from another
+  // event being edited through this form
   const { data, error } = await supabase
     .from("event_participations")
     .update({ hours_logged: hours, updated_at: new Date().toISOString() })
@@ -224,6 +234,7 @@ export async function updateParticipationHours(formData: FormData) {
 
   revalidatePath(`/admin/events/${eventId}`);
   revalidatePath("/admin/events");
+  // staff-logged hours are summed on the contributor's portal pages
   revalidatePath("/portal/volunteering");
   revalidatePath("/portal");
 }

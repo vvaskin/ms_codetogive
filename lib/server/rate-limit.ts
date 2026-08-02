@@ -25,6 +25,7 @@ export function checkRateLimit(
 ): boolean {
   const now = Date.now();
   const bucket = buckets.get(key);
+  // an expired window is replaced wholesale, so each burst restarts with a full quota
   if (!bucket || bucket.resetAt <= now) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });
     return true;

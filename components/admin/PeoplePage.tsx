@@ -19,6 +19,8 @@ export async function PeopleDirectoryContent({
   role: PeopleDirectoryRole;
 }) {
   const directory = await getPeopleDirectory(role);
+  // flatten the nested query result into plain rows here on the server so the
+  // client directory stays a dumb table that never sees the record shape
   const rows: PeopleDirectoryRow[] = directory.records.map((record) => {
     const base = {
       id: record.profile.id,

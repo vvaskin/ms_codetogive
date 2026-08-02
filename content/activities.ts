@@ -1,4 +1,3 @@
-import { formatMonthDay } from "@/lib/format-date";
 import { images, type Locale } from "./site-data";
 
 export type ActivityCategory = "sports" | "nutrition" | "family" | "csr" | "event";
@@ -21,10 +20,6 @@ export interface ActivityEvent {
   summary: LocalizedText;
 }
 
-export interface ActivityCard extends ActivityEvent {
-  dayLabel: LocalizedText;
-}
-
 export const activityText = (text: LocalizedText, locale: Locale) => text[locale];
 
 export const activityCategories: Array<{
@@ -38,37 +33,6 @@ export const activityCategories: Array<{
   { id: "csr", label: { en: "CSR", zh: "CSR", cn: "CSR" }, color: "var(--color-purple)" },
   { id: "event", label: { en: "Event", zh: "活動", cn: "活动" }, color: "var(--color-purple)" },
 ];
-
-const event = (
-  id: string,
-  date: string,
-  time: string,
-  category: ActivityCategory,
-  title: LocalizedText,
-  location: LocalizedText,
-  summary: LocalizedText,
-): ActivityEvent => ({ id, date, time, category, title, location, summary });
-
-export const august2026Events: ActivityEvent[] = [
-  event("yoga-04", "2026-08-04", "10:00–11:00", "sports", { en: "Inclusive Yoga", zh: "共融瑜伽", cn: "共融瑜伽" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "A gentle movement session for members.", zh: "為會員而設的溫和運動課。", cn: "为会员而设的温和运动课。" }),
-  event("food-06", "2026-08-06", "15:30–16:30", "nutrition", { en: "Food Explorers", zh: "食物探索小組", cn: "食物探索小组" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "A practical, social nutrition activity.", zh: "結合實用營養知識及社交互動的活動。", cn: "结合实用营养知识及社交互动的活动。" }),
-  event("family-08", "2026-08-08", "11:00–12:30", "family", { en: "Family Coffee Morning", zh: "家庭咖啡早晨", cn: "家庭咖啡早晨" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "Time to connect with other families.", zh: "與其他家庭交流的時光。", cn: "与其他家庭交流的时光。" }),
-  event("fitness-11", "2026-08-11", "17:00–18:00", "sports", { en: "Fitness Club", zh: "健體俱樂部", cn: "健体俱乐部" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "Movement and games with the community.", zh: "與社群一起做運動及玩遊戲。", cn: "与社群一起做运动及玩游戏。" }),
-  event("csr-14", "2026-08-14", "14:00–16:00", "csr", { en: "Corporate Volunteer Visit", zh: "企業義工探訪", cn: "企业义工探访" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "A shared afternoon of activities and connection.", zh: "一起參與活動、建立連繫的下午。", cn: "一起参与活动、建立连系的下午。" }),
-  event("dance-18", "2026-08-18", "16:00–17:00", "sports", { en: "Dance & Rhythm", zh: "舞蹈與節奏", cn: "舞蹈与节奏" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "Move, listen and have fun together.", zh: "一起律動、聆聽及享受樂趣。", cn: "一起律动、聆听及享受乐趣。" }),
-  event("food-18", "2026-08-18", "17:30–18:30", "nutrition", { en: "Kitchen Skills", zh: "廚房小技能", cn: "厨房小技能" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "A simple food-preparation activity.", zh: "簡單的食物準備活動。", cn: "简单的食物准备活动。" }),
-  event("family-22", "2026-08-22", "10:30–12:00", "family", { en: "Weekend Family Club", zh: "週末家庭俱樂部", cn: "周末家庭俱乐部" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "A relaxed social session for families.", zh: "輕鬆的家庭社交活動。", cn: "轻松的家庭社交活动。" }),
-  event("sports-27", "2026-08-27", "18:00–19:00", "sports", { en: "Team Sports", zh: "團隊運動", cn: "团队运动" }, { en: "Love 21 Space", zh: "Love 21 Space", cn: "Love 21 Space" }, { en: "An inclusive session built around play.", zh: "以遊戲為本的共融活動。", cn: "以游戏为本的共融活动。" }),
-];
-
-export const upcomingActivities: ActivityCard[] = august2026Events.slice(0, 6).map((item) => ({
-  ...item,
-  dayLabel: {
-    en: formatMonthDay(item.date),
-    zh: new Intl.DateTimeFormat("zh-HK", { month: "numeric", day: "numeric" }).format(new Date(`${item.date}T12:00:00`)),
-    cn: new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(new Date(`${item.date}T12:00:00`)),
-  },
-}));
 
 export const activitiesContent = {
   hero: {

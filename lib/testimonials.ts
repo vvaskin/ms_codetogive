@@ -60,6 +60,8 @@ function publicImageUrl(path: string) {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
   if (!baseUrl) return path;
 
+  // encode segment by segment so the path slashes survive while spaces or
+  // non-ascii characters in filenames get escaped
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   return `${baseUrl}/storage/v1/object/public/testimonial-images/${encodedPath}`;
 }
@@ -108,6 +110,7 @@ export async function readHomepageTestimonials(
         testimonial.testimonial_translations ?? [],
         locale,
       );
+      // flatMap treats [] as "skip", quietly dropping stories with no usable translation
       if (!translation) return [];
 
       return [

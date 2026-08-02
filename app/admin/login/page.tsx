@@ -15,6 +15,8 @@ export default async function AdminLoginPage() {
 
   if (user && isStaff) redirect("/admin");
 
+  // signed in but not staff: say so plainly instead of looping them back
+  // through a login form that can never succeed
   if (user) {
     return (
       <AuthPage

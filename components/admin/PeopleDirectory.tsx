@@ -91,6 +91,8 @@ function matchesDate(createdAt: string, filter: DateFilter, referenceTime: numbe
 }
 
 function currencyAmount({ currency, amountCents }: DirectoryCurrencyTotal) {
+  // Intl.NumberFormat throws on currency codes it doesn't recognize, so
+  // anything unexpected falls back to a plain "CODE 1,234.56" rendering
   try {
     return new Intl.NumberFormat("en-HK", {
       style: "currency",
@@ -148,6 +150,8 @@ export function PeopleDirectory({
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  // snapshot "now" once per mount so relative filters (last 30 days, this
+  // year) don't drift as the user sits on the page and re-renders happen
   const [referenceTime] = useState(() => Date.now());
 
   const statusOptions = useMemo(

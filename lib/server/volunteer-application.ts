@@ -18,6 +18,7 @@ export async function getVolunteerApplication(
   userId: string,
   client: SupabaseClient<Database>,
 ): Promise<VolunteerApplicationRow | null> {
+  // rejected/withdrawn rows accumulate over time, so the newest row is the current state
   const { data } = await client
     .from("volunteer_applications")
     .select("*")

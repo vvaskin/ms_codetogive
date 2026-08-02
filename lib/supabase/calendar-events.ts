@@ -10,6 +10,7 @@ import { createAdminClient } from "./admin";
 import type { EventRow } from "./types";
 import { createClient } from "./server";
 
+// sv-SE renders zero-padded yyyy-mm-dd — a ready-made card date without manual padding
 const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "Asia/Hong_Kong",
   year: "numeric",
@@ -17,6 +18,7 @@ const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
   day: "2-digit",
 });
 
+// stored timestamps are instants; formatting in HK wall time stops late events rolling into the next utc day
 const timeFormatter = new Intl.DateTimeFormat("en-HK", {
   timeZone: "Asia/Hong_Kong",
   hour: "2-digit",
@@ -24,6 +26,7 @@ const timeFormatter = new Intl.DateTimeFormat("en-HK", {
   hourCycle: "h23",
 });
 
+// untranslated zh falls back to english so a calendar card never renders blank
 function localized(english: string | null, chinese: string | null): LocalizedText {
   const fallback = english ?? "";
   const translated = chinese || fallback;
@@ -143,6 +146,7 @@ export async function readHomepageEvents(
 
     const events = (data ?? []).flatMap((event) => {
       const category = activityCategory(event.type);
+      // prefer traditional chinese; fall back to simplified when only that translation exists
       const title = localizedTri(event.title, event.title_zh ?? event.title_cn);
       const location = localizedTri(event.location, event.location_zh ?? event.location_cn);
 

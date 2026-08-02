@@ -53,6 +53,7 @@ export default async function ApplicationReviewPage({
   params,
 }: ApplicationReviewProps) {
   const { id: rawId } = await params;
+  // route params are untrusted; a malformed id is a 404, not a 500
   const applicationId = Number(rawId);
   if (!Number.isSafeInteger(applicationId) || applicationId < 1) notFound();
 

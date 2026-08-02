@@ -26,6 +26,7 @@ export async function uploadVolunteerDocument(
   kind: VolunteerDocumentKind,
   file: File,
 ): Promise<string> {
+  // re-check type and size here — browser-side validation is trivially bypassed
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
     throw new Error(
       "Unsupported file type. Please upload a PDF, JPG, or PNG.",
@@ -36,6 +37,7 @@ export async function uploadVolunteerDocument(
   }
 
   const extension = EXTENSIONS[file.type] ?? "bin";
+  // the timestamp keeps a re-upload from overwriting an earlier document of the same kind
   const path = `${userId}/${kind}-${Date.now()}.${extension}`;
 
   const admin = createAdminClient();
@@ -47,5 +49,6 @@ export async function uploadVolunteerDocument(
     throw new Error(`Could not upload ${kind}: ${error.message}`);
   }
 
+  // the bucket is private — store the path and issue signed urls for staff review later
   return path;
 }

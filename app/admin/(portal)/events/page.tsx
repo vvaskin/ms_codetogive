@@ -75,6 +75,7 @@ export default async function EventsPage() {
                     <span>{formatAdminDateTime(event.starts_at)}</span>
                     <span>{event.location ?? "Location not set"}</span>
                     <strong>{participationCount} participation records</strong>
+                    {/* participation keeps cancelled/no-show history, so the live registered count can be lower */}
                     {registeredCount !== participationCount ? (
                       <small>{registeredCount} currently registered</small>
                     ) : null}

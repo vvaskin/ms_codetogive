@@ -44,6 +44,8 @@ export async function recordDonation(
     return { ok: false, error: "Please choose a frequency." };
   }
 
+  // nothing here charges a card — portal donations are demo records, so a
+  // one-time gift is stored "completed" and a recurring pledge "active".
   const row = {
     kind: input.kind,
     amount_cents: amountCents,
@@ -94,6 +96,8 @@ export async function recordDonation(
       .insert({ donor_id: account.userId, ...row });
     if (error) return { ok: false, error: error.message };
 
+    // keep the set-password link in the server logs as a fallback delivery
+    // channel in case the sms/email provider wasn't configured.
     if (account.actionLink) {
       console.log(
         `[guest donation] ${account.notifiedVia} link for ${email}: ${account.actionLink}`,
@@ -111,6 +115,8 @@ export async function recordDonation(
   }
 }
 
+// server actions don't know the site's public url, so rebuild it from the
+// request headers — the account setup links need an absolute origin.
 async function appOrigin(): Promise<string> {
   const h = await headers();
   return (
