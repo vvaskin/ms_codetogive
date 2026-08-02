@@ -3,6 +3,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState } from "react";
 import React from "react";
+import Link from "next/link";
+import { SignOutButton } from "@/components/SignOutButton";
+import styles from "./ContributorPortalExperience.module.css";
 
 const s = (w = 20) => ({ width: w, height: w, display: "block" as const });
 const ico = (strokeWidth = 2) => ({
@@ -1055,6 +1058,12 @@ export function ContributorPortalExperience({
             <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#8bbdd9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>SC</div>
             <span style={{ fontSize: 13, fontWeight: 500, color: showProfile ? "#c13057" : "#1a1a1a" }}>Sarah Chan</span>
           </button>
+          <div className={styles.headerActions}>
+            <Link href="/" className={styles.websiteButton}>
+              Go to website
+            </Link>
+            <SignOutButton className={styles.logoutButton} />
+          </div>
         </div>
       </header>
 
