@@ -36,28 +36,38 @@ function mapRow(row: InstagramPostRow): InstagramPost {
   };
 }
 
-/** Newest posts first. Falls back to the legacy JSON file as a one-time seed. */
 export async function readInstagramPosts(): Promise<InstagramPost[]> {
-  // service-role client: this feeds a statically cached public page, so there
-  // is no cookie session to authenticate against
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("instagram_posts")
-    .select("id, caption, media_type, image_url, permalink, timestamp")
-    .order("timestamp", { ascending: false });
+  try {
+    // service-role client: this feeds a statically cached public page, so there
+    // is no cookie session to authenticate against
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("instagram_posts")
+      .select("id, caption, media_type, image_url, permalink, timestamp")
+      .order("timestamp", { ascending: false });
 
-  if (error) {
-    throw new Error(`Unable to load Instagram posts: ${error.message}`);
+    if (error) {
+      throw error;
+    }
+
+    // only an empty table triggers the seed; once rows exist the database owns
+    // the data and the legacy file is never read again
+    if (data.length === 0) {
+      const seeded = await seedFromLegacyJson();
+      if (seeded.length > 0) return seeded;
+    }
+
+    return data.map(mapRow);
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    console.warn(`Unable to load Instagram posts, falling back to legacy JSON seed: ${reason}`);
+    try {
+      const raw = await readFile(legacyFile, "utf8");
+      return (JSON.parse(raw) as { posts?: InstagramPost[] }).posts ?? [];
+    } catch {
+      return [];
+    }
   }
-
-  // only an empty table triggers the seed; once rows exist the database owns
-  // the data and the legacy file is never read again
-  if (data.length === 0) {
-    const seeded = await seedFromLegacyJson();
-    if (seeded.length > 0) return seeded;
-  }
-
-  return data.map(mapRow);
 }
 
 /** Insert or replace posts by their Instagram media id. */
