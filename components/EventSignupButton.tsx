@@ -61,7 +61,10 @@ export function EventSignupButton({
           ✓ {pick(locale, "You’re signed up", "你已報名", "你已报名")}
         </p>
         {sessionRole ? (
-          <Link className={styles.link} href="/portal/events">
+          <Link
+            className={styles.link}
+            href={sessionRole === "member" ? "/portal/my-events" : "/portal/events"}
+          >
             {pick(locale, "View in My Events", "在「我的活動」查看", '在"我的活动"查看')}
           </Link>
         ) : null}
