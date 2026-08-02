@@ -39,11 +39,13 @@ export function ActivitiesExperience({
   locale,
   events,
   sessionRole = null,
+  isApprovedVolunteer = false,
   registeredEventIds = [],
 }: {
   locale: Locale;
   events: ActivityEvent[];
   sessionRole?: UserRole | null;
+  isApprovedVolunteer?: boolean;
   registeredEventIds?: number[];
 }) {
   const today = hongKongDateKey();
@@ -169,6 +171,7 @@ export function ActivitiesExperience({
                       eventId={activity.dbId}
                       locale={locale}
                       sessionRole={sessionRole}
+                      isApprovedVolunteer={isApprovedVolunteer}
                       signedUp={registeredEventIds.includes(activity.dbId)}
                     />
                   ) : (
@@ -297,6 +300,7 @@ export function ActivitiesExperience({
                           eventId={event.dbId}
                           locale={locale}
                           sessionRole={sessionRole}
+                          isApprovedVolunteer={isApprovedVolunteer}
                           signedUp={registeredEventIds.includes(event.dbId)}
                         />
                       ) : (

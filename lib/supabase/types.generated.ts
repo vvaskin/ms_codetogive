@@ -338,6 +338,78 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_applications: {
+        Row: {
+          age_group: string | null
+          bio: string | null
+          created_at: string
+          gender: string | null
+          id: number
+          referral_source: string | null
+          rejection_reason: string | null
+          rejection_reason_visible: boolean
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status:
+            | Database["public"]["Enums"]["volunteer_application_status"]
+            | null
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_group?: string | null
+          bio?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: never
+          referral_source?: string | null
+          rejection_reason?: string | null
+          rejection_reason_visible?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?:
+            | Database["public"]["Enums"]["volunteer_application_status"]
+            | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age_group?: string | null
+          bio?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: never
+          referral_source?: string | null
+          rejection_reason?: string | null
+          rejection_reason_visible?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?:
+            | Database["public"]["Enums"]["volunteer_application_status"]
+            | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -353,7 +425,13 @@ export type Database = {
       event_status: "published" | "cancelled"
       event_type: "sport" | "nutrition" | "family_support"
       participation_status: "registered" | "attended" | "no_show" | "cancelled"
-      user_role: "member" | "donor" | "volunteer" | "staff"
+      user_role: "member" | "contributor" | "staff"
+      volunteer_application_status:
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "withdrawn"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -941,7 +1019,14 @@ export const Constants = {
       event_status: ["published", "cancelled"],
       event_type: ["sport", "nutrition", "family_support"],
       participation_status: ["registered", "attended", "no_show", "cancelled"],
-      user_role: ["member", "donor", "volunteer", "staff"],
+      user_role: ["member", "contributor", "staff"],
+      volunteer_application_status: [
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "withdrawn",
+      ],
     },
   },
   storage: {

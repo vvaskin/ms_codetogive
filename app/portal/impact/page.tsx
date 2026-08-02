@@ -12,7 +12,7 @@ export default async function ImpactPage() {
   const profile = await getSessionProfile();
 
   if (!profile) redirect("/login?next=/portal/impact");
-  if (profile.role !== "donor") redirect("/portal");
+  if (profile.role !== "contributor") redirect("/portal");
 
   return (
     <div className="portal-subpage">

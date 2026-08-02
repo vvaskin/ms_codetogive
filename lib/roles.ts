@@ -1,19 +1,19 @@
-// Roles a user can *pick* at signup — surfaced in the auth form.
-export const USER_ROLES = ["member", "donor", "volunteer"] as const;
+// Roles a user can *pick* at signup — surfaced in the auth form. Staff is
+// assigned manually via Supabase Studio, never through the form.
+export const USER_ROLES = ["member", "contributor"] as const;
 export type SignupRole = (typeof USER_ROLES)[number];
 
-// Roles the app can *observe* on a profile. Wider than SignupRole because
-// staff is assigned manually via Supabase Studio, not through the form.
-// Mirrors the `user_role` enum in the database.
-export type UserRole = SignupRole | "staff";
+// Single source of truth for the observable role set — derived from the
+// generated Supabase enum so it can never drift from the database.
+export type { UserRole } from "@/lib/supabase/types";
+import type { UserRole } from "@/lib/supabase/types";
+
+const ALL_ROLES: readonly UserRole[] = ["member", "contributor", "staff"];
 
 export function isUserRole(value: unknown): value is UserRole {
-  return (
-    typeof value === "string" &&
-    (USER_ROLES.includes(value as SignupRole) || value === "staff")
-  );
+  return typeof value === "string" && (ALL_ROLES as readonly string[]).includes(value);
 }
 
 export function isSignupRole(value: unknown): value is SignupRole {
-  return typeof value === "string" && USER_ROLES.includes(value as SignupRole);
+  return typeof value === "string" && (USER_ROLES as readonly string[]).includes(value);
 }

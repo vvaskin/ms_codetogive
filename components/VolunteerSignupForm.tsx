@@ -1,15 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { createClient } from "@/lib/supabase/client";
-import {
-  VOLUNTEER_SIGNUP_DRAFT_KEY,
-  VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE,
-  type VolunteerSignupDraft,
-} from "@/lib/volunteer-signup-draft";
+import { submitVolunteerApplication } from "@/app/actions/volunteer-applications";
 import styles from "./VolunteerSignupForm.module.css";
 
 type AgeGroup = "14-15" | "16-17" | "18+";
@@ -29,21 +23,6 @@ const REFERRAL_OPTIONS: ReferralSource[] = [
   "Other",
 ];
 
-function readableError(message: string | undefined) {
-  if (!message) return "Something went wrong. Please try again.";
-
-  const normalized = message.toLowerCase();
-
-  if (
-    normalized.includes("already exists") ||
-    normalized.includes("already registered")
-  ) {
-    return "An account with this email already exists.";
-  }
-
-  return message;
-}
-
 function PolicyModal({
   onAgree,
   onClose,
@@ -56,10 +35,6 @@ function PolicyModal({
   const [canCheck, setCanCheck] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
 
-  // If the policy text is short enough to fit without scrolling, there's
-  // nothing to scroll to — enable agreement immediately so the button never
-  // dead-ends. When the text does overflow, the onScroll handler below gates
-  // agreement on reaching the bottom.
   useEffect(() => {
     const element = bodyRef.current;
     if (element && element.scrollHeight <= element.clientHeight) {
@@ -158,7 +133,7 @@ function PolicyModal({
 
           {canCheck && !canReviewPolicy ? (
             <p className={styles.scrollHint}>
-              Please complete all required fields in the form before registering.
+              Please complete all required fields in the form before submitting.
             </p>
           ) : null}
 
@@ -168,7 +143,7 @@ function PolicyModal({
             disabled={!canCheck || !canReviewPolicy}
             onClick={onAgree}
           >
-            I Agree - Complete Registration
+            I Agree - Submit Application
           </button>
         </div>
       </div>
@@ -177,44 +152,12 @@ function PolicyModal({
   );
 }
 
-let cachedDraftRaw: string | null | undefined;
-let cachedDraft: VolunteerSignupDraft | null = null;
-
-function getDraftSnapshot(): VolunteerSignupDraft | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.sessionStorage.getItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
-  if (raw === cachedDraftRaw) return cachedDraft;
-  cachedDraftRaw = raw;
-  cachedDraft = null;
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as Partial<VolunteerSignupDraft>;
-      if (parsed.name && parsed.email && parsed.password) {
-        cachedDraft = {
-          name: parsed.name,
-          email: parsed.email,
-          password: parsed.password,
-          phone: parsed.phone ?? "",
-        };
-      }
-    } catch {
-      // ignore malformed drafts
-    }
-  }
-  return cachedDraft;
-}
-
-function subscribeToDraft() {
-  return () => {};
-}
-
+/**
+ * Volunteer application form for an already-authenticated contributor.
+ * Guest applications are a follow-up task and not supported here yet.
+ */
 export function VolunteerSignupForm() {
   const router = useRouter();
-  const draft = useSyncExternalStore(
-    subscribeToDraft,
-    getDraftSnapshot,
-    getDraftSnapshot,
-  );
   const [chineseName, setChineseName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [gender, setGender] = useState<Gender | "">("");
@@ -224,71 +167,31 @@ export function VolunteerSignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!draft) {
-      router.replace("/signup");
-    }
-  }, [draft, router]);
+  const canReviewPolicy = Boolean(ageGroup && gender && referral);
 
-  const canReviewPolicy = Boolean(draft && ageGroup && gender && referral);
-
-  async function finalizeSignup() {
-    if (!draft) return;
+  async function finalizeSubmission() {
     setShowPolicy(false);
     setError(null);
     setIsSubmitting(true);
 
-    const trimmedChineseName = chineseName.trim();
-    const displayName = trimmedChineseName
-      ? `${draft.name} / ${trimmedChineseName}`
-      : draft.name;
-    const profileNotes = [
-      trimmedChineseName ? `Chinese name: ${trimmedChineseName}` : "",
-      ageGroup ? `Age group: ${ageGroup}` : "",
-      gender ? `Gender: ${gender}` : "",
-      referral ? `Referral: ${referral}` : "",
-      bio.trim() ? `About: ${bio.trim()}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
     try {
-      const supabase = createClient();
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: draft.email,
-          password: draft.password,
-          options: {
-            data: {
-              name: displayName,
-              role: "volunteer",
-              ...(draft.phone ? { phone: draft.phone } : {}),
-              address: profileNotes || undefined,
-            },
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/portal`,
-          },
-        });
+      const result = await submitVolunteerApplication({
+        ageGroup,
+        gender,
+        referralSource: referral,
+        bio,
+        chineseName,
+      });
 
-      if (signUpError) {
-        setError(readableError(signUpError.message));
+      if (!result.ok) {
+        setError(result.error ?? "Something went wrong. Please try again.");
         return;
       }
 
-      // The handle_new_user trigger seeds name/email/role but not the phone,
-      // so persist it into the profile row (RLS: users update their own row).
-      if (draft.phone && signUpData.user) {
-        await supabase
-          .from("users")
-          .update({ phone_number: draft.phone })
-          .eq("id", signUpData.user.id);
-      }
-
-      window.sessionStorage.removeItem(VOLUNTEER_SIGNUP_DRAFT_KEY);
-      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
-      router.replace("/portal");
+      router.replace("/portal/volunteering");
       router.refresh();
     } catch {
-      setError("We could not reach the authentication service. Please try again.");
+      setError("Could not submit your application. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -299,36 +202,17 @@ export function VolunteerSignupForm() {
     if (isSubmitting) return;
     setError(null);
     if (!canReviewPolicy) {
-      setError("Please fill in all required fields (name, email, password of at least 8 characters, and all highlighted volunteer details).");
+      setError(
+        "Please complete all required fields (age group, gender, and referral).",
+      );
       return;
     }
     setShowPolicy(true);
   }
 
-  if (!draft) {
-    return null;
-  }
-
   return (
     <>
       <form className={styles.form} onSubmit={onSubmit}>
-        <div className={styles.summary}>
-          <dl>
-            <div className={styles.summaryRow}>
-              <dt>Full name</dt>
-              <dd>{draft.name}</dd>
-            </div>
-            <div className={styles.summaryRow}>
-              <dt>Email address</dt>
-              <dd>{draft.email}</dd>
-            </div>
-          </dl>
-        </div>
-        <p className={`${styles.notice} ${styles.noticeInfo}`}>
-          Your name and email are carried over from the previous step.{" "}
-          <Link href="/signup">Start over</Link>
-        </p>
-
         <label>
           <span className={styles.fieldLabel}>Chinese name (optional)</span>
           <input
@@ -363,7 +247,7 @@ export function VolunteerSignupForm() {
           ) : null}
           {ageGroup === "18+" ? (
             <p className={`${styles.notice} ${styles.noticeInfo}`}>
-              SCRC upload is required after registration before joining sessions.
+              SCRC upload is required after approval before joining sessions.
             </p>
           ) : null}
         </div>
@@ -380,7 +264,7 @@ export function VolunteerSignupForm() {
                 className={`${styles.chip} ${gender === option ? styles.chipActive : ""}`}
                 onClick={() => setGender(option)}
               >
-                {option === "Prefer not to say" ? "Prefer not to say" : option}
+                {option}
               </button>
             ))}
           </div>
@@ -423,19 +307,15 @@ export function VolunteerSignupForm() {
 
         <div className={styles.actions}>
           <button className={styles.submit} type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating account..." : "Review policy and sign up"}
+            {isSubmitting ? "Submitting…" : "Review policy and submit"}
           </button>
         </div>
-
-        <p className={styles.switchLine}>
-          Already have an account? <Link href="/login">Log in</Link>
-        </p>
       </form>
 
       {showPolicy ? (
         <PolicyModal
           canReviewPolicy={canReviewPolicy}
-          onAgree={finalizeSignup}
+          onAgree={finalizeSubmission}
           onClose={() => setShowPolicy(false)}
         />
       ) : null}

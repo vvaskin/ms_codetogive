@@ -17,9 +17,8 @@ export const metadata: Metadata = {
 };
 
 const views = [
-  { key: "member", label: "Users" },
-  { key: "donor", label: "Donors" },
-  { key: "volunteer", label: "Volunteers" },
+  { key: "member", label: "Members" },
+  { key: "contributor", label: "Contributors" },
 ] as const satisfies ReadonlyArray<{ key: SignupRole; label: string }>;
 
 export default async function AdminPortal({
@@ -53,7 +52,7 @@ export default async function AdminPortal({
         <div>
           <p className={styles.eyebrow}>ADMINISTRATION</p>
           <h1>People database</h1>
-          <p>Manage member, donor, and volunteer accounts.</p>
+          <p>Manage member and contributor accounts.</p>
         </div>
         <div className={styles.headerActions}>
           <span>Signed in as {staffUser.email ?? "Staff"}</span>

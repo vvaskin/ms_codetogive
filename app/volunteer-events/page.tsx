@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { VolunteerEventsFeed } from "@/components/VolunteerEventsFeed";
 import type { Locale } from "@/content/site-data";
+import {
+  getVolunteerApplication,
+  isApprovedVolunteer,
+} from "@/lib/server/volunteer-application";
 import { getSessionProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,12 +40,17 @@ export default async function VolunteerEventsPage({
   ]);
 
   let registeredEventIds: number[] = [];
+  let approvedVolunteer = false;
   if (profile) {
-    const { data: participations } = await supabase
-      .from("event_participations")
-      .select("event_id")
-      .eq("user_id", profile.id);
+    const [{ data: participations }, application] = await Promise.all([
+      supabase
+        .from("event_participations")
+        .select("event_id")
+        .eq("user_id", profile.id),
+      getVolunteerApplication(profile.id, supabase),
+    ]);
     registeredEventIds = (participations ?? []).map((row) => row.event_id);
+    approvedVolunteer = isApprovedVolunteer(application);
   }
 
   const { lang } = await searchParams;
@@ -51,6 +60,7 @@ export default async function VolunteerEventsPage({
     <VolunteerEventsFeed
       events={events ?? []}
       sessionRole={profile && profile.role !== "staff" ? profile.role : null}
+      isApprovedVolunteer={approvedVolunteer}
       registeredEventIds={registeredEventIds}
       locale={locale}
     />

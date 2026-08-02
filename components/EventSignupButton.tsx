@@ -12,6 +12,8 @@ type Props = {
   eventId: number;
   locale: Locale;
   sessionRole: UserRole | null;
+  /** True when the current user is a contributor with an approved volunteer application. */
+  isApprovedVolunteer?: boolean;
   signedUp: boolean;
 };
 
@@ -19,7 +21,13 @@ function pick(locale: Locale, en: string, zh: string, cn: string) {
   return locale === "cn" ? cn : locale === "zh" ? zh : en;
 }
 
-export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Props) {
+export function EventSignupButton({
+  eventId,
+  locale,
+  sessionRole,
+  isApprovedVolunteer = false,
+  signedUp,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(signedUp);
@@ -37,7 +45,7 @@ export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Pr
     setError(null);
     const res = await registerForEvent({
       eventId,
-      interest: sessionRole === "volunteer" ? interestValue : null,
+      interest: isApprovedVolunteer ? interestValue : null,
       guestName: sessionRole ? null : name ?? null,
       guestEmail: sessionRole ? null : email ?? null,
     });
@@ -66,7 +74,7 @@ export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Pr
     );
   }
 
-  if (sessionRole === "volunteer") {
+  if (isApprovedVolunteer) {
     if (!open) {
       return (
         <button className={styles.primary} onClick={() => setOpen(true)} type="button">

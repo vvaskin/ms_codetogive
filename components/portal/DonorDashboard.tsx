@@ -1,16 +1,25 @@
 import Link from "next/link";
-import {
-  donationHistory,
-  formatCurrency,
-  upcomingEvents,
-} from "@/lib/portal/mock-data";
+import { formatCurrency, upcomingEvents } from "@/lib/portal/mock-data";
+import { createClient } from "@/lib/supabase/server";
 import { DashboardHead } from "./DashboardHead";
 import { EventCarousel } from "./EventCarousel";
 import { ImpactPanel } from "./ImpactPanel";
 import styles from "./dashboard.module.css";
 
-export function DonorDashboard({ name }: { name: string }) {
-  const totalDonated = donationHistory.reduce((sum, r) => sum + r.amount, 0);
+export async function DonorDashboard({ name }: { name: string }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: rows } = user
+    ? await supabase
+        .from("donations")
+        .select("amount_cents, status")
+        .eq("donor_id", user.id)
+    : { data: [] as Array<{ amount_cents: number; status: string }> };
+  const totalCents = (rows ?? [])
+    .filter((r) => r.status === "completed" || r.status === "active")
+    .reduce((sum, r) => sum + r.amount_cents, 0);
 
   return (
     <>
@@ -18,7 +27,7 @@ export function DonorDashboard({ name }: { name: string }) {
         title={`Welcome back, ${name.split(" ")[0]}`}
         subtitle="Here is what is happening and the difference you are making."
         stat={{
-          value: formatCurrency(totalDonated),
+          value: formatCurrency(totalCents / 100),
           label: "Total donated",
         }}
       />
@@ -36,7 +45,7 @@ export function DonorDashboard({ name }: { name: string }) {
 
         <section className={styles.card}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>My impact</h2>
+            <h2 className={styles.cardTitle}>My donations</h2>
             <Link href="/portal/impact" className={styles.cardHeadLink}>
               Details ➜
             </Link>

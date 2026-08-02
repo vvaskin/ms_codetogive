@@ -13,8 +13,12 @@ export type DonationKind = Database["public"]["Enums"]["donation_kind"];
 export type DonationFrequency =
   Database["public"]["Enums"]["donation_frequency"];
 export type DonationStatus = Database["public"]["Enums"]["donation_status"];
+export type VolunteerApplicationStatus =
+  Database["public"]["Enums"]["volunteer_application_status"];
 
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
+export type VolunteerApplicationRow =
+  Database["public"]["Tables"]["volunteer_applications"]["Row"];
 export type EventRow = Database["public"]["Tables"]["events"]["Row"];
 export type EventParticipationRow =
   Database["public"]["Tables"]["event_participations"]["Row"];

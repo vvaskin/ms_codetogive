@@ -13,16 +13,13 @@ const roleContent: Record<
     intro: "Your personal Love 21 member space.",
     placeholder: "Member updates and programme information will appear here.",
   },
-  donor: {
+  contributor: {
     intro: "Your personal Love 21 supporter space.",
-    placeholder: "Donation information and supporter updates will appear here.",
-  },
-  volunteer: {
-    intro: "Your personal Love 21 volunteer space.",
     placeholder:
-      "Volunteer opportunities and event information will appear here.",
+      "Donation history and volunteering updates will appear here.",
   },
-  // TODO: staff admin console. For now, staff falls through to the member view.
+  // Staff is redirected to /admin by the portal layout; this key is unreachable
+  // but kept so the Record type covers every UserRole value.
   staff: {
     intro: "Your Love 21 staff space.",
     placeholder: "Admin tools will appear here.",
