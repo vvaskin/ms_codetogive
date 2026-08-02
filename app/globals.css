@@ -1,6 +1,37 @@
 @import "../styles/tokens.css";
 @import "../styles/base.css";
 
+/*
+ * Site-wide quiet development badge.
+ * Component styles live in CSS Modules.
+ */
+
+.development-ribbon {
+  position: fixed;
+  z-index: 40;
+  left: 12px;
+  bottom: 72px;
+  max-width: 200px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(41, 35, 32, 0.72);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+body.admin-view .development-ribbon {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .development-ribbon {
+    display: none;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Donor / member portal                                              */
 /* ------------------------------------------------------------------ */
