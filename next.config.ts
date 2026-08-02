@@ -7,9 +7,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.dirname(fileURLToPath(import.meta.url)),
   },
-  images: {
-    localPatterns: [{ pathname: "/assets/images/**" }],
-  },
 };
 
 export default nextConfig;

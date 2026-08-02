@@ -415,18 +415,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      submit_volunteer_application: {
-        Args: {
-          p_age_group?: string
-          p_bio?: string
-          p_gender?: string
-          p_referral_source?: string
-          p_scrc_check_doc?: string
-          p_user_id: string
-          p_volunteer_policy_doc?: string
-        }
-        Returns: Database["public"]["Enums"]["volunteer_application_status"]
-      }
+      [_ in never]: never
     }
     Enums: {
       donation_frequency: "monthly" | "quarterly" | "yearly"

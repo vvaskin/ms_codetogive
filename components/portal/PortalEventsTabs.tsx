@@ -70,7 +70,7 @@ export function PortalEventsTabs({
           className={`${styles.tab} ${tab === "upcoming" ? styles.tabActive : ""}`}
           onClick={() => setTab("upcoming")}
         >
-          Upcoming Events
+          Upcoming
           <span className={styles.count}>{upcoming.length}</span>
         </button>
         <button
@@ -80,7 +80,7 @@ export function PortalEventsTabs({
           className={`${styles.tab} ${tab === "mine" ? styles.tabActive : ""}`}
           onClick={() => setTab("mine")}
         >
-          My Events
+          My events
           <span className={styles.count}>{mine.length}</span>
         </button>
       </div>

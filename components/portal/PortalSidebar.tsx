@@ -23,44 +23,26 @@ const roleLabels: Record<UserRole, string> = {
   staff: "Staff",
 };
 
-<<<<<<< HEAD
-const consoleLabels: Record<UserRole, string> = {
-  member: "Member's portal",
-  contributor: "Contributor's portal",
-  // TODO: staff admin console — falls through to member's flat nav for now.
-  staff: "Staff's portal",
-};
-
-type NavItem = { href: string; label: string; external?: boolean };
-=======
 type NavItem = { href: string; label: string; icon: string; external?: boolean };
->>>>>>> portals
 
 // Flat nav list per role. Only routes we actually have.
 function navItemsFor(role: UserRole): NavItem[] {
   const items: NavItem[] = [
-    { href: "/portal", label: "Home" },
+    { href: "/portal", label: "Home", icon: "🏠" },
   ];
 
   if (role === "contributor") {
     items.push(
-<<<<<<< HEAD
-      { href: "/portal/impact", label: "Impact" },
-      { href: "/portal/volunteer-application", label: "Volunteer Application" },
-      { href: "/portal/events", label: "My Volunteering" },
-      { href: "/portal/donate", label: "Donate" },
-=======
       { href: "/portal/impact", label: "My Donations", icon: "♡" },
       { href: "/portal/volunteering", label: "My Volunteering", icon: "✦" },
       { href: "/portal/events", label: "Events", icon: "📅" },
       { href: "/portal/donate", label: "Donate", icon: "＋" },
->>>>>>> portals
     );
   } else {
-    items.push({ href: "/portal/events", label: "My Volunteering" });
+    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
   }
 
-  items.push({ href: "/portal/profile", label: "Profile" });
+  items.push({ href: "/portal/profile", label: "Profile", icon: "☺" });
 
   return items;
 }

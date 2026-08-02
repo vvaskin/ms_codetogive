@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ImpactPanel } from "@/components/portal/ImpactPanel";
-import { isContributorRole } from "@/lib/roles";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {

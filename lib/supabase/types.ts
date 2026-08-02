@@ -27,7 +27,3 @@ export type EventGuestSignupRow =
 export type DonationRow = Database["public"]["Tables"]["donations"]["Row"];
 export type InstagramPostRow =
   Database["public"]["Tables"]["instagram_posts"]["Row"];
-export type VolunteerApplicationRow =
-  Database["public"]["Tables"]["volunteer_applications"]["Row"];
-export type VolunteerApplicationStatus =
-  Database["public"]["Enums"]["volunteer_application_status"];

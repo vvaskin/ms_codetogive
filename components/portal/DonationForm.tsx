@@ -1,11 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { jsPDF } from "jspdf";
 import { recordDonation } from "@/app/actions/donations";
 import {
+  buildDonorCertificateHtml,
   generateDonorCertId,
-  renderDonorCertificate,
 } from "@/lib/donor-certificate";
 import { useUser } from "@/lib/supabase/use-user";
 import {
@@ -50,7 +49,6 @@ export function DonationForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [certifying, setCertifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
@@ -93,101 +91,46 @@ export function DonationForm({
 
   async function downloadCertificate() {
     if (!confirmation) return;
-    setCertifying(true);
-    try {
-      const certId = generateDonorCertId();
-      const issueDate = new Date().toLocaleDateString("en-HK", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      const recipient = donorName?.trim() || name.trim() || "Valued Donor";
-      const logo = await loadLogoImage();
-
-      await ensureCertFonts();
-
-      const canvas = renderDonorCertificate({
-        name: recipient,
-        amount: confirmation.amount,
-        certId,
-        issueDate,
-        logo,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [canvas.width, canvas.height],
-      });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save(
-        `Love21_Donor_Certificate_${recipient.replace(/\s+/g, "_")}.pdf`,
-      );
-    } catch (err) {
-      console.error("Error generating certificate PDF:", err);
-      setError("Could not generate the certificate. Please try again.");
-    } finally {
-      setCertifying(false);
-    }
-  }
-
-  async function loadLogoImage(): Promise<HTMLImageElement | null> {
-    try {
-      const src = await logoDataUri();
-      const img = new Image();
-      img.src = src;
-      await img.decode();
-      return img;
-    } catch {
-      return null;
-    }
-  }
-
-  async function ensureCertFonts(): Promise<void> {
-    try {
-      if (!document.querySelector('link[data-cert-fonts]')) {
-        const link = document.createElement("link");
-        link.dataset.certFonts = "true";
-        link.href =
-          "https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap";
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-      }
-      if (document.fonts) {
-        await document.fonts.ready;
-        await Promise.all([
-          document.fonts.load('800 36px "Baloo 2"'),
-          document.fonts.load('800 48px "Baloo 2"'),
-          document.fonts.load('700 20px "Baloo 2"'),
-          document.fonts.load('700 12px "Space Mono"'),
-          document.fonts.load('400 10px "Space Mono"'),
-          document.fonts.load('600 12px "Work Sans"'),
-          document.fonts.load('400 14px "Work Sans"'),
-          document.fonts.load('700 12px "Work Sans"'),
-        ]);
-        await document.fonts.ready;
-      }
-    } catch {
-      // Fonts are a nice-to-have; fall back to system fonts if unavailable.
-    }
+    const certId = generateDonorCertId();
+    const issueDate = new Date().toLocaleDateString("en-HK", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const logoSrc = await logoDataUri();
+    const html = buildDonorCertificateHtml({
+      name: donorName?.trim() || name.trim() || "Valued Donor",
+      amount: confirmation.amount,
+      certId,
+      issueDate,
+      logoSrc,
+    });
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "donor-cart.html";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   async function logoDataUri(): Promise<string> {
     try {
-      const response = await fetch("/assets/images/love21_logo.png?v=2");
-      if (!response.ok) return "/assets/images/love21_logo.png?v=2";
+      const response = await fetch("/assets/images/love21_logo.png");
+      if (!response.ok) return "/assets/images/love21_logo.png";
       const blob = await response.blob();
       return await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () =>
           resolve(reader.result as string);
         reader.onerror = () =>
-          resolve("/assets/images/love21_logo.png?v=2");
+          resolve("/assets/images/love21_logo.png");
         reader.readAsDataURL(blob);
       });
     } catch {
-      return "/assets/images/love21_logo.png?v=2";
+      return "/assets/images/love21_logo.png";
     }
   }
 
@@ -231,9 +174,8 @@ export function DonationForm({
           type="button"
           className="donation-cert-btn"
           onClick={downloadCertificate}
-          disabled={certifying}
         >
-          {certifying ? "Preparing PDF…" : "Download certificate (PDF)"}
+          Download certificate
         </button>
         <button
           type="button"

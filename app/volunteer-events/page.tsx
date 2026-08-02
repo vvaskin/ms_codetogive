@@ -63,7 +63,6 @@ export default async function VolunteerEventsPage({
       isApprovedVolunteer={approvedVolunteer}
       registeredEventIds={registeredEventIds}
       locale={locale}
-      volunteerApproved={volunteerApproved}
     />
   );
 }

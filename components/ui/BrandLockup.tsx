@@ -16,7 +16,7 @@ export function BrandLockup({
       aria-label="Love 21"
     >
       <Image
-        src="/assets/images/love21_logo.png?v=2"
+        src="/assets/images/love21_logo.png"
         alt=""
         width={330}
         height={202}

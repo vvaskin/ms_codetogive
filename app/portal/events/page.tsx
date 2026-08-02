@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/supabase/types";
 
 export const metadata: Metadata = {
-  title: "My Volunteering",
+  title: "Events",
   description: "Browse upcoming events and the ones you've signed up for.",
 };
 
@@ -33,25 +33,6 @@ export default async function PortalEventsPage({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login?next=/portal/events");
-
-  // Contributors can only see My Volunteering once their application is
-  // approved; members and pending contributors are redirected.
-  const { data: profile } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.role === "contributor") {
-    const { data: application } = await supabase
-      .from("volunteer_applications")
-      .select("status")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (application?.status !== "approved") {
-      redirect("/portal/volunteer-application");
-    }
-  }
 
   // Portal chrome is currently en-only; the ?lang= override lets us render
   // localized event content without waiting on locale-scoped portal routes.
@@ -91,7 +72,7 @@ export default async function PortalEventsPage({
   return (
     <>
       <DashboardHead
-        title="My Volunteering"
+        title="Events"
         subtitle="Browse what's coming up and see the events you've signed up for."
       />
       <PortalEventsTabs upcoming={upcoming} mine={mine} locale={locale} />

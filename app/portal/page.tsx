@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ContributorDashboard } from "@/components/portal/ContributorDashboard";
+import { DonorDashboard } from "@/components/portal/DonorDashboard";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
-import { isContributorRole } from "@/lib/roles";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {

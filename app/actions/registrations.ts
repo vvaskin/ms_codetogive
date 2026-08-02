@@ -11,7 +11,7 @@ import { VOLUNTEER_INTEREST_VALUES } from "@/lib/volunteer-interests";
 
 export interface RegisterForEventInput {
   eventId: number;
-  /** Contributors only — the role they want for this event. */
+  /** Volunteers only — the role they want for this event. */
   interest?: string | null;
   /** Guests only — required when the visitor is logged out. */
   guestName?: string | null;
@@ -22,7 +22,7 @@ export interface RegisterForEventResult {
   ok: boolean;
   error?: string;
   /** Which sign-up path was taken. */
-  mode?: "contributor" | "member" | "guest";
+  mode?: "volunteer" | "member" | "guest";
 }
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -30,8 +30,8 @@ const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 /**
  * Signs a visitor up for an event.
  *
- * - Authenticated contributors pick an interest; their row stores user_id + interest.
- * - Authenticated members sign up under their own account (no interest).
+ * - Authenticated volunteers pick an interest; their row stores user_id + interest.
+ * - Authenticated members/donors sign up under their own account (no interest).
  * - Logged-out guests provide a name + email; their row stores guest_name +
  *   guest_email with user_id NULL (no account is created).
  */

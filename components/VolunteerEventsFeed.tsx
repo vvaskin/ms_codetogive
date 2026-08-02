@@ -41,14 +41,12 @@ export function VolunteerEventsFeed({
   isApprovedVolunteer = false,
   registeredEventIds,
   locale,
-  volunteerApproved = false,
 }: {
   events: FeedEvent[];
   sessionRole: UserRole | null;
   isApprovedVolunteer?: boolean;
   registeredEventIds: number[];
   locale: Locale;
-  volunteerApproved?: boolean;
 }) {
   return (
     <section className={styles.page}>
@@ -76,7 +74,6 @@ export function VolunteerEventsFeed({
               isApprovedVolunteer={isApprovedVolunteer}
               registered={registeredEventIds.includes(event.id)}
               locale={locale}
-              volunteerApproved={volunteerApproved}
             />
           ))}
         </div>
@@ -91,14 +88,12 @@ function EventCard({
   isApprovedVolunteer,
   registered,
   locale,
-  volunteerApproved,
 }: {
   event: FeedEvent;
   sessionRole: UserRole | null;
   isApprovedVolunteer: boolean;
   registered: boolean;
   locale: Locale;
-  volunteerApproved: boolean;
 }) {
   const title = pickLocalized(event, "title", locale) ?? event.title;
   const location = pickLocalized(event, "location", locale) ?? event.location;
@@ -144,7 +139,6 @@ function EventCard({
           sessionRole={sessionRole}
           isApprovedVolunteer={isApprovedVolunteer}
           signedUp={registered}
-          volunteerApproved={volunteerApproved}
         />
       </div>
     </article>

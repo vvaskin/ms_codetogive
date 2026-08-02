@@ -186,22 +186,13 @@ export async function PageRenderer({
       const calendarEvents = await getPublishedCalendarEvents();
       const profile = await getSessionProfile();
       let registeredEventIds: number[] = [];
-      let volunteerApproved = false;
       if (profile) {
         const supabase = await createClient();
-        const [participations, application] = await Promise.all([
-          supabase
-            .from("event_participations")
-            .select("event_id")
-            .eq("user_id", profile.id),
-          supabase
-            .from("volunteer_applications")
-            .select("status")
-            .eq("user_id", profile.id)
-            .maybeSingle(),
-        ]);
-        registeredEventIds = (participations?.data ?? []).map((row) => row.event_id);
-        volunteerApproved = application?.data?.status === "approved";
+        const { data } = await supabase
+          .from("event_participations")
+          .select("event_id")
+          .eq("user_id", profile.id);
+        registeredEventIds = (data ?? []).map((row) => row.event_id);
       }
       return (
         <ActivitiesExperience
@@ -211,7 +202,6 @@ export async function PageRenderer({
             profile && profile.role !== "staff" ? profile.role : null
           }
           registeredEventIds={registeredEventIds}
-          volunteerApproved={volunteerApproved}
         />
       );
     }

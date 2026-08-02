@@ -41,14 +41,12 @@ export function ActivitiesExperience({
   sessionRole = null,
   isApprovedVolunteer = false,
   registeredEventIds = [],
-  volunteerApproved = false,
 }: {
   locale: Locale;
   events: ActivityEvent[];
   sessionRole?: UserRole | null;
   isApprovedVolunteer?: boolean;
   registeredEventIds?: number[];
-  volunteerApproved?: boolean;
 }) {
   const today = hongKongDateKey();
   const nextEventDate =
@@ -175,7 +173,6 @@ export function ActivitiesExperience({
                       sessionRole={sessionRole}
                       isApprovedVolunteer={isApprovedVolunteer}
                       signedUp={registeredEventIds.includes(activity.dbId)}
-                      volunteerApproved={volunteerApproved}
                     />
                   ) : (
                     <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>
@@ -305,7 +302,6 @@ export function ActivitiesExperience({
                           sessionRole={sessionRole}
                           isApprovedVolunteer={isApprovedVolunteer}
                           signedUp={registeredEventIds.includes(event.dbId)}
-                          volunteerApproved={volunteerApproved}
                         />
                       ) : (
                         <button type="button" disabled>{pick("Details coming later", "詳情稍後公佈", "详情稍后公布")}</button>

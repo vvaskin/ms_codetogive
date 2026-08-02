@@ -123,7 +123,6 @@ function JoinMenu({
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = normalizePath(usePathname() || "/");
-  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
   const locale: Locale = pathname.startsWith("/cn/")
     ? "cn"
     : pathname.startsWith("/zh/")
@@ -159,9 +158,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const signOutPendingLabel = pick("Signing out…", "登出中…", "退出中…");
   const volunteerPath = pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/");
   const volunteerSignupPath = pick(
-    "/signup?role=contributor",
-    "/zh/signup-hk/?role=contributor",
-    "/cn/signup-hk/?role=contributor",
+    "/signup?role=volunteer",
+    "/zh/signup-hk/?role=volunteer",
+    "/cn/signup-hk/?role=volunteer",
   );
   const volunteerLabel = pick("Volunteer", "做義工", "做义工");
   const donatePath = pick("/donate/", "/zh/donate-hk/", "/cn/donate/");

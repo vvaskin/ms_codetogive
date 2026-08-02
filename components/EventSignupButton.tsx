@@ -5,7 +5,8 @@ import { useState } from "react";
 import { registerForEvent } from "@/app/actions/registrations";
 import { VOLUNTEER_INTERESTS, type VolunteerInterest } from "@/lib/volunteer-interests";
 import type { Locale } from "@/content/site-data";
-import { isContributorRole, type UserRole } from "@/lib/roles";import styles from "./EventSignupButton.module.css";
+import type { UserRole } from "@/lib/roles";
+import styles from "./EventSignupButton.module.css";
 
 type Props = {
   eventId: number;
@@ -14,8 +15,6 @@ type Props = {
   /** True when the current user is a contributor with an approved volunteer application. */
   isApprovedVolunteer?: boolean;
   signedUp: boolean;
-  /** True when the signed-in contributor's application is approved. */
-  volunteerApproved?: boolean;
 };
 
 function pick(locale: Locale, en: string, zh: string, cn: string) {
@@ -68,7 +67,7 @@ export function EventSignupButton({
         </p>
         {sessionRole ? (
           <Link className={styles.link} href="/portal/events">
-            {pick(locale, "View in My Volunteering", "在「我的義工服務」查看", '在"我的义工服务"查看')}
+            {pick(locale, "View in My Events", "在「我的活動」查看", '在"我的活动"查看')}
           </Link>
         ) : null}
       </div>

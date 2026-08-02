@@ -383,7 +383,7 @@ export function AuthForm({
           <fieldset className={styles.rolePicker}>
             <legend>{lang.accountType}</legend>
             <div className={styles.roleOptions}>
-              {PUBLIC_SIGNUP_ROLES.map((value) => (
+              {USER_ROLES.map((value) => (
                 <label
                   className={`${styles.roleOption} ${role === value ? styles.selected : ""}`}
                   key={value}
