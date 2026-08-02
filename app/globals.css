@@ -873,8 +873,13 @@
   transition: background-color 120ms ease, transform 120ms ease;
 }
 
-.donation-cert-btn:hover {
+.donation-cert-btn:hover:not(:disabled) {
   background: color-mix(in srgb, var(--love-red) 88%, #000);
+}
+
+.donation-cert-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* Portal responsive */
