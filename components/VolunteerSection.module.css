@@ -1,0 +1,100 @@
+.section {
+  padding: 72px 0;
+  background: #eef5ff;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 80px);
+}
+
+.intro {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.08);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.heading1 {
+  font-family: "Nunito", sans-serif;
+  font-weight: 900;
+  font-size: clamp(26px, 4vw, 34px);
+  color: #2a2320;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.heading2 {
+  font-family: "Shantell Sans", cursive;
+  font-weight: 700;
+  font-size: clamp(24px, 3.8vw, 32px);
+  color: #ff3669;
+  line-height: 1.35;
+  margin: 4px 0 12px;
+}
+
+.subtitle {
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  color: #5b6472;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.ctaRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  background: #ff3669;
+  border-radius: 100px;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.ctaButton:hover {
+  background: #e62e5c;
+}
+
+.ctaLink {
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #1677ff;
+  text-decoration: none;
+}
+
+.ctaLink:hover {
+  text-decoration: underline;
+}

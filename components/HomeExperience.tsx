@@ -10,7 +10,11 @@ import {
 import type { Locale } from "../content/site-data";
 import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
 import { CountUp } from "./CountUp";
+import type { UpcomingEvent } from "./EventsCarousel";
+import { GiveSection } from "./GiveSection";
+import { NeurodiversitySection } from "./NeurodiversitySection";
 import { HeartIcon } from "./ui/HeartIcon";
+import { VolunteerSection } from "./VolunteerSection";
 import styles from "./HomeExperience.module.css";
 
 const toneClasses: Record<HomepageCardTone, string> = {
@@ -113,6 +117,66 @@ function InstagramFeedCard({
   );
 }
 
+const upcomingEvents: UpcomingEvent[] = [
+  {
+    id: "sports-day",
+    title: {
+      en: "Sports Day — Adaptive Swimming",
+      zh: "運動日——自適應游泳",
+      cn: "运动日——自适应游泳",
+    },
+    date: { en: "SAT, AUG 9", zh: "8月9日 週六", cn: "8月9日 周六" },
+    time: { en: "10:00 AM", zh: "上午10:00", cn: "上午10:00" },
+    location: {
+      en: "Victoria Park Pool",
+      zh: "維多利亞公園游泳池",
+      cn: "维多利亚公园游泳池",
+    },
+    href: "/events",
+    tone: "pink",
+    category: { en: "Sport", zh: "運動", cn: "运动" },
+    ctaLabel: { en: "Register", zh: "報名", cn: "报名" },
+  },
+  {
+    id: "nutrition-workshop",
+    title: {
+      en: "Nutrition Workshop: Healthy Snacks",
+      zh: "營養工作坊：健康小食",
+      cn: "营养工作坊：健康小食",
+    },
+    date: { en: "SUN, AUG 17", zh: "8月17日 週日", cn: "8月17日 周日" },
+    time: { en: "2:00 PM", zh: "下午2:00", cn: "下午2:00" },
+    location: {
+      en: "Love 21 Space",
+      zh: "Love 21 Space",
+      cn: "Love 21 Space",
+    },
+    href: "/events",
+    tone: "mint",
+    category: { en: "Nutrition", zh: "營養", cn: "营养" },
+    ctaLabel: { en: "Register", zh: "報名", cn: "报名" },
+  },
+  {
+    id: "family-fun-day",
+    title: {
+      en: "Family Fun Day — Art & Movement",
+      zh: "家庭同樂日——藝術與運動",
+      cn: "家庭同乐日——艺术与运动",
+    },
+    date: { en: "SAT, AUG 23", zh: "8月23日 週六", cn: "8月23日 周六" },
+    time: { en: "11:00 AM", zh: "上午11:00", cn: "上午11:00" },
+    location: {
+      en: "Love 21 Space",
+      zh: "Love 21 Space",
+      cn: "Love 21 Space",
+    },
+    href: "/events",
+    tone: "sky",
+    category: { en: "Family", zh: "家庭", cn: "家庭" },
+    ctaLabel: { en: "Open registration", zh: "開放報名", cn: "开放报名" },
+  },
+];
+
 export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
   const content = homepageContent;
   const isChinese = locale !== "en";
@@ -123,6 +187,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
+      {/* ─── HERO ─── */}
       <section className={styles.hero} aria-labelledby="homepage-title">
         <span className={styles.heroBlobOne} aria-hidden="true" />
         <span className={styles.heroBlobTwo} aria-hidden="true" />
@@ -213,6 +278,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
+      {/* ─── IMPACT SHOWCASE ─── */}
       <section
         className={styles.impactShowcase}
         aria-labelledby="impact-showcase-title"
@@ -245,6 +311,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
+      {/* ─── FEATURED STORY (panelTitle removed) ─── */}
       <section className={styles.featuredStory} aria-labelledby="featured-story-title">
         <span className={styles.featuredStoryBgHearts} aria-hidden="true">
           <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartBgOne}`} />
@@ -273,12 +340,11 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               </div>
               <div className={styles.featuredStoryPanel}>
                 <p>{t(content.featuredStory.panelLabel, locale)}</p>
-                <h3>{t(content.featuredStory.panelTitle, locale)}</h3>
                 <p className={styles.featuredStoryContext}>
                   {t(content.featuredStory.context, locale)}
                 </p>
                 <blockquote className={styles.featuredStoryQuote}>
-                  <p>“{t(content.featuredStory.quote, locale)}”</p>
+                  <p>"{t(content.featuredStory.quote, locale)}"</p>
                 </blockquote>
                 <div className={styles.featuredStoryFooter}>
                   <cite>{t(content.featuredStory.attribution, locale)}</cite>
@@ -292,8 +358,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
-      {/* Featured Stories + Stories of Ability temporarily hidden; content kept in homepage.ts */}
-
+      {/* ─── LEARN ABOUT OUR COMMUNITY ─── */}
       <section className={styles.education} aria-labelledby="education-title">
         <div className={styles.standardInner}>
           <header className={styles.educationIntro}>
@@ -331,6 +396,16 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
+      {/* ─── VOLUNTEERS + EVENTS CAROUSEL ─── */}
+      <VolunteerSection events={upcomingEvents} locale={locale} />
+
+      {/* ─── GIVE — TIME OR MONEY ─── */}
+      <GiveSection locale={locale} />
+
+      {/* ─── NEURODIVERSITY HUB (compact) ─── */}
+      <NeurodiversitySection locale={locale} />
+
+      {/* ─── SOCIAL FEED ─── */}
       <section className={styles.socialFeed} aria-labelledby="social-feed-title">
         <div className={styles.wideInner}>
           <div className={styles.sectionHeadingRow}>
@@ -358,8 +433,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         </div>
       </section>
 
-      {/* volunteerCta sky band intentionally not rendered; Volunteer lives in donateCta below.
-          Restore from content.volunteerCta if a standalone band is needed again. */}
+      {/* ─── COMMUNITY CTA BAND ─── */}
       <section className={styles.donateCta} aria-labelledby="donate-cta-title">
         <div className={styles.standardInner}>
           <div>

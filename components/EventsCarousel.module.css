@@ -1,0 +1,216 @@
+.wrapper {
+  padding: 0;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 80px);
+}
+
+.headingRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.eyebrow {
+  font-family: "Shantell Sans", cursive;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: lowercase;
+  color: #ff3669;
+  margin-bottom: 6px;
+}
+
+.heading {
+  font-family: "Nunito", sans-serif;
+  font-weight: 900;
+  font-size: clamp(24px, 4vw, 30px);
+  color: #2a2320;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.seeAll {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1677ff;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.seeAll:hover {
+  text-decoration: underline;
+}
+
+/* ─── Infinite marquee ─── */
+
+.marquee {
+  overflow: hidden;
+  padding: 4px 0;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: scroll 30s linear infinite;
+}
+
+.track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─── Cards ─── */
+
+.card {
+  flex: 0 0 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #ece4da;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(42, 35, 32, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ─── Image / placeholder area ─── */
+
+.cardImageArea {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.pink .cardImageArea {
+  background: #fff1f5;
+}
+.sky .cardImageArea {
+  background: #eaf6fc;
+}
+.mint .cardImageArea {
+  background: #ecfdf5;
+}
+.yellow .cardImageArea {
+  background: #fffbeb;
+}
+
+/* ─── Category tag ─── */
+
+.categoryTag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  color: #fff;
+}
+
+.tag_pink {
+  background: #ff3669;
+}
+.tag_sky {
+  background: #1677ff;
+}
+.tag_mint {
+  background: #10b981;
+}
+.tag_yellow {
+  background: #d97706;
+}
+
+/* ─── Card body ─── */
+
+.cardBody {
+  padding: 20px;
+}
+
+.cardDate {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #5b6472;
+  margin-bottom: 8px;
+}
+
+.cardBody h3 {
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: #2a2320;
+  line-height: 1.35;
+  margin: 0 0 12px;
+}
+
+/* ─── Register tags ─── */
+
+.registerTag {
+  display: inline-block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.reg_pink {
+  background: #ff3669;
+  color: #fff;
+}
+.reg_sky {
+  background: #1677ff;
+  color: #fff;
+}
+.reg_mint {
+  background: #10b981;
+  color: #fff;
+}
+.reg_yellow {
+  background: #d97706;
+  color: #fff;
+}
+
+.registerTag:hover {
+  opacity: 0.85;
+}
+
+.cardLink {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1677ff;
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
