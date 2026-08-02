@@ -1,15 +1,188 @@
+.portal {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 14% 18%, var(--portal-pink-soft) 0, var(--portal-pink-soft) 18%, transparent 19%),
+    radial-gradient(circle at 86% 10%, var(--portal-blue-soft) 0, var(--portal-blue-soft) 14%, transparent 15%),
+    var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.portalHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid var(--portal-border);
+  background: var(--color-white);
+}
+
+.brandGroup,
+.brandLink,
+.headerUtility,
+.profileButton,
+.iconButton {
+  display: flex;
+  align-items: center;
+}
+
+.brandGroup {
+  flex: 0 0 auto;
+}
+
+.brandLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.brandLogo {
+  display: block;
+  width: auto;
+  height: 32px;
+  object-fit: contain;
+}
+
+.portalLabel {
+  margin-left: 0.55rem;
+  color: var(--portal-ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.portalNav {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+  scrollbar-width: thin;
+}
+
+.navButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--portal-muted);
+  font: 600 0.78rem/1 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.navButton:hover,
+.navButton:focus-visible {
+  background: var(--portal-pink-soft);
+  color: var(--portal-pink-deep);
+}
+
+.navButtonActive,
+.navButtonActive:hover,
+.navButtonActive:focus-visible {
+  background: var(--portal-pink-chip);
+  color: var(--portal-pink-deep);
+  box-shadow: inset 0 0 0 1px var(--portal-pink-border);
+}
+
+.navButton:focus-visible,
+.profileButton:focus-visible,
+.iconButton:focus-visible,
+.websiteButton:focus-visible,
+.logoutButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--portal-blue) 30%, transparent);
+  outline-offset: 2px;
+}
+
+.headerUtility {
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.iconButton {
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--portal-muted-3);
+  cursor: pointer;
+}
+
+.iconButton:hover,
+.iconButton:focus-visible,
+.profileButton:hover,
+.profileButton:focus-visible,
+.profileButtonActive {
+  background: var(--portal-pink-soft);
+  color: var(--portal-pink-deep);
+}
+
+.profileButton {
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--portal-ink);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.avatar {
+  display: grid;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--portal-avatar);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px white;
+}
+
+.profileName {
+  max-width: 140px;
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .headerActions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 0.5rem;
 }
 
 .websiteButton,
 .logoutButton {
   min-height: 44px;
-  padding: 0 var(--space-4);
-  border-radius: var(--radius-pill);
-  font: 700 0.75rem/1 var(--font-body);
+  padding: 0 0.7rem;
+  border-radius: var(--radius-sm);
+  font: 700 0.78rem/1 var(--font-body);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -24,32 +197,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-blue);
+  border: 0;
   background: transparent;
-  color: var(--color-blue);
+  color: var(--portal-muted-2);
 }
 
 .logoutButton {
-  border: 1px solid var(--color-pink);
-  background: var(--color-pink);
-  color: white;
+  border: 1px solid var(--portal-border);
+  background: white;
+  color: var(--portal-pink-deep);
 }
 
 .websiteButton:hover,
 .websiteButton:focus-visible {
-  background: var(--color-sky);
+  background: var(--portal-pink-soft);
+  color: var(--portal-pink-deep);
 }
 
 .logoutButton:hover:not(:disabled),
 .logoutButton:focus-visible:not(:disabled) {
-  background: #d90663;
-  border-color: #d90663;
-}
-
-.websiteButton:focus-visible,
-.logoutButton:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--color-blue) 30%, transparent);
-  outline-offset: 2px;
+  border-color: var(--portal-pink);
+  background: var(--portal-pink-soft);
 }
 
 .websiteButton:active,
@@ -63,10 +231,8 @@
 }
 
 @media (max-width: 980px) {
-  .websiteButton,
-  .logoutButton {
-    padding-inline: var(--space-3);
-  }
+  .websiteButton { display: none; }
+  .profileName { display: none; }
 }
 
 /* ── Portal surface palette ─────────────────────────────────────────── */
@@ -162,4 +328,171 @@ html.high-contrast .portal {
   --portal-soft-bg-2: #fff;
   --portal-chip-overlay: #fff;
   --portal-shadow-soft: none;
+}
+
+/* ── Shared member-portal composition ─────────────────────────────── */
+
+.page {
+  width: min(100%, 1200px);
+  padding: 2rem clamp(1rem, 3.5vw, 3rem) 4rem;
+}
+
+.centeredPage {
+  padding-block: clamp(4rem, 9vw, 7rem);
+}
+
+.formPage {
+  padding-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.threeColumnGrid > div,
+.fourColumnGrid > div,
+.twoColumnGrid > div,
+.badgeGrid > div,
+.donationLayout > div {
+  min-width: 0;
+}
+
+.threeColumnGrid > div,
+.fourColumnGrid > div {
+  transition:
+    transform var(--motion-base),
+    box-shadow var(--motion-base);
+}
+
+.threeColumnGrid > div:hover,
+.fourColumnGrid > div:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 1100px) {
+  .badgeGrid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .donationLayout {
+    grid-template-columns: minmax(0, 1fr) 340px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .threeColumnGrid,
+  .fourColumnGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .donationLayout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filterRow {
+    flex-wrap: wrap;
+  }
+
+  .filterRow > div:first-child {
+    flex-basis: 100% !important;
+  }
+
+  .filterRow > input,
+  .filterRow > select {
+    max-width: none !important;
+    flex: 1 1 190px;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .centeredPage {
+    padding-block: 4rem;
+  }
+
+  .welcomeCard {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: 1.75rem 1.25rem !important;
+  }
+
+  .welcomeCard > div:last-child {
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .threeColumnGrid,
+  .fourColumnGrid,
+  .twoColumnGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .badgeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .portalHeader {
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .portalLabel,
+  .iconButton {
+    display: none;
+  }
+
+  .portalNav {
+    gap: 0.25rem;
+  }
+
+  .navButton {
+    padding-inline: 0.7rem;
+  }
+
+  .headerUtility,
+  .headerActions {
+    gap: 0.25rem;
+  }
+
+  .logoutButton {
+    padding-inline: 0.55rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandLogo {
+    height: 28px;
+  }
+
+  .badgeGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filterRow > button,
+  .filterRow > input,
+  .filterRow > select {
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threeColumnGrid > div,
+  .fourColumnGrid > div {
+    transition: none;
+  }
+
+  .threeColumnGrid > div:hover,
+  .fourColumnGrid > div:hover {
+    transform: none;
+  }
+}
+
+html.simple-view .portal .threeColumnGrid > div:hover,
+html.simple-view .portal .fourColumnGrid > div:hover {
+  transform: none;
+  box-shadow: none;
 }

@@ -673,7 +673,6 @@ const inputStyle: React.CSSProperties = {
 const pageStyle: React.CSSProperties = {
   maxWidth: 1200,
   margin: "0 auto",
-  padding: "40px 48px",
 };
 
 const eyebrowStyle: React.CSSProperties = {
@@ -720,8 +719,9 @@ function Dashboard({ name, data, go }: { name: string; data: ContributorPortalDa
   const attending = data.participations.filter((p) => p.status === "accepted").length;
 
   return (
-    <main style={pageStyle}>
+    <main className={styles.page} style={pageStyle}>
       <section
+        className={styles.welcomeCard}
         style={{
           backgroundColor: "var(--portal-pink-soft)",
           borderRadius: 16,
@@ -783,7 +783,7 @@ function Dashboard({ name, data, go }: { name: string; data: ContributorPortalDa
             <div style={{ fontSize: "0.8125rem", marginTop: 6 }}>{t("noUpcomingSub")}</div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          <div className={styles.threeColumnGrid} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {upcoming.slice(0, 6).map((ev) => {
               const tag = eventTag(ev.type);
               return (
@@ -858,7 +858,7 @@ function MyDonationsPage({ data }: { data: ContributorPortalData }) {
   const earnedCount = badges.filter((b) => b.earned).length;
 
   return (
-    <main style={pageStyle}>
+    <main className={styles.page} style={pageStyle}>
       <div style={{ marginBottom: 40 }}>
         <p style={eyebrowStyle}>{t("donorDashboard")}</p>
         <h1 style={pageTitleStyle}>{t("myDonationsTitle")}</h1>
@@ -868,7 +868,7 @@ function MyDonationsPage({ data }: { data: ContributorPortalData }) {
       <section style={{ marginBottom: 56 }}>
         <p style={sectionEyebrowStyle}>{t("yourImpact")}</p>
         <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("impactTitle")}</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div className={styles.fourColumnGrid} style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
           {stats.map((stat) => (
             <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 14, padding: "24px 20px" }}>
               <div style={{ color: stat.color, marginBottom: 10 }}>{stat.icon}</div>
@@ -887,7 +887,7 @@ function MyDonationsPage({ data }: { data: ContributorPortalData }) {
             {t("noDonationsYet")}
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div className={styles.twoColumnGrid} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             <div style={{ backgroundColor: "#fff", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "28px 32px" }}>
               <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--portal-ink)", marginBottom: 2 }}>{t("monthlyGiving")}</div>
               <div style={{ fontSize: "0.75rem", color: "var(--portal-muted-3)", marginBottom: 24 }}>{t("monthlyGivingSub")}</div>
@@ -943,7 +943,7 @@ function MyDonationsPage({ data }: { data: ContributorPortalData }) {
           </div>
         </div>
         <h2 style={{ ...sectionTitleStyle, marginBottom: 24 }}>{t("badgesTitle")}</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 16 }}>
+        <div className={styles.badgeGrid} style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 16 }}>
           {badges.map((badge) => (
             <div key={badge.labelKey} style={{ backgroundColor: badge.bg, borderRadius: 14, padding: "20px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
@@ -971,7 +971,7 @@ function VolunteerStatusCard({ data, go }: { data: ContributorPortalData; go: (n
   };
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
+    <main className={`${styles.page} ${styles.centeredPage}`} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
       <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: status === "approved" ? "var(--portal-teal-soft)" : "var(--portal-blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: status === "approved" ? "var(--portal-teal-deep)" : "var(--portal-blue-deep)" }}>
         <IcoCheck size={28} />
       </div>
@@ -1077,7 +1077,7 @@ function MyVolunteerPage({ data, go }: { data: ContributorPortalData; go: (nav: 
   }
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "40px 48px" }}>
+    <main className={`${styles.page} ${styles.formPage}`} style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{ marginBottom: 36 }}>
         <p style={eyebrowStyle}>{t("getInvolved")}</p>
         <h1 style={pageTitleStyle}>{t("becomeVolunteerTitle")}</h1>
@@ -1180,7 +1180,7 @@ function EventsLockedPage({ data, go }: { data: ContributorPortalData; go: (nav:
   };
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
+    <main className={`${styles.page} ${styles.centeredPage}`} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
       <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "var(--portal-pink-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "var(--portal-pink-deep)" }}>
         <IcoLock size={28} />
       </div>
@@ -1249,7 +1249,7 @@ function EventsPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) 
   ];
 
   return (
-    <main style={pageStyle}>
+    <main className={styles.page} style={pageStyle}>
       <div style={{ marginBottom: 32 }}>
         <p style={eyebrowStyle}>{t("getInvolved")}</p>
         <h1 style={pageTitleStyle}>{t("upcomingEventsTitle")}</h1>
@@ -1257,7 +1257,7 @@ function EventsPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) 
       </div>
 
       <div style={{ backgroundColor: "var(--portal-soft-bg)", border: "1px solid var(--portal-border)", borderRadius: 16, padding: "20px 24px", marginBottom: 28 }}>
-        <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+        <div className={styles.filterRow} style={{ display: "flex", gap: 12, marginBottom: 12 }}>
           <div style={{ flex: 1, position: "relative" }}>
             <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--portal-muted-6)", display: "flex", pointerEvents: "none" }}><IcoSearch size={16} /></span>
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} style={{ ...inputStyle, paddingLeft: 36 }} />
@@ -1290,7 +1290,7 @@ function EventsPage({ data, go }: { data: ContributorPortalData; go: (nav: Nav) 
           <div style={{ fontSize: "0.8125rem", marginTop: 6 }}>{t("noMatchSub")}</div>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+        <div className={styles.threeColumnGrid} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
           {filtered.map((ev) => {
             const tag = eventTag(ev.type);
             const participation = mine.find((m) => m.event.id === ev.id);
@@ -1451,7 +1451,7 @@ function DonatePage({ name }: { name: string }) {
 
   if (confirmation) {
     return (
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 48px", textAlign: "center" }}>
+      <main className={`${styles.page} ${styles.centeredPage}`} style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20, color: "var(--portal-pink)" }}><IcoHeart size={56} /></div>
         <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--portal-ink)", marginBottom: 12 }}>{t("thankYouTitle", { name: name.trim() ? firstName(name) : t("friend") })}</h1>
         <p style={{ fontSize: "1rem", color: "var(--portal-muted)", maxWidth: 480, margin: "0 auto 8px" }}>
@@ -1476,7 +1476,7 @@ function DonatePage({ name }: { name: string }) {
   }
 
   return (
-    <main style={pageStyle}>
+    <main className={styles.page} style={pageStyle}>
       <div style={{ marginBottom: 40 }}>
         <p style={eyebrowStyle}>{t("giveBack")}</p>
         <h1 style={pageTitleStyle}>{t("donationMattersTitle")}</h1>
@@ -1496,10 +1496,10 @@ function DonatePage({ name }: { name: string }) {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 32, alignItems: "start" }}>
+      <div className={styles.donationLayout} style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 32, alignItems: "start" }}>
         <div>
           <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "var(--portal-pink)", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 16px" }}>{t("chooseImpact")}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+          <div className={styles.twoColumnGrid} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
             {tiers.map((tier) => {
               const active = !customActive && amount === tier.amount;
               return (
@@ -1605,7 +1605,7 @@ function ProfilePage({ name, data, onBack }: { name: string; data: ContributorPo
   ];
 
   return (
-    <main style={pageStyle}>
+    <main className={styles.page} style={pageStyle}>
       <button type="button" onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.8125rem", color: "var(--portal-muted-3)", display: "flex", alignItems: "center", gap: 6, marginBottom: 28, padding: 0 }}>
         <IcoChevronLeft size={14} /> {t("backToPortal")}
       </button>
@@ -1692,37 +1692,39 @@ export function ContributorPortalExperience({
 
   return (
     <LocaleContext.Provider value={{ locale, t }}>
-      <div className={styles.portal} style={{ backgroundColor: "#fff", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        <header style={{ backgroundColor: "#fff", borderBottom: "1px solid var(--portal-neutral)", padding: "0 48px", display: "flex", alignItems: "center", height: 56, gap: 24, position: "sticky", top: 0, zIndex: 100 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8, flexShrink: 0 }}>
-            <Link href="/" aria-label="Go to Love 21 website" style={{ display: "flex", alignItems: "center" }}>
+      <div className={styles.portal}>
+        <header className={styles.portalHeader} aria-label={t("portalLabel")}>
+          <div className={styles.brandGroup}>
+            <Link href="/" aria-label="Go to Love 21 website" className={styles.brandLink}>
               <Image
                 src="/assets/images/love21_logo.png?v=3"
                 alt="Love 21 Foundation"
                 width={330}
                 height={202}
                 priority
-                style={{ height: 34, width: "auto", objectFit: "contain" }}
+                className={styles.brandLogo}
               />
             </Link>
-            <span style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--portal-ink)", whiteSpace: "nowrap" }}>{t("portalLabel")}</span>
+            <span className={styles.portalLabel}>{t("portalLabel")}</span>
           </div>
-          <nav style={{ display: "flex", gap: 2, flex: 1 }}>
+          <nav className={styles.portalNav} aria-label={t("portalLabel")}>
             {navLinks.map((link) => (
               <button
+                type="button"
                 key={link}
                 onClick={() => { setActiveNav(link); setShowProfile(false); }}
-                style={{ padding: "5px 12px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: !showProfile && activeNav === link ? 600 : 400, backgroundColor: !showProfile && activeNav === link ? "var(--portal-pink-border)" : "transparent", color: !showProfile && activeNav === link ? "var(--portal-pink-deep)" : "var(--portal-muted-strong)", transition: "all 0.15s", whiteSpace: "nowrap" }}
+                className={`${styles.navButton} ${!showProfile && activeNav === link ? styles.navButtonActive : ""}`}
+                aria-current={!showProfile && activeNav === link ? "page" : undefined}
               >
                 {t(NAV_LABEL_KEYS[link])}
               </button>
             ))}
           </nav>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-            <button type="button" aria-label={t("notifications")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--portal-muted-3)", display: "flex", alignItems: "center" }}><IcoBell size={20} /></button>
-            <button onClick={() => setShowProfile(!showProfile)} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 8, transition: "background 0.15s", backgroundColor: showProfile ? "var(--portal-pink-soft)" : "transparent" }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "var(--portal-avatar)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, color: "#fff" }}>{initials(name)}</div>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 500, color: showProfile ? "var(--portal-pink-deep)" : "var(--portal-ink)" }}>{name}</span>
+          <div className={styles.headerUtility}>
+            <button type="button" aria-label={t("notifications")} className={styles.iconButton}><IcoBell size={20} /></button>
+            <button type="button" onClick={() => setShowProfile(!showProfile)} className={`${styles.profileButton} ${showProfile ? styles.profileButtonActive : ""}`} aria-current={showProfile ? "page" : undefined} aria-label={name}>
+              <div className={styles.avatar}>{initials(name)}</div>
+              <span className={styles.profileName}>{name}</span>
             </button>
             <div className={styles.headerActions}>
               <Link href="/" className={styles.websiteButton}>
