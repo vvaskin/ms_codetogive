@@ -328,7 +328,11 @@ export function ActivitiesExperience({
               index === 0
                 ? "https://docs.google.com/forms/d/e/1FAIpQLScxXfbxdMlHBDphqwJhMZS1YuUuF9anGC8Mb_ncgpwiEes-Pw/viewform"
                 : index === 1
-                  ? pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/")
+                  ? pick(
+                      "/signup?role=contributor",
+                      "/zh/signup-hk/?role=contributor",
+                      "/cn/signup-hk/?role=contributor",
+                    )
                   : pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
             const inner = <><strong>{activityText(item.title, locale)}</strong><span>{activityText(item.copy, locale)}</span><b aria-hidden="true">→</b></>;
             return index === 0 ? (

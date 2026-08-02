@@ -29,7 +29,11 @@ const copy = {
 };
 
 const routes = {
-  volunteer: { en: "/our-volunteer/", zh: "/zh/our-volunteer-hk/", cn: "/cn/our-volunteer/" },
+  volunteerSignup: {
+    en: "/signup?role=contributor",
+    zh: "/zh/signup-hk/?role=contributor",
+    cn: "/cn/signup-hk/?role=contributor",
+  },
   stories: { en: "/stories", zh: "/zh/stories", cn: "/cn/stories" },
 };
 
@@ -57,7 +61,7 @@ export function VolunteerSection({
 
       <div className={styles.inner}>
         <div className={styles.ctaRow}>
-          <Link href={t(routes.volunteer, locale)} className={styles.ctaButton}>
+          <Link href={t(routes.volunteerSignup, locale)} className={styles.ctaButton}>
             {t(copy.signUp, locale)}
           </Link>
           <Link href={t(routes.stories, locale)} className={styles.ctaLink}>

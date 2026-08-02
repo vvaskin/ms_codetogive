@@ -95,7 +95,7 @@ const copy = {
 };
 
 const routes = {
-  volunteer: { en: "/our-volunteer/", zh: "/zh/our-volunteer-hk/", cn: "/cn/our-volunteer/" },
+  events: { en: "/events", zh: "/zh/events-hk/", cn: "/cn/events" },
   donate: { en: "/donate/", zh: "/zh/donate-hk/", cn: "/cn/donate/" },
   donateItems: { en: "/donate/?mode=items", zh: "/zh/donate-hk/?mode=items", cn: "/cn/donate/?mode=items" },
 };
@@ -128,7 +128,7 @@ export function GiveSection({ locale }: { locale: Locale }) {
               <p className={styles.roleTitle}>{t(copy.role2Title, locale)}</p>
               <p className={styles.roleMeta}>{t(copy.role2Meta, locale)}</p>
             </div>
-            <Link href={t(routes.volunteer, locale)} className={styles.outlineCta}>
+            <Link href={t(routes.events, locale)} className={styles.outlineCta}>
               {t(copy.timeCta, locale)}
             </Link>
           </div>
