@@ -228,6 +228,10 @@
   box-shadow: var(--shadow-soft);
 }
 
+.eventComposer:not([open]) {
+  display: none;
+}
+
 .eventComposer > summary {
   min-height: 48px;
   padding: 0.75rem 1rem;
@@ -355,17 +359,6 @@
   color: var(--color-white);
 }
 
-.formActions .cancelButton {
-  border-color: color-mix(in srgb, var(--color-coral) 55%, var(--color-border));
-  color: var(--color-coral);
-}
-
-.formActions .cancelButton:hover {
-  border-color: var(--color-coral);
-  background: var(--color-coral);
-  color: var(--color-white);
-}
-
 .formActions .deleteButton:hover {
   border-color: var(--color-coral);
   background: var(--color-coral);
@@ -437,11 +430,6 @@
   text-transform: capitalize;
 }
 
-.draft {
-  background: var(--color-sky);
-  color: var(--color-blue-dark);
-}
-
 .published {
   background: var(--color-mint);
   color: var(--color-brand-accent-dark);
@@ -506,23 +494,6 @@
   border-color: var(--color-coral);
   background: var(--color-coral);
   color: var(--color-white);
-}
-
-.eventEditorPanel {
-  margin-top: var(--space-4);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-sky);
-}
-
-.editorHeading {
-  padding: 0 var(--space-5) var(--space-4);
-}
-
-.editorHeading h4 {
-  margin-top: var(--space-2);
-  font-size: 1.25rem;
 }
 
 .eventActions .deleteButton {

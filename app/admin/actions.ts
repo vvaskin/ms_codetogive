@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { isStaffRole } from "@/lib/admin";
-import { isUserRole, type UserRole } from "@/lib/roles";
+import { isSignupRole, type SignupRole } from "@/lib/roles";
 import {
   createAdminClient,
   getAdminAuthState,
@@ -12,8 +12,8 @@ function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function parseRole(value: string): UserRole {
-  if (!isUserRole(value)) {
+function parseRole(value: string): SignupRole {
+  if (!isSignupRole(value)) {
     throw new Error("Invalid account type.");
   }
   return value;
@@ -25,7 +25,7 @@ async function requireAdmin() {
   return user;
 }
 
-const directoryPaths: Record<UserRole, string> = {
+const directoryPaths: Record<SignupRole, string> = {
   member: "/admin/people/members",
   volunteer: "/admin/people/volunteers",
   donor: "/admin/people/donors",

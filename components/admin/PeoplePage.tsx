@@ -15,6 +15,23 @@ export async function PeoplePage({
   title: string;
   description: string;
 }) {
+  return (
+    <>
+      <AdminPageHeader
+        eyebrow="People"
+        title={title}
+        description={description}
+      />
+      <PeopleDirectoryContent role={role} />
+    </>
+  );
+}
+
+export async function PeopleDirectoryContent({
+  role,
+}: {
+  role: PeopleDirectoryRole;
+}) {
   const directory = await getPeopleDirectory(role);
   const rows: PeopleDirectoryRow[] = directory.records.map((record) => {
     const base = {
@@ -42,14 +59,5 @@ export async function PeoplePage({
     };
   });
 
-  return (
-    <>
-      <AdminPageHeader
-        eyebrow="People"
-        title={title}
-        description={description}
-      />
-      <PeopleDirectory rows={rows} role={role} />
-    </>
-  );
+  return <PeopleDirectory rows={rows} role={role} />;
 }

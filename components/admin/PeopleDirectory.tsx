@@ -68,7 +68,7 @@ function statusClass(value: string) {
   if (["active", "approved", "published", "completed"].includes(normalized)) {
     return styles.statusPositive;
   }
-  if (["pending", "registered", "draft"].includes(normalized)) {
+  if (["pending", "registered"].includes(normalized)) {
     return styles.statusPending;
   }
   if (["inactive", "rejected", "cancelled", "no show", "no_show"].includes(normalized)) {

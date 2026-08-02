@@ -25,7 +25,6 @@ const navigationGroups: readonly NavigationGroup[] = [
   {
     label: "People",
     items: [
-      { href: "/admin/people/applications", label: "Volunteer Applications" },
       { href: "/admin/people/volunteers", label: "Volunteers" },
       { href: "/admin/people/members", label: "Members & Families" },
       { href: "/admin/people/donors", label: "Donors" },
@@ -37,10 +36,6 @@ const navigationGroups: readonly NavigationGroup[] = [
       { href: "/admin/events", label: "Events" },
       { href: "/admin/content/news", label: "News & Stories" },
     ],
-  },
-  {
-    label: "Impact",
-    items: [{ href: "/admin/metrics", label: "Metrics" }],
   },
 ];
 

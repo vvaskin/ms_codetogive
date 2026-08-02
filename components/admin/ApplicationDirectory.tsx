@@ -70,14 +70,6 @@ export function ApplicationDirectory({
 
   return (
     <section className={styles.directory} aria-labelledby={`${searchId}-heading`}>
-      <div className={styles.demoNotice} role="note">
-        <span>Demo data</span>
-        <p>
-          These sample applications demonstrate the review interface. They are
-          not connected to Supabase and cannot be approved or rejected.
-        </p>
-      </div>
-
       <div className={styles.headingRow}>
         <div>
           <p className={styles.eyebrow}>Volunteer review</p>
@@ -134,11 +126,11 @@ export function ApplicationDirectory({
         <div
           className={styles.tableRegion}
           role="region"
-          aria-label="Demo volunteer applications"
+          aria-label="Volunteer applications"
           tabIndex={0}
         >
           <table>
-            <caption className={styles.srOnly}>Demo volunteer applications</caption>
+            <caption className={styles.srOnly}>Volunteer applications</caption>
             <thead>
               <tr>
                 <th scope="col">Applicant</th>
@@ -180,7 +172,6 @@ export function ApplicationDirectory({
                       <div className={styles.applicationPanel}>
                         <div className={styles.applicationPanelHeading}>
                           <div>
-                            <span className={styles.demoTag}>Demo application</span>
                             <h3>{application.name}</h3>
                             <a href={`mailto:${application.email}`}>
                               {application.email}
@@ -215,11 +206,6 @@ export function ApplicationDirectory({
                             <dd>{application.experience}</dd>
                           </div>
                         </dl>
-
-                        <p className={styles.demoFootnote}>
-                          Review actions are unavailable because volunteer applications
-                          do not yet have a database workflow.
-                        </p>
                       </div>
                     </details>
                   </td>

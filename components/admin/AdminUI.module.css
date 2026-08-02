@@ -148,11 +148,13 @@ a.metricCard:hover {
 }
 
 .metricValue {
+  max-width: 100%;
   font-family: var(--font-display);
   font-size: clamp(2rem, 3.5vw, 2.75rem);
   font-weight: 900;
   letter-spacing: -0.045em;
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .metricDescription {
@@ -223,11 +225,6 @@ a.metricCard:hover {
 .statusInactive {
   --status-ink: var(--color-text-muted);
   --status-surface: #efeae6;
-}
-
-.statusDraft {
-  --status-ink: var(--color-blue-dark);
-  --status-surface: #dcebff;
 }
 
 .statusCompleted,

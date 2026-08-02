@@ -16,7 +16,6 @@ export type AdminStatus =
   | "rejected"
   | "active"
   | "inactive"
-  | "draft"
   | "published"
   | "cancelled"
   | "completed"
@@ -43,7 +42,6 @@ const statusClasses: Record<AdminStatus, string> = {
   rejected: styles.statusRejected,
   active: styles.statusActive,
   inactive: styles.statusInactive,
-  draft: styles.statusDraft,
   published: styles.statusPublished,
   cancelled: styles.statusCancelled,
   completed: styles.statusCompleted,

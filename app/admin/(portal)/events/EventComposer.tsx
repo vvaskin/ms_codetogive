@@ -32,7 +32,20 @@ export function EventComposer({
   }, [id]);
 
   return (
-    <details className={className} id={id} ref={detailsRef}>
+    <details
+      className={className}
+      id={id}
+      ref={detailsRef}
+      onToggle={(event) => {
+        if (!event.currentTarget.open && window.location.hash === `#${id}`) {
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${window.location.pathname}${window.location.search}`,
+          );
+        }
+      }}
+    >
       {children}
     </details>
   );

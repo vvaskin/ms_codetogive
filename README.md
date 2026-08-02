@@ -252,7 +252,7 @@ Defined in `supabase/migrations/`:
 - **`users`** — profile for a Supabase Auth user (name, phone, address,
   role, avatar path). No password column.
 - **`events`** — event records including bilingual copy, Hong Kong start/end
-  times, audience, and draft/published/cancelled status. Staff CRUD currently
+  times, audience, and published/cancelled status. Staff CRUD currently
   lives under `/admin/events`; the public Activity Schedule remains a separate
   presentational prototype.
 - **`event_participations`** — one row per (user, event) for members and

@@ -9,16 +9,12 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from "@/components/admin/AdminUI";
-import { EventForm, type EventFormValues } from "@/app/admin/events/EventForm";
 import {
-  cancelEvent,
   deleteEvent,
-  updateEvent,
   updateEventStatus,
 } from "@/app/admin/events/actions";
-import { formatAdminDate, formatAdminDateTime, inputDateTime } from "@/lib/admin/format";
+import { formatAdminDate, formatAdminDateTime } from "@/lib/admin/format";
 import { getAdminEventDetail } from "@/lib/admin/queries";
-import type { EventRow } from "@/lib/supabase/types";
 import styles from "../Events.module.css";
 
 type EventDetailProps = { params: Promise<{ id: string }> };
@@ -82,17 +78,14 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
           </dl>
 
           <div className={styles.detailActions}>
-            {event.status !== "draft" ? (
-              <form action={updateEventStatus}>
-                <input type="hidden" name="id" value={event.id} />
-                <button name="status" value="draft" type="submit">Move to draft and edit</button>
-                {event.status === "cancelled" ? (
-                  <button name="status" value="published" type="submit">Publish</button>
-                ) : (
-                  <button className={styles.dangerOutline} name="status" value="cancelled" type="submit">Cancel</button>
-                )}
-              </form>
-            ) : null}
+            <form action={updateEventStatus}>
+              <input type="hidden" name="id" value={event.id} />
+              {event.status === "cancelled" ? (
+                <button name="status" value="published" type="submit">Publish</button>
+              ) : (
+                <button className={styles.dangerOutline} name="status" value="cancelled" type="submit">Cancel</button>
+              )}
+            </form>
             <form action={deleteEvent}>
               <input type="hidden" name="id" value={event.id} />
               <ConfirmSubmitButton
@@ -104,20 +97,6 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
             </form>
           </div>
         </AdminPanel>
-
-        {event.status === "draft" ? (
-          <AdminPanel title="Edit draft" eyebrow="Editor" tone="sky">
-            <EventForm
-              action={updateEvent}
-              cancelAction={cancelEvent}
-              deleteAction={deleteEvent}
-              deleteMessage={`Delete “${event.title}”? This cannot be undone.`}
-              publishOnSave
-              submitLabel="Save changes and publish"
-              initialValues={eventFormValues(event)}
-            />
-          </AdminPanel>
-        ) : null}
       </div>
 
       <AdminPanel
@@ -151,19 +130,4 @@ export default async function EventDetailPage({ params }: EventDetailProps) {
       </AdminPanel>
     </>
   );
-}
-
-function eventFormValues(event: EventRow): EventFormValues {
-  return {
-    id: event.id,
-    title: event.title,
-    titleZh: event.title_zh ?? "",
-    startsAt: inputDateTime(event.starts_at),
-    endsAt: inputDateTime(event.ends_at),
-    location: event.location ?? "",
-    locationZh: event.location_zh ?? "",
-    type: event.type ?? undefined,
-    subtype: event.subtype ?? "",
-    status: event.status,
-  };
 }

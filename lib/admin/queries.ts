@@ -7,35 +7,26 @@ import {
 } from "@/lib/supabase/admin";
 import type {
   DonationRow,
-  DonationStatus,
+  EventGuestSignupRow,
   EventParticipationRow,
   EventRow,
-  EventStatus,
-  EventType,
   ParticipationStatus,
-  UserRole,
   UserRow,
 } from "@/lib/supabase/types";
+import {
+  buildDonationTrend,
+  buildEventOperations,
+  buildRecentDonations,
+  type AdminOperationalDashboard,
+  type DashboardPeriod,
+} from "@/lib/admin/dashboard";
 
-const USER_ROLES = ["member", "donor", "volunteer", "staff"] as const satisfies
-  readonly UserRole[];
-const EVENT_STATUSES = ["draft", "published", "cancelled"] as const satisfies
-  readonly EventStatus[];
 const PARTICIPATION_STATUSES = [
   "registered",
   "attended",
   "no_show",
   "cancelled",
 ] as const satisfies readonly ParticipationStatus[];
-const DONATION_STATUSES = [
-  "completed",
-  "active",
-  "paused",
-  "cancelled",
-] as const satisfies readonly DonationStatus[];
-const EVENT_TYPES = ["sport", "nutrition", "family_support"] as const satisfies
-  readonly EventType[];
-
 export const PEOPLE_DIRECTORY_ROLES = [
   "member",
   "volunteer",
@@ -43,38 +34,12 @@ export const PEOPLE_DIRECTORY_ROLES = [
 ] as const;
 
 export type PeopleDirectoryRole = (typeof PEOPLE_DIRECTORY_ROLES)[number];
-export type RoleCounts = Record<UserRole, number>;
-export type EventStatusCounts = Record<EventStatus, number>;
 export type ParticipationStatusCounts = Record<ParticipationStatus, number>;
-export type DonationStatusCounts = Record<DonationStatus, number>;
-export type EventTypeCounts = Record<EventType, number>;
 
 export interface CurrencyTotal {
   currency: string;
   donationCount: number;
   amountCents: number;
-}
-
-export interface AdminDashboardSummary {
-  people: {
-    totalAccounts: number;
-    byRole: RoleCounts;
-  };
-  events: {
-    totalEvents: number;
-    upcomingPublishedEvents: number;
-    byStatus: EventStatusCounts;
-  };
-  participations: {
-    totalParticipations: number;
-    byStatus: ParticipationStatusCounts;
-  };
-  donations: {
-    totalDonationRecords: number;
-    completedDonationRecords: number;
-    byStatus: DonationStatusCounts;
-    completedTotalsByCurrency: CurrencyTotal[];
-  };
 }
 
 export type AdminPersonProfile = Pick<
@@ -146,38 +111,6 @@ export interface AdminEventDetail {
   participants: AdminEventParticipant[];
 }
 
-export interface AdminImpactMetrics {
-  accounts: {
-    totalAccounts: number;
-    byRole: RoleCounts;
-  };
-  programmes: {
-    totalEventRecords: number;
-    publishedEventRecords: number;
-    upcomingPublishedEvents: number;
-    eventsByType: EventTypeCounts;
-    publishedEventsByType: EventTypeCounts;
-    uncategorizedEvents: number;
-  };
-  participation: {
-    totalRecords: number;
-    byStatus: ParticipationStatusCounts;
-    volunteerParticipationRecords: number;
-    volunteerAttendances: number;
-    attendancesByEventType: EventTypeCounts;
-    uncategorizedAttendances: number;
-  };
-  donations: {
-    totalRecords: number;
-    accountsWithDonationRecords: number;
-    accountsWithMultipleDonationRecords: number;
-    activeRecurringRecords: number;
-    eventEarmarkedRecords: number;
-    byStatus: DonationStatusCounts;
-    completedTotalsByCurrency: CurrencyTotal[];
-  };
-}
-
 type DonationAggregateRow = Pick<
   DonationRow,
   "donor_id" | "event_id" | "kind" | "amount_cents" | "currency" | "status"
@@ -237,52 +170,14 @@ async function loadRowsForUserIds<T>(
   return rows;
 }
 
-function emptyRoleCounts(): RoleCounts {
-  return { member: 0, donor: 0, volunteer: 0, staff: 0 };
-}
-
-function emptyEventStatusCounts(): EventStatusCounts {
-  return { draft: 0, published: 0, cancelled: 0 };
-}
-
 function emptyParticipationStatusCounts(): ParticipationStatusCounts {
   return { registered: 0, attended: 0, no_show: 0, cancelled: 0 };
-}
-
-function emptyDonationStatusCounts(): DonationStatusCounts {
-  return { completed: 0, active: 0, paused: 0, cancelled: 0 };
-}
-
-function emptyEventTypeCounts(): EventTypeCounts {
-  return { sport: 0, nutrition: 0, family_support: 0 };
-}
-
-function countRoles(rows: ReadonlyArray<Pick<UserRow, "role">>): RoleCounts {
-  const counts = emptyRoleCounts();
-  for (const row of rows) counts[row.role] += 1;
-  return counts;
-}
-
-function countEventStatuses(
-  rows: ReadonlyArray<Pick<EventRow, "status">>,
-): EventStatusCounts {
-  const counts = emptyEventStatusCounts();
-  for (const row of rows) counts[row.status] += 1;
-  return counts;
 }
 
 function countParticipationStatuses(
   rows: ReadonlyArray<Pick<EventParticipationRow, "status">>,
 ): ParticipationStatusCounts {
   const counts = emptyParticipationStatusCounts();
-  for (const row of rows) counts[row.status] += 1;
-  return counts;
-}
-
-function countDonationStatuses(
-  rows: ReadonlyArray<Pick<DonationRow, "status">>,
-): DonationStatusCounts {
-  const counts = emptyDonationStatusCounts();
   for (const row of rows) counts[row.status] += 1;
   return counts;
 }
@@ -347,74 +242,93 @@ export function isPeopleDirectoryRole(value: unknown): value is PeopleDirectoryR
   );
 }
 
-export async function getAdminDashboardSummary(
-  referenceDate: Date = new Date(),
-): Promise<AdminDashboardSummary> {
+export async function getAdminOperationalDashboard({
+  period = "30d",
+  currency = null,
+  referenceDate = new Date(),
+}: {
+  period?: DashboardPeriod;
+  currency?: string | null;
+  referenceDate?: Date;
+} = {}): Promise<AdminOperationalDashboard> {
   assertValidDate(referenceDate);
   const admin = await staffAdminClient();
-
-  const [users, events, participations, donations] = await Promise.all([
-    loadAllRows<Pick<UserRow, "role">>(
-      "Unable to load dashboard account totals.",
-      (from, to) =>
-        admin.from("users").select("role").order("id").range(from, to),
-    ),
-    loadAllRows<Pick<EventRow, "status" | "starts_at">>(
-      "Unable to load dashboard event totals.",
-      (from, to) =>
-        admin
-          .from("events")
-          .select("status, starts_at")
-          .order("id")
-          .range(from, to),
-    ),
-    loadAllRows<Pick<EventParticipationRow, "status">>(
-      "Unable to load dashboard participation totals.",
-      (from, to) =>
+  const [users, events, participations, guestSignups, donations] =
+    await Promise.all([
+      loadAllRows<Pick<UserRow, "id" | "name" | "role">>(
+        "Unable to load dashboard people data.",
+        (from, to) =>
+          admin
+            .from("users")
+            .select("id, name, role")
+            .order("id")
+            .range(from, to),
+      ),
+      loadAllRows<Pick<EventRow, "id" | "title" | "starts_at" | "status">>(
+        "Unable to load dashboard event data.",
+        (from, to) =>
+          admin
+            .from("events")
+            .select("id, title, starts_at, status")
+            .order("id")
+            .range(from, to),
+      ),
+      loadAllRows<
+        Pick<
+          EventParticipationRow,
+          "event_id" | "user_id" | "status" | "hours_logged"
+        >
+      >("Unable to load dashboard participation data.", (from, to) =>
         admin
           .from("event_participations")
-          .select("status")
+          .select("event_id, user_id, status, hours_logged")
           .order("id")
           .range(from, to),
-    ),
-    loadAllRows<Pick<DonationRow, "status" | "amount_cents" | "currency">>(
-      "Unable to load dashboard donation totals.",
-      (from, to) =>
+      ),
+      loadAllRows<Pick<EventGuestSignupRow, "event_id" | "status">>(
+        "Unable to load dashboard guest sign-ups.",
+        (from, to) =>
+          admin
+            .from("event_guest_signups")
+            .select("event_id, status")
+            .order("id")
+            .range(from, to),
+      ),
+      loadAllRows<
+        Pick<
+          DonationRow,
+          | "id"
+          | "donor_id"
+          | "amount_cents"
+          | "currency"
+          | "status"
+          | "created_at"
+        >
+      >("Unable to load dashboard donation data.", (from, to) =>
         admin
           .from("donations")
-          .select("status, amount_cents, currency")
+          .select("id, donor_id, amount_cents, currency, status, created_at")
+          .eq("status", "completed")
           .order("id")
           .range(from, to),
-    ),
-  ]);
-  const eventStatuses = countEventStatuses(events);
-  const donationStatuses = countDonationStatuses(donations);
-  const now = referenceDate.getTime();
+      ),
+    ]);
 
   return {
-    people: {
-      totalAccounts: users.length,
-      byRole: countRoles(users),
-    },
-    events: {
-      totalEvents: events.length,
-      upcomingPublishedEvents: events.filter(
-        (event) =>
-          event.status === "published" &&
-          new Date(event.starts_at).getTime() >= now,
-      ).length,
-      byStatus: eventStatuses,
-    },
-    participations: {
-      totalParticipations: participations.length,
-      byStatus: countParticipationStatuses(participations),
-    },
-    donations: {
-      totalDonationRecords: donations.length,
-      completedDonationRecords: donationStatuses.completed,
-      byStatus: donationStatuses,
-      completedTotalsByCurrency: completedCurrencyTotals(donations),
-    },
+    events: buildEventOperations({
+      events,
+      participations,
+      guestSignups,
+      users,
+      referenceDate,
+    }),
+    donations: buildDonationTrend({
+      donations,
+      period,
+      requestedCurrency: currency,
+      referenceDate,
+    }),
+    recentDonations: buildRecentDonations({ donations, users }),
   };
 }
 
@@ -606,136 +520,6 @@ export async function getAdminEventDetail(
   };
 }
 
-export async function getAdminImpactMetrics(
-  referenceDate: Date = new Date(),
-): Promise<AdminImpactMetrics> {
-  assertValidDate(referenceDate);
-  const admin = await staffAdminClient();
-  const [users, events, participations, donations] = await Promise.all([
-    loadAllRows<Pick<UserRow, "id" | "role">>(
-      "Unable to load impact account metrics.",
-      (from, to) =>
-        admin.from("users").select("id, role").order("id").range(from, to),
-    ),
-    loadAllRows<Pick<EventRow, "id" | "type" | "status" | "starts_at">>(
-      "Unable to load impact event metrics.",
-      (from, to) =>
-        admin
-          .from("events")
-          .select("id, type, status, starts_at")
-          .order("id")
-          .range(from, to),
-    ),
-    loadAllRows<ParticipationAggregateRow>(
-      "Unable to load impact participation metrics.",
-      (from, to) =>
-        admin
-          .from("event_participations")
-          .select("event_id, user_id, status")
-          .order("id")
-          .range(from, to),
-    ),
-    loadAllRows<DonationAggregateRow>(
-      "Unable to load impact donation metrics.",
-      (from, to) =>
-        admin
-          .from("donations")
-          .select("donor_id, event_id, kind, amount_cents, currency, status")
-          .order("id")
-          .range(from, to),
-    ),
-  ]);
-  const userRoleById = new Map(users.map((user) => [user.id, user.role]));
-  const eventTypeById = new Map(events.map((event) => [event.id, event.type]));
-  const eventsByType = emptyEventTypeCounts();
-  const publishedEventsByType = emptyEventTypeCounts();
-  const attendancesByEventType = emptyEventTypeCounts();
-  let uncategorizedEvents = 0;
-  let uncategorizedAttendances = 0;
-
-  for (const event of events) {
-    if (event.type) {
-      eventsByType[event.type] += 1;
-      if (event.status === "published") publishedEventsByType[event.type] += 1;
-    } else {
-      uncategorizedEvents += 1;
-    }
-  }
-
-  for (const participation of participations) {
-    if (participation.status !== "attended") continue;
-    const eventType = eventTypeById.get(participation.event_id);
-    if (eventType) attendancesByEventType[eventType] += 1;
-    else uncategorizedAttendances += 1;
-  }
-
-  const donationsPerDonor = new Map<string, number>();
-  for (const donation of donations) {
-    donationsPerDonor.set(
-      donation.donor_id,
-      (donationsPerDonor.get(donation.donor_id) ?? 0) + 1,
-    );
-  }
-
-  const now = referenceDate.getTime();
-  const eventStatusCounts = countEventStatuses(events);
-  const participationStatusCounts = countParticipationStatuses(participations);
-
-  return {
-    accounts: {
-      totalAccounts: users.length,
-      byRole: countRoles(users),
-    },
-    programmes: {
-      totalEventRecords: events.length,
-      publishedEventRecords: eventStatusCounts.published,
-      upcomingPublishedEvents: events.filter(
-        (event) =>
-          event.status === "published" &&
-          new Date(event.starts_at).getTime() >= now,
-      ).length,
-      eventsByType,
-      publishedEventsByType,
-      uncategorizedEvents,
-    },
-    participation: {
-      totalRecords: participations.length,
-      byStatus: participationStatusCounts,
-      volunteerParticipationRecords: participations.filter(
-        (participation) =>
-          userRoleById.get(participation.user_id) === "volunteer",
-      ).length,
-      volunteerAttendances: participations.filter(
-        (participation) =>
-          participation.status === "attended" &&
-          userRoleById.get(participation.user_id) === "volunteer",
-      ).length,
-      attendancesByEventType,
-      uncategorizedAttendances,
-    },
-    donations: {
-      totalRecords: donations.length,
-      accountsWithDonationRecords: donationsPerDonor.size,
-      accountsWithMultipleDonationRecords: [...donationsPerDonor.values()].filter(
-        (count) => count > 1,
-      ).length,
-      activeRecurringRecords: donations.filter(
-        (donation) => donation.kind === "recurring" && donation.status === "active",
-      ).length,
-      eventEarmarkedRecords: donations.filter(
-        (donation) => donation.event_id !== null,
-      ).length,
-      byStatus: countDonationStatuses(donations),
-      completedTotalsByCurrency: completedCurrencyTotals(donations),
-    },
-  };
-}
-
-// Keep these constants referenced by the compiler when the generated enum
-// types change; a schema change will then fail type-checking here instead of
-// silently producing incomplete dashboard counts.
-void USER_ROLES;
-void EVENT_STATUSES;
+// Keep this list checked against the generated enum so schema changes fail
+// type-checking instead of silently producing incomplete participation counts.
 void PARTICIPATION_STATUSES;
-void DONATION_STATUSES;
-void EVENT_TYPES;

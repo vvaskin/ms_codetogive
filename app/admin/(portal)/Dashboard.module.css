@@ -1,118 +1,213 @@
-.metricGrid {
+.eyebrow {
+  color: var(--color-pink);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin: 0 0 var(--space-4);
+}
+
+.sectionHeading > div {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sectionHeading h2 {
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.sectionHeading > p {
+  max-width: 52ch;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.attentionGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-.dashboardColumns {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-  gap: var(--space-5);
-  margin-top: var(--space-6);
+.operations {
+  margin-top: var(--space-7);
 }
 
-.quickActions {
+.operationsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-5);
+  align-items: start;
 }
 
-.quickActions a {
-  display: flex;
-  min-height: 88px;
+.donationsPanel {
+  grid-column: 1 / -1;
+}
+
+.panelLink {
+  display: inline-flex;
+  min-height: 38px;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-4);
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-canvas);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
   color: var(--color-ink);
-  transition:
-    border-color var(--motion-fast),
-    background-color var(--motion-fast),
-    transform var(--motion-fast);
+  font-size: 0.78rem;
+  font-weight: 850;
 }
 
-.quickActions a:hover {
+.panelLink:hover {
   border-color: var(--color-pink);
-  background: var(--color-blush);
-  transform: translateY(-2px);
+  color: var(--color-pink);
 }
 
-.quickActions a:focus-visible {
+.panelLink:focus-visible,
+.recordAction a:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.quickActions a > span:first-child {
+.recordList {
   display: grid;
-  gap: var(--space-1);
+  gap: 0;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.quickActions strong {
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.quickActions small {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-}
-
-.quickActions a > span:last-child {
-  color: var(--color-pink);
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.statusList {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.statusList > div {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-3);
+.recordList > li {
+  display: flex;
   align-items: center;
-  padding-bottom: var(--space-3);
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 76px;
+  padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
-.statusList > div:last-child {
+.recordList > li:first-child {
+  padding-top: 0;
+}
+
+.recordList > li:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
-.statusList dd {
+.recordList > li > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.recordList strong {
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.recordList span:not([class]) {
+  overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.86rem;
+  font-size: 0.77rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recordAction {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.recordAction a {
+  color: var(--color-pink);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.donationList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-6);
+}
+
+.money {
+  flex: 0 0 auto;
+  color: var(--color-pink);
+  font-family: var(--font-display);
+  font-size: 1rem !important;
+}
+
+.donationMeta {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 @media (max-width: 1180px) {
-  .metricGrid {
+  .attentionGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .dashboardColumns {
+  .attentionGrid > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .operationsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .donationsPanel {
+    grid-column: auto;
   }
 }
 
-@media (max-width: 680px) {
-  .metricGrid,
-  .quickActions {
+@media (max-width: 720px) {
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sectionHeading > p {
+    text-align: left;
+  }
+
+  .attentionGrid,
+  .donationList {
     grid-template-columns: 1fr;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .quickActions a {
-    transition: none;
+  .attentionGrid > :last-child {
+    grid-column: auto;
   }
 
-  .quickActions a:hover {
-    transform: none;
+  .recordList > li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .recordAction {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .donationMeta {
+    width: 100%;
+    justify-content: space-between;
   }
 }

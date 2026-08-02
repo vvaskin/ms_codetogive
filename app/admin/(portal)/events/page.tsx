@@ -7,17 +7,14 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from "@/components/admin/AdminUI";
-import { EventForm, type EventFormValues } from "@/app/admin/events/EventForm";
+import { EventForm } from "@/app/admin/events/EventForm";
 import {
-  cancelEvent,
   createEvent,
   deleteEvent,
-  updateEvent,
   updateEventStatus,
 } from "@/app/admin/events/actions";
-import { formatAdminDateTime, inputDateTime } from "@/lib/admin/format";
+import { formatAdminDateTime } from "@/lib/admin/format";
 import { getAdminEventList } from "@/lib/admin/queries";
-import type { EventRow } from "@/lib/supabase/types";
 import legacyStyles from "@/app/admin/AdminPortal.module.css";
 import { EventComposer } from "./EventComposer";
 import styles from "./Events.module.css";
@@ -43,7 +40,7 @@ export default async function EventsPage() {
       />
 
       <EventComposer className={legacyStyles.eventComposer} id="add-event">
-        <summary>Add an event</summary>
+        <summary>Close event form</summary>
         <EventForm action={createEvent} submitLabel="Create event" />
       </EventComposer>
 
@@ -55,7 +52,7 @@ export default async function EventsPage() {
         {events.length === 0 ? (
           <AdminEmptyState
             title="No events yet"
-            description="Use Add event to create the first draft."
+            description="Use Add event to create the first event."
             icon="◷"
           />
         ) : (
@@ -86,63 +83,38 @@ export default async function EventsPage() {
 
                 <div className={styles.cardActions}>
                   <Link href={`/admin/events/${event.id}`}>View details</Link>
-                  {event.status !== "draft" ? (
-                    <form action={updateEventStatus}>
-                      <input type="hidden" name="id" value={event.id} />
-                      <button name="status" value="draft" type="submit">
-                        Move to draft
-                      </button>
-                      {event.status === "cancelled" ? (
-                        <button
-                          className={styles.publishAction}
-                          name="status"
-                          value="published"
-                          type="submit"
-                        >
-                          Publish
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.cancelAction}
-                          name="status"
-                          value="cancelled"
-                          type="submit"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </form>
-                  ) : null}
-                  {event.status !== "draft" ? (
-                    <form action={deleteEvent}>
-                      <input type="hidden" name="id" value={event.id} />
-                      <ConfirmSubmitButton
-                        className={legacyStyles.deleteButton}
-                        message={`Delete “${event.title}”? This cannot be undone.`}
+                  <form action={updateEventStatus}>
+                    <input type="hidden" name="id" value={event.id} />
+                    {event.status === "cancelled" ? (
+                      <button
+                        className={styles.publishAction}
+                        name="status"
+                        value="published"
+                        type="submit"
                       >
-                        Delete
-                      </ConfirmSubmitButton>
-                    </form>
-                  ) : null}
+                        Publish
+                      </button>
+                    ) : (
+                      <button
+                        className={styles.cancelAction}
+                        name="status"
+                        value="cancelled"
+                        type="submit"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </form>
+                  <form action={deleteEvent}>
+                    <input type="hidden" name="id" value={event.id} />
+                    <ConfirmSubmitButton
+                      className={legacyStyles.deleteButton}
+                      message={`Delete “${event.title}”? This cannot be undone.`}
+                    >
+                      Delete
+                    </ConfirmSubmitButton>
+                  </form>
                 </div>
-
-                {event.status === "draft" ? (
-                  <div className={legacyStyles.eventEditorPanel}>
-                    <div className={legacyStyles.editorHeading}>
-                      <p className={legacyStyles.eyebrow}>Draft details</p>
-                      <h4>Update this event</h4>
-                    </div>
-                    <EventForm
-                      action={updateEvent}
-                      cancelAction={cancelEvent}
-                      deleteAction={deleteEvent}
-                      deleteMessage={`Delete “${event.title}”? This cannot be undone.`}
-                      publishOnSave
-                      submitLabel="Save changes and publish"
-                      initialValues={eventFormValues(event)}
-                    />
-                  </div>
-                ) : null}
               </article>
             ))}
           </div>
@@ -150,19 +122,4 @@ export default async function EventsPage() {
       </AdminPanel>
     </>
   );
-}
-
-function eventFormValues(event: EventRow): EventFormValues {
-  return {
-    id: event.id,
-    title: event.title,
-    titleZh: event.title_zh ?? "",
-    startsAt: inputDateTime(event.starts_at),
-    endsAt: inputDateTime(event.ends_at),
-    location: event.location ?? "",
-    locationZh: event.location_zh ?? "",
-    type: event.type ?? undefined,
-    subtype: event.subtype ?? "",
-    status: event.status,
-  };
 }
