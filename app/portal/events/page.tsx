@@ -5,6 +5,7 @@ import {
   PortalEventsTabs,
   type MyEvent,
 } from "@/components/portal/PortalEventsTabs";
+import { VolunteerCertificateButton } from "@/components/portal/VolunteerCertificateButton";
 import type { Locale } from "@/content/site-data";
 import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/supabase/types";
@@ -41,26 +42,32 @@ export default async function PortalEventsPage({
 
   const nowIso = new Date().toISOString();
 
-  const [upcomingResult, mineResult, hoursResult] = await Promise.all([
-    supabase
-      .from("events")
-      .select(EVENT_COLUMNS)
-      .eq("status", "published")
-      .gte("starts_at", nowIso)
-      .order("starts_at", { ascending: true }),
-    // Participations are RLS-scoped to auth.uid(). Deliberately unfiltered
-    // by status so a user still sees an event they registered for even if
-    // an admin later cancelled it — the card renders a "Cancelled" chip.
-    supabase
-      .from("event_participations")
-      .select(`status, event:events(${EVENT_COLUMNS})`)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("event_participations")
-      .select("hours_logged")
-      .eq("user_id", user.id),
-  ]);
+  const [upcomingResult, mineResult, hoursResult, profileResult] =
+    await Promise.all([
+      supabase
+        .from("events")
+        .select(EVENT_COLUMNS)
+        .eq("status", "published")
+        .gte("starts_at", nowIso)
+        .order("starts_at", { ascending: true }),
+      // Participations are RLS-scoped to auth.uid(). Deliberately unfiltered
+      // by status so a user still sees an event they registered for even if
+      // an admin later cancelled it — the card renders a "Cancelled" chip.
+      supabase
+        .from("event_participations")
+        .select(`status, event:events(${EVENT_COLUMNS})`)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("event_participations")
+        .select("hours_logged")
+        .eq("user_id", user.id),
+      supabase
+        .from("users")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]);
 
   const upcoming: EventRow[] = upcomingResult.data ?? [];
 
@@ -78,6 +85,8 @@ export default async function PortalEventsPage({
     0,
   );
 
+  const contributorName = profileResult.data?.name ?? "";
+
   return (
     <>
       <DashboardHead
@@ -87,6 +96,10 @@ export default async function PortalEventsPage({
           value: String(totalHours),
           label: "Total hours volunteered",
         }}
+      />
+      <VolunteerCertificateButton
+        name={contributorName}
+        hours={totalHours}
       />
       <PortalEventsTabs upcoming={upcoming} mine={mine} locale={locale} />
     </>
