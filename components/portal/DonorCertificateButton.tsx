@@ -81,7 +81,7 @@ export function DonorCertificateButton({
 
   return (
     <div className={styles.band}>
-      <p className={styles.note}>
+      <p className={`${styles.note} ${styles.noteBlue}`}>
         {copy.note}
         <span className={styles.arrow} aria-hidden="true">
           →
@@ -89,7 +89,7 @@ export function DonorCertificateButton({
       </p>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.buttonBlue}`}
         onClick={download}
         disabled={busy || totalCents <= 0}
       >
