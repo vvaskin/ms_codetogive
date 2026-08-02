@@ -275,9 +275,9 @@ export const homepageContent: HomepageContent = {
   featuredStory: {
     eyebrow: { en: "Testimonials", zh: "會員感言", cn: "会员感言" },
     title: {
-      en: "Get inspired by our members:",
-      zh: "Get inspired by our members:",
-      cn: "Get inspired by our members:",
+      en: "Hear from our members",
+      zh: "會員的聲音",
+      cn: "会员的声音",
     },
     image: "/assets/images/crystal-fitness.jpg",
     imageAlt: {

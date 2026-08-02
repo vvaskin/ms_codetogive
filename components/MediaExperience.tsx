@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import {
+  homepageContent,
+  hrefFor,
+  t,
+} from "../content/homepage";
 import {
   facebookUrl,
   instagramUrl,
@@ -10,6 +14,7 @@ import {
 } from "../content/media";
 import { mediaArticles, type Locale } from "../content/site-data";
 import { InstagramFeed } from "./InstagramFeed";
+import { HeartIcon } from "./ui/HeartIcon";
 import { SectionShell } from "./ui/SectionShell";
 import styles from "./MediaExperience.module.css";
 
@@ -37,41 +42,48 @@ export function MediaExperience({ locale }: { locale: Locale }) {
             </a>
           </div>
         </div>
+      </SectionShell>
 
-        <section className={styles.reels} aria-labelledby="event-reels">
-          <div className={styles.reelsHeading}>
-            <div>
-              <p>{mediaText(mediaContent.reels.eyebrow, locale)}</p>
-              <h2 id="event-reels">{mediaText(mediaContent.reels.title, locale)}</h2>
-            </div>
-            <span>{mediaText(mediaContent.reels.hint, locale)}</span>
-          </div>
-          <div className={styles.reelScroller}>
-            {mediaContent.reels.items.map((reel) => (
-              <article
-                className={styles.reel}
-                key={reel.title.en}
-                style={{ "--reel-accent": reel.accent } as CSSProperties}
-              >
-                {reel.image ? (
-                  <Image
-                    src={reel.image}
-                    alt=""
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 68vw, 225px"
-                  />
-                ) : null}
-                <div className={styles.reelOverlay} />
-                <span className={styles.reelIcon} aria-hidden="true">{reel.icon}</span>
-                <div className={styles.reelCopy}>
-                  <span>{mediaText(reel.label, locale)}</span>
-                  <h3>{mediaText(reel.title, locale)}</h3>
+      <SectionShell tone="blush" className={styles.testimonials}>
+        <div className={styles.testimonialInner}>
+          <p className={styles.eyebrow}>{t(homepageContent.featuredStory.eyebrow, locale)}</p>
+          <h2>{t(homepageContent.featuredStory.title, locale)}</h2>
+          <div className={styles.testimonialStage}>
+            <span className={styles.testimonialHearts} aria-hidden="true">
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartOne}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartTwo}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartThree}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFour}`} />
+              <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFive}`} />
+            </span>
+            <article className={styles.testimonialCard}>
+              <div className={styles.testimonialImage}>
+                <Image
+                  src={homepageContent.featuredStory.image}
+                  alt={t(homepageContent.featuredStory.imageAlt, locale)}
+                  fill
+                  sizes="(max-width: 820px) 100vw, 62vw"
+                />
+              </div>
+              <div className={styles.testimonialPanel}>
+                <p>{t(homepageContent.featuredStory.panelLabel, locale)}</p>
+                <h3>{t(homepageContent.featuredStory.panelTitle, locale)}</h3>
+                <p className={styles.testimonialContext}>
+                  {t(homepageContent.featuredStory.context, locale)}
+                </p>
+                <blockquote className={styles.testimonialQuote}>
+                  <p>“{t(homepageContent.featuredStory.quote, locale)}”</p>
+                </blockquote>
+                <div className={styles.testimonialFooter}>
+                  <cite>{t(homepageContent.featuredStory.attribution, locale)}</cite>
+                  <Link href={hrefFor(homepageContent.featuredStory.action, locale)}>
+                    {t(homepageContent.featuredStory.action.label, locale)} ↗
+                  </Link>
                 </div>
-              </article>
-            ))}
+              </div>
+            </article>
           </div>
-        </section>
+        </div>
       </SectionShell>
 
       <SectionShell tone="canvas" className={styles.feeds}>

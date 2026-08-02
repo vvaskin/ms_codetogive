@@ -326,11 +326,16 @@ export function ActivitiesExperience({
           {c.quickStart.items.map((item, index) => {
             const href =
               index === 0
-                ? pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/")
+                ? "https://docs.google.com/forms/d/e/1FAIpQLScxXfbxdMlHBDphqwJhMZS1YuUuF9anGC8Mb_ncgpwiEes-Pw/viewform"
                 : index === 1
                   ? pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/")
                   : pick("/contact-us/", "/zh/contact-us-hk/", "/cn/contact-us/");
-            return <Link href={href} className={styles.quickCard} key={item.title.en}><strong>{activityText(item.title, locale)}</strong><span>{activityText(item.copy, locale)}</span><b aria-hidden="true">→</b></Link>;
+            const inner = <><strong>{activityText(item.title, locale)}</strong><span>{activityText(item.copy, locale)}</span><b aria-hidden="true">→</b></>;
+            return index === 0 ? (
+              <a href={href} className={styles.quickCard} key={item.title.en}>{inner}</a>
+            ) : (
+              <Link href={href} className={styles.quickCard} key={item.title.en}>{inner}</Link>
+            );
           })}
         </div>
       </SectionShell>
