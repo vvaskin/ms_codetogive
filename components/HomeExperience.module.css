@@ -47,6 +47,8 @@
 }
 
 .heroInner {
+  position: relative;
+  z-index: 2;
   display: grid;
   overflow: visible;
   min-height: 650px;
@@ -380,6 +382,134 @@
   width: 46px;
   height: 46px;
   background: var(--color-blue);
+}
+
+.heroFloatHearts {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.heroFloatHeart {
+  --float-drift: 0px;
+  --float-rotate: -8deg;
+  position: absolute;
+  bottom: -8%;
+  width: 22px;
+  height: 22px;
+  color: var(--color-pink);
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(244, 7, 112, 0.42));
+  animation: heroHeartRise 11s linear infinite;
+}
+
+.heroFloatHeartOne {
+  left: 8%;
+  width: 22px;
+  height: 22px;
+  --float-drift: 18px;
+  --float-rotate: -12deg;
+  animation-duration: 12.5s;
+  animation-delay: 0s;
+}
+
+.heroFloatHeartTwo {
+  left: 22%;
+  width: 16px;
+  height: 16px;
+  color: #ff7aad;
+  --float-drift: -16px;
+  --float-rotate: 10deg;
+  animation-duration: 10s;
+  animation-delay: -2.5s;
+}
+
+.heroFloatHeartThree {
+  left: 38%;
+  width: 26px;
+  height: 26px;
+  --float-drift: 12px;
+  --float-rotate: -6deg;
+  animation-duration: 13.5s;
+  animation-delay: -5.5s;
+}
+
+.heroFloatHeartFour {
+  left: 52%;
+  width: 18px;
+  height: 18px;
+  color: #ff4f8d;
+  --float-drift: -20px;
+  --float-rotate: 14deg;
+  animation-duration: 11.5s;
+  animation-delay: -1.2s;
+}
+
+.heroFloatHeartFive {
+  left: 66%;
+  width: 22px;
+  height: 22px;
+  --float-drift: 10px;
+  --float-rotate: -10deg;
+  animation-duration: 12.8s;
+  animation-delay: -7s;
+}
+
+.heroFloatHeartSix {
+  left: 78%;
+  width: 15px;
+  height: 15px;
+  color: #ff7aad;
+  --float-drift: -12px;
+  --float-rotate: 8deg;
+  animation-duration: 9.5s;
+  animation-delay: -3.5s;
+}
+
+.heroFloatHeartSeven {
+  left: 88%;
+  width: 20px;
+  height: 20px;
+  --float-drift: 16px;
+  --float-rotate: -14deg;
+  animation-duration: 14s;
+  animation-delay: -8.5s;
+}
+
+.heroFloatHeartEight {
+  left: 14%;
+  width: 17px;
+  height: 17px;
+  color: #ff4f8d;
+  --float-drift: -10px;
+  --float-rotate: 6deg;
+  animation-duration: 11s;
+  animation-delay: -4.5s;
+}
+
+@keyframes heroHeartRise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(var(--float-rotate)) scale(0.75);
+  }
+
+  10% {
+    opacity: 0.62;
+  }
+
+  50% {
+    opacity: 0.48;
+    transform: translate3d(var(--float-drift), -55vh, 0) rotate(calc(var(--float-rotate) * -1))
+      scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--float-drift) * -0.4), -110vh, 0) rotate(var(--float-rotate))
+      scale(0.9);
+  }
 }
 
 .impactShowcase {
@@ -1321,6 +1451,7 @@
 :global(html.simple-view) .heroBlobOne,
 :global(html.simple-view) .heroBlobTwo,
 :global(html.simple-view) .heroDot,
+:global(html.simple-view) .heroFloatHearts,
 :global(html.simple-view) .photoTape,
 :global(html.simple-view) .featuredStoryBgHearts,
 :global(html.simple-view) .featuredStoryCardHearts {
@@ -1606,6 +1737,10 @@
     scroll-behavior: auto !important;
     transition: none !important;
     animation: none !important;
+  }
+
+  .heroFloatHearts {
+    display: none;
   }
 
   .countUp,

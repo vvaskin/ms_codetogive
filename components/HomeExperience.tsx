@@ -127,6 +127,16 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
         <span className={styles.heroBlobOne} aria-hidden="true" />
         <span className={styles.heroBlobTwo} aria-hidden="true" />
         <span className={styles.heroDot} aria-hidden="true" />
+        <span className={styles.heroFloatHearts} aria-hidden="true">
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartOne}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartTwo}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartThree}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartFour}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartFive}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartSix}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartSeven}`} />
+          <HeartIcon className={`${styles.heroFloatHeart} ${styles.heroFloatHeartEight}`} />
+        </span>
         <div className={styles.heroInner}>
           <div className={styles.heroCopy}>
             <p className={styles.handEyebrow}>{t(content.hero.eyebrow, locale)}</p>

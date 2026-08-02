@@ -2,6 +2,10 @@
 
 import { FormEvent, useState } from "react";
 import { recordDonation } from "@/app/actions/donations";
+import {
+  buildDonorCertificateHtml,
+  generateDonorCertId,
+} from "@/lib/donor-certificate";
 import { useUser } from "@/lib/supabase/use-user";
 import {
   formatCurrency,
@@ -25,8 +29,16 @@ interface Confirmation {
  * Name/email fields are shown for logged-out visitors (e.g. the public
  * /donate page). Pass `guest` to force the mode; otherwise it's auto-detected
  * from the current session (the portal donor is always signed in).
+ * `donorName` is the authenticated donor's profile name, used on the
+ * certificate issued after the donation.
  */
-export function DonationForm({ guest }: { guest?: boolean }) {
+export function DonationForm({
+  guest,
+  donorName,
+}: {
+  guest?: boolean;
+  donorName?: string;
+}) {
   const { user, loading } = useUser();
   const isGuest = guest ?? (!loading && !user);
   const [kind, setKind] = useState<Kind>("one-time");
@@ -77,6 +89,51 @@ export function DonationForm({ guest }: { guest?: boolean }) {
     });
   }
 
+  async function downloadCertificate() {
+    if (!confirmation) return;
+    const certId = generateDonorCertId();
+    const issueDate = new Date().toLocaleDateString("en-HK", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const logoSrc = await logoDataUri();
+    const html = buildDonorCertificateHtml({
+      name: donorName?.trim() || name.trim() || "Valued Donor",
+      amount: confirmation.amount,
+      certId,
+      issueDate,
+      logoSrc,
+    });
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "donor-cart.html";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  async function logoDataUri(): Promise<string> {
+    try {
+      const response = await fetch("/assets/images/love21_logo.png");
+      if (!response.ok) return "/assets/images/love21_logo.png";
+      const blob = await response.blob();
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () =>
+          resolve(reader.result as string);
+        reader.onerror = () =>
+          resolve("/assets/images/love21_logo.png");
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return "/assets/images/love21_logo.png";
+    }
+  }
+
   if (confirmation) {
     return (
       <div className="donation-confirm" role="status">
@@ -113,6 +170,13 @@ export function DonationForm({ guest }: { guest?: boolean }) {
         <p className="donation-confirm-note">
           This is a demo — no payment has been taken.
         </p>
+        <button
+          type="button"
+          className="donation-cert-btn"
+          onClick={downloadCertificate}
+        >
+          Download certificate
+        </button>
         <button
           type="button"
           className="auth-submit"
