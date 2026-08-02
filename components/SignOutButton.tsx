@@ -7,9 +7,13 @@ import { createClient } from "@/lib/supabase/client";
 export function SignOutButton({
   className = "portal-sign-out",
   redirectTo = "/login",
+  label = "Sign out",
+  pendingLabel = "Signing out…",
 }: {
   className?: string;
   redirectTo?: string;
+  label?: string;
+  pendingLabel?: string;
 } = {}) {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -24,7 +28,6 @@ export function SignOutButton({
 
   return (
     <button
-      className={className}
       className={className}
       type="button"
       onClick={signOut}
