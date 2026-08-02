@@ -5,10 +5,10 @@
 
 .dashboardHead {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
@@ -22,15 +22,16 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-  color: var(--color-ink);
+  color: #1a1a1a;
   letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
 .dashboardSubtitle {
   margin: 0.35rem 0 0;
-  color: var(--color-text-muted);
-  font-size: 1rem;
+  color: #67605c;
+  font-size: 0.94rem;
+  max-width: 34rem;
 }
 
 .dashboardHeadStat {
@@ -39,27 +40,57 @@
 }
 
 .headStat {
-  padding: 1rem 1.25rem;
-  border-radius: 18px;
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  padding: 1.1rem 1.35rem;
+  border-radius: 16px;
+  background: #e85d7a;
+  border: none;
   text-align: right;
 }
 
 .headStatValue {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 2.25rem;
-  color: var(--color-pink);
+  font-size: 2rem;
+  color: #fff;
   letter-spacing: -0.02em;
   line-height: 1;
 }
 
 .headStatLabel {
   margin: 0.4rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.86);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metricStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.3rem;
+}
+
+.metricCard {
+  border: 1px solid #ede8e3;
+  border-radius: 14px;
+  background: #fff;
+  padding: 1rem 1.05rem;
+}
+
+.metricCard p {
+  margin: 0 0 0.3rem;
+  font-size: 0.74rem;
+  color: #8f8781;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.metricCard strong {
+  font-size: 1.7rem;
+  color: #1a1a1a;
+  line-height: 1;
 }
 
 /* -- Card grid layouts ---------------------------------------------------- */
@@ -67,7 +98,7 @@
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -76,11 +107,10 @@
 }
 
 .card {
-  padding: 1.25rem 1.4rem 1.5rem;
-  border-radius: 20px;
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #ede8e3;
 }
 
 .cardHeader {
@@ -96,7 +126,7 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.1rem;
-  color: var(--color-ink);
+  color: #1a1a1a;
 }
 
 .cardEyebrow {
@@ -117,8 +147,8 @@
 
 .cardNote {
   margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
+  color: #6e6662;
+  font-size: 0.9rem;
   line-height: 1.4;
 }
 
@@ -127,9 +157,9 @@
   margin-top: auto;
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
-  border: 1.5px solid var(--color-pink);
-  background: var(--color-white);
-  color: var(--color-pink);
+  border: 1.5px solid #e85d7a;
+  background: #fff;
+  color: #e85d7a;
   font-weight: 700;
   font-size: 0.9rem;
   text-decoration: none;
@@ -137,16 +167,16 @@
 }
 
 .cta:hover {
-  background: var(--color-blush);
+  background: #fdf0f2;
 }
 
 .ctaPrimary {
-  background: var(--color-pink);
+  background: #e85d7a;
   color: #fff;
 }
 
 .ctaPrimary:hover {
-  background: var(--color-pink-dark);
+  background: #d54f6d;
   color: #fff;
 }
 
@@ -188,10 +218,16 @@
 }
 
 .cardHeadLink {
-  color: var(--color-pink);
+  color: #e85d7a;
   font-weight: 700;
   font-size: 0.85rem;
   text-decoration: none;
+}
+
+@media (max-width: 780px) {
+  .metricStrip {
+    grid-template-columns: 1fr;
+  }
 }
 
 .cardHeadLink:hover {

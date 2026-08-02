@@ -4,13 +4,59 @@
   gap: 1.25rem;
 }
 
+.filterBox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  border: 1px solid #ede8e3;
+  border-radius: 14px;
+  background: #faf8f6;
+}
+
+.searchInput,
+.dateInput,
+.typeSelect {
+  min-height: 2.5rem;
+  border-radius: 10px;
+  border: 1px solid #e8e3de;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  padding: 0 0.75rem;
+}
+
+.typeSelect {
+  min-width: 10rem;
+}
+
+.searchInput:focus,
+.dateInput:focus,
+.typeSelect:focus {
+  outline: none;
+  border-color: #e85d7a;
+}
+
+.clearButton {
+  border: 1px solid #e8e3de;
+  background: #fff;
+  color: #7c7773;
+  border-radius: 10px;
+  min-height: 2.5rem;
+  padding: 0 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .tabs {
   display: inline-flex;
   gap: 0.35rem;
   padding: 0.35rem;
   border-radius: 999px;
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
+  background: #fff;
+  border: 1px solid #ede8e3;
   align-self: flex-start;
 }
 
@@ -19,7 +65,7 @@
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: var(--color-text-muted);
+  color: #7a726f;
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 0.9rem;
@@ -28,11 +74,11 @@
 }
 
 .tab:hover {
-  color: var(--color-ink);
+  color: #1a1a1a;
 }
 
 .tabActive {
-  background: var(--color-pink);
+  background: #e85d7a;
   color: #fff;
 }
 
@@ -48,8 +94,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.1rem;
 }
 
 .card {
@@ -57,10 +103,9 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 1rem 1.1rem 1.15rem;
-  border-radius: 16px;
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #ede8e3;
 }
 
 .cardHead {
@@ -79,13 +124,13 @@
 .date {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #48597e;
+  color: #4a9fd4;
 }
 
 .time {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: #8d8784;
 }
 
 .cardCancelled {
@@ -117,13 +162,13 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 800;
-  color: var(--color-ink);
+  color: #1a1a1a;
   line-height: 1.2;
 }
 
 .location {
   margin: 0;
-  color: var(--color-text-muted);
+  color: #6f6763;
   font-size: 0.85rem;
 }
 
@@ -142,7 +187,7 @@
 }
 
 .registered {
-  color: var(--color-teal);
+  color: #2e7d5f;
   font-weight: 700;
   font-size: 0.85rem;
 }
@@ -155,13 +200,13 @@
 }
 
 .statusRegistered {
-  background: var(--color-blush);
-  color: var(--color-pink);
+  background: #fdf0f2;
+  color: #c13057;
 }
 
 .statusAttended {
-  background: var(--color-mint);
-  color: var(--color-teal);
+  background: #d6f0e8;
+  color: #2e7d5f;
 }
 
 .statusNoShow {
@@ -171,21 +216,31 @@
 
 .statusCancelled {
   background: #eceff2;
-  color: var(--color-text-muted);
+  color: #7d7874;
 }
 
 .empty {
   padding: 2rem 1.5rem;
   border-radius: 16px;
-  background: var(--color-white);
-  border: 1px dashed var(--color-border);
+  background: #fff;
+  border: 1px dashed #ede8e3;
   text-align: center;
-  color: var(--color-text-muted);
+  color: #7d7874;
 }
 
 .empty strong {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--color-ink);
+  color: #1a1a1a;
   font-size: 1rem;
+}
+
+@media (max-width: 760px) {
+  .filterBox {
+    grid-template-columns: 1fr;
+  }
+
+  .typeSelect {
+    min-width: 0;
+  }
 }

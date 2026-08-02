@@ -54,14 +54,82 @@ export function PortalEventsTabs({
   locale: Locale;
 }) {
   const [tab, setTab] = useState<Tab>("upcoming");
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [selectedType, setSelectedType] = useState<EventType | "">("");
 
   const registeredIds = useMemo(
     () => new Set(mine.map((m) => m.event.id)),
     [mine],
   );
 
+  const filteredUpcoming = useMemo(() => {
+    return upcoming.filter((event) => {
+      const title = pickLocalized(event, "title", locale) ?? event.title;
+      const matchesSearch =
+        search.trim().length === 0 ||
+        title.toLowerCase().includes(search.trim().toLowerCase()) ||
+        (event.type ?? "").toLowerCase().includes(search.trim().toLowerCase());
+      const matchesDate = !dateFrom || event.date >= dateFrom;
+      const matchesType = !selectedType || event.type === selectedType;
+      return matchesSearch && matchesDate && matchesType;
+    });
+  }, [upcoming, locale, search, dateFrom, selectedType]);
+
+  const filteredMine = useMemo(() => {
+    return mine.filter(({ event }) => {
+      const title = pickLocalized(event, "title", locale) ?? event.title;
+      const matchesSearch =
+        search.trim().length === 0 ||
+        title.toLowerCase().includes(search.trim().toLowerCase()) ||
+        (event.type ?? "").toLowerCase().includes(search.trim().toLowerCase());
+      const matchesDate = !dateFrom || event.date >= dateFrom;
+      const matchesType = !selectedType || event.type === selectedType;
+      return matchesSearch && matchesDate && matchesType;
+    });
+  }, [mine, locale, search, dateFrom, selectedType]);
+
   return (
     <div className={styles.wrap}>
+      <div className={styles.filterBox}>
+        <input
+          type="search"
+          value={search}
+          placeholder="Search by event name or type"
+          onChange={(event) => setSearch(event.target.value)}
+          className={styles.searchInput}
+        />
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(event) => setDateFrom(event.target.value)}
+          className={styles.dateInput}
+        />
+        <select
+          className={styles.typeSelect}
+          value={selectedType}
+          onChange={(event) => setSelectedType(event.target.value as EventType | "")}
+        >
+          <option value="">All programmes</option>
+          <option value="sport">Sport</option>
+          <option value="nutrition">Nutrition</option>
+          <option value="family_support">Family support</option>
+        </select>
+        {(search || dateFrom || selectedType) && (
+          <button
+            type="button"
+            className={styles.clearButton}
+            onClick={() => {
+              setSearch("");
+              setDateFrom("");
+              setSelectedType("");
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
       <div className={styles.tabs} role="tablist" aria-label="Events tabs">
         <button
           type="button"
@@ -71,7 +139,7 @@ export function PortalEventsTabs({
           onClick={() => setTab("upcoming")}
         >
           Upcoming
-          <span className={styles.count}>{upcoming.length}</span>
+          <span className={styles.count}>{filteredUpcoming.length}</span>
         </button>
         <button
           type="button"
@@ -81,19 +149,19 @@ export function PortalEventsTabs({
           onClick={() => setTab("mine")}
         >
           My events
-          <span className={styles.count}>{mine.length}</span>
+          <span className={styles.count}>{filteredMine.length}</span>
         </button>
       </div>
 
       {tab === "upcoming" ? (
-        upcoming.length === 0 ? (
+        filteredUpcoming.length === 0 ? (
           <EmptyState
             title="No events published yet"
             body="Come back soon — new sport, nutrition and family activities go up every week."
           />
         ) : (
           <div className={styles.grid}>
-            {upcoming.map((event) => (
+            {filteredUpcoming.map((event) => (
               <EventCard
                 key={event.id}
                 event={event}
@@ -103,14 +171,14 @@ export function PortalEventsTabs({
             ))}
           </div>
         )
-      ) : mine.length === 0 ? (
+      ) : filteredMine.length === 0 ? (
         <EmptyState
           title="You haven't registered for any events yet"
           body="Browse the Upcoming tab to find something to join."
         />
       ) : (
         <div className={styles.grid}>
-          {mine.map(({ event, participationStatus }) => (
+          {filteredMine.map(({ event, participationStatus }) => (
             <EventCard
               key={event.id}
               event={event}

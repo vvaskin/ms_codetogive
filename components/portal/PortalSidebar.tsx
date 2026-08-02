@@ -28,21 +28,19 @@ type NavItem = { href: string; label: string; icon: string; external?: boolean }
 // Flat nav list per role. Only routes we actually have.
 function navItemsFor(role: UserRole): NavItem[] {
   const items: NavItem[] = [
-    { href: "/portal", label: "Home", icon: "🏠" },
+    { href: "/portal", label: "My Portal", icon: "⌂" },
   ];
 
   if (role === "contributor") {
     items.push(
       { href: "/portal/impact", label: "My Donations", icon: "♡" },
-      { href: "/portal/volunteering", label: "My Volunteering", icon: "✦" },
+      { href: "/portal/volunteering", label: "My Volunteer", icon: "✦" },
       { href: "/portal/events", label: "Events", icon: "📅" },
       { href: "/portal/donate", label: "Donate", icon: "＋" },
     );
   } else {
     items.push({ href: "/portal/events", label: "Events", icon: "📅" });
   }
-
-  items.push({ href: "/portal/profile", label: "Profile", icon: "☺" });
 
   return items;
 }
@@ -118,7 +116,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
             </span>
             Back to website
           </Link>
-          <div className={styles.userRow}>
+          <Link href="/portal/profile" className={styles.userRow}>
             <div className={styles.avatar}>
               {user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -131,6 +129,8 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
               <span className={styles.footerName}>{user.name}</span>
               <span className={styles.footerRole}>{roleLabels[user.role]}</span>
             </div>
+          </Link>
+          <div>
             <button
               type="button"
               className={styles.signOut}

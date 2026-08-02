@@ -66,7 +66,7 @@ Presentational only (no API, persistence, or business rules):
 - Programmes experience code remains (`ProgrammesExperience`, `content/programmes.ts`) but is not routed; Our Programmes and How Families Join pages were removed.
 - Other templates: `PageRenderer.module.css`
 - Forms: `DemoForms.module.css`, `AuthForm.module.css`
-- Portal presentation: `app/portal/page.module.css`
+- Portal presentation: `app/portal/page.module.css` (member placeholders) and `components/portal/ContributorDashboard.tsx` (contributor inline-style portal UI with local My Portal / Milestone / Events / Donate views plus profile overlay)
 
 ### Authentication and persistence
 
