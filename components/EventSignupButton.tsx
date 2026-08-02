@@ -5,8 +5,7 @@ import { useState } from "react";
 import { registerForEvent } from "@/app/actions/registrations";
 import { VOLUNTEER_INTERESTS, type VolunteerInterest } from "@/lib/volunteer-interests";
 import type { Locale } from "@/content/site-data";
-import type { UserRole } from "@/lib/roles";
-import styles from "./EventSignupButton.module.css";
+import { isContributorRole, type UserRole } from "@/lib/roles";import styles from "./EventSignupButton.module.css";
 
 type Props = {
   eventId: number;
@@ -37,7 +36,7 @@ export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Pr
     setError(null);
     const res = await registerForEvent({
       eventId,
-      interest: sessionRole === "volunteer" ? interestValue : null,
+      interest: isContributorRole(sessionRole) ? interestValue : null,
       guestName: sessionRole ? null : name ?? null,
       guestEmail: sessionRole ? null : email ?? null,
     });
@@ -59,14 +58,14 @@ export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Pr
         </p>
         {sessionRole ? (
           <Link className={styles.link} href="/portal/events">
-            {pick(locale, "View in My Events", "在「我的活動」查看", '在"我的活动"查看')}
+            {pick(locale, "View in My Volunteering", "在「我的義工服務」查看", '在"我的义工服务"查看')}
           </Link>
         ) : null}
       </div>
     );
   }
 
-  if (sessionRole === "volunteer") {
+  if (isContributorRole(sessionRole)) {
     if (!open) {
       return (
         <button className={styles.primary} onClick={() => setOpen(true)} type="button">

@@ -32,7 +32,7 @@ export default async function LoginPage({
     <AuthPage
       eyebrow="One community"
       title="A place for every Love 21 journey."
-      description="Members, donors, and volunteers each arrive here through one secure doorway."
+      description="Members and contributors each arrive here through one secure doorway."
     >
       <AuthForm mode="login" redirectTo={redirectTo} />
     </AuthPage>

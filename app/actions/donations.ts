@@ -84,7 +84,7 @@ export async function recordDonation(
       email,
       name,
       phone,
-      role: "donor",
+      role: "contributor",
       origin,
     });
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { DonorDashboard } from "@/components/portal/DonorDashboard";
+import { ContributorDashboard } from "@/components/portal/ContributorDashboard";
 import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
+import { isContributorRole } from "@/lib/roles";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -14,8 +15,8 @@ export default async function PortalPage() {
 
   if (!profile) redirect("/login?next=/portal");
 
-  if (profile.role === "donor") {
-    return <DonorDashboard name={profile.name} />;
+  if (isContributorRole(profile.role)) {
+    return <ContributorDashboard name={profile.name} />;
   }
 
   const portalRole = profile.role === "staff" ? "member" : profile.role;

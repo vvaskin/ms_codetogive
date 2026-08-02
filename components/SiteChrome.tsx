@@ -502,9 +502,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const signOutPendingLabel = pick("Signing out…", "登出中…", "退出中…");
   const volunteerPath = pick("/our-volunteer/", "/zh/our-volunteer-hk/", "/cn/our-volunteer/");
   const volunteerSignupPath = pick(
-    "/signup?role=volunteer",
-    "/zh/signup-hk/?role=volunteer",
-    "/cn/signup-hk/?role=volunteer",
+    "/signup?role=contributor",
+    "/zh/signup-hk/?role=contributor",
+    "/cn/signup-hk/?role=contributor",
   );
   const volunteerLabel = pick("Volunteer", "做義工", "做义工");
   const donatePath = pick("/donate/", "/zh/donate-hk/", "/cn/donate/");

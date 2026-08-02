@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
-import { isUserRole } from "@/lib/roles";
+import { normalizeSignupRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -24,14 +24,14 @@ export default async function SignupCnPage({
 
   const rawRole = (await searchParams).role;
   const roleValue = Array.isArray(rawRole) ? rawRole[0] : rawRole;
-  const initialRole = isUserRole(roleValue) ? roleValue : "member";
+  const initialRole = normalizeSignupRole(roleValue);
 
   return (
     <AuthPage
       variant="signup"
       eyebrow="加入 Love 21"
       title="每个人都可以出一分力。"
-      description="建立账户时，请选择会员、捐赠者或义工身份。"
+      description="建立账户时，请选择会员或贡献者身份。"
     >
       <AuthForm mode="signup" locale="cn" initialRole={initialRole} />
     </AuthPage>

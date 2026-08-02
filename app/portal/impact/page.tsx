@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ImpactPanel } from "@/components/portal/ImpactPanel";
+import { isContributorRole } from "@/lib/roles";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export default async function ImpactPage() {
   const profile = await getSessionProfile();
 
   if (!profile) redirect("/login?next=/portal/impact");
-  if (profile.role !== "donor") redirect("/portal");
+  if (!isContributorRole(profile.role)) redirect("/portal");
 
   return (
     <div className="portal-subpage">

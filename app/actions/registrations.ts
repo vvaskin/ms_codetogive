@@ -3,11 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isContributorRole } from "@/lib/roles";
 import { VOLUNTEER_INTEREST_VALUES } from "@/lib/volunteer-interests";
 
 export interface RegisterForEventInput {
   eventId: number;
-  /** Volunteers only — the role they want for this event. */
+  /** Contributors only — the role they want for this event. */
   interest?: string | null;
   /** Guests only — required when the visitor is logged out. */
   guestName?: string | null;
@@ -18,7 +19,7 @@ export interface RegisterForEventResult {
   ok: boolean;
   error?: string;
   /** Which sign-up path was taken. */
-  mode?: "volunteer" | "member" | "guest";
+  mode?: "contributor" | "member" | "guest";
 }
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -26,8 +27,8 @@ const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 /**
  * Signs a visitor up for an event.
  *
- * - Authenticated volunteers pick an interest; their row stores user_id + interest.
- * - Authenticated members/donors sign up under their own account (no interest).
+ * - Authenticated contributors pick an interest; their row stores user_id + interest.
+ * - Authenticated members sign up under their own account (no interest).
  * - Logged-out guests provide a name + email; their row stores guest_name +
  *   guest_email with user_id NULL (no account is created).
  */
@@ -50,8 +51,8 @@ export async function registerForEvent(
       .eq("id", user.id)
       .maybeSingle();
 
-    const isVolunteer = profile?.role === "volunteer";
-    const interest = isVolunteer ? normalizeInterest(input.interest) : null;
+    const isContributor = isContributorRole(profile?.role);
+    const interest = isContributor ? normalizeInterest(input.interest) : null;
 
     const { error } = await supabase
       .from("event_participations")
@@ -68,7 +69,7 @@ export async function registerForEvent(
     if (error) return { ok: false, error: error.message };
 
     revalidatePath("/portal/events");
-    return { ok: true, mode: isVolunteer ? "volunteer" : "member" };
+    return { ok: true, mode: isContributor ? "contributor" : "member" };
   }
 
   // Guest: store name + email directly (no account is created).

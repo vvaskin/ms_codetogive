@@ -9,7 +9,7 @@ import { EventCarousel } from "./EventCarousel";
 import { ImpactPanel } from "./ImpactPanel";
 import styles from "./dashboard.module.css";
 
-export function DonorDashboard({ name }: { name: string }) {
+export function ContributorDashboard({ name }: { name: string }) {
   const totalDonated = donationHistory.reduce((sum, r) => sum + r.amount, 0);
 
   return (
@@ -19,7 +19,7 @@ export function DonorDashboard({ name }: { name: string }) {
         subtitle="Here is what is happening and the difference you are making."
         stat={{
           value: formatCurrency(totalDonated),
-          label: "Total donated",
+          label: "Total contributed",
         }}
       />
 

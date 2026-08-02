@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { VOLUNTEER_SIGNUP_DRAFT_KEY, VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE } from "@/lib/volunteer-signup-draft";
 import { createClient } from "@/lib/supabase/client";
-import { USER_ROLES, type UserRole } from "@/lib/roles";
+import { PUBLIC_SIGNUP_ROLES, type PublicSignupRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
@@ -32,13 +31,10 @@ const copy = {
         label: "Member",
         description: "Join Love 21 as a person with Down syndrome.",
       },
-      donor: {
-        label: "Donor",
-        description: "Support Love 21 and its community through donations.",
-      },
-      volunteer: {
-        label: "Volunteer",
-        description: "Help with classes, activities, and events.",
+      contributor: {
+        label: "Contributor",
+        description:
+          "Support Love 21 through donations, volunteering, and events.",
       },
     },
     genericError: "Something went wrong. Please try again.",
@@ -74,13 +70,9 @@ const copy = {
         label: "會員",
         description: "以唐氏綜合症人士身份加入 Love 21。",
       },
-      donor: {
-        label: "捐贈者",
-        description: "透過捐贈支持 Love 21 及其社群。",
-      },
-      volunteer: {
-        label: "義工",
-        description: "協助課堂、活動及項目。",
+      contributor: {
+        label: "貢獻者",
+        description: "透過捐款、義工服務及活動支持 Love 21。",
       },
     },
     genericError: "發生錯誤，請再試一次。",
@@ -114,13 +106,9 @@ const copy = {
         label: "会员",
         description: "以唐氏综合症人士身份加入 Love 21。",
       },
-      donor: {
-        label: "捐赠者",
-        description: "通过捐赠支持 Love 21 及其社群。",
-      },
-      volunteer: {
-        label: "义工",
-        description: "协助课堂、活动及项目。",
+      contributor: {
+        label: "贡献者",
+        description: "通过捐款、义工服务及活动支持 Love 21。",
       },
     },
     genericError: "发生错误，请再试一次。",
@@ -180,12 +168,12 @@ export function AuthForm({
   redirectTo?: string;
   locale?: Locale;
   showAccountSwitch?: boolean;
-  initialRole?: UserRole;
+  initialRole?: PublicSignupRole;
 }) {
   const router = useRouter();
   const lang: Copy =
     locale === "zh" ? copy.zh : locale === "cn" ? copy.cn : copy.en;
-  const [role, setRole] = useState<UserRole>(initialRole);
+  const [role, setRole] = useState<PublicSignupRole>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -197,22 +185,9 @@ export function AuthForm({
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const supabase = createClient();
-
-    if (isSignup && role === "volunteer") {
-      const phone = String(formData.get("phone") ?? "").trim();
-      window.sessionStorage.setItem(
-        VOLUNTEER_SIGNUP_DRAFT_KEY,
-        JSON.stringify({ name, email, password, phone }),
-      );
-      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=1; Path=/; Max-Age=1800; SameSite=Lax`;
-      router.push("/signup/volunteer");
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
       if (isSignup) {
@@ -255,7 +230,6 @@ export function AuthForm({
         }
       }
 
-      document.cookie = `${VOLUNTEER_SIGNUP_IN_PROGRESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace(redirectTo);
       router.refresh();
     } catch {
@@ -409,7 +383,7 @@ export function AuthForm({
           <fieldset className={styles.rolePicker}>
             <legend>{lang.accountType}</legend>
             <div className={styles.roleOptions}>
-              {USER_ROLES.map((value) => (
+              {PUBLIC_SIGNUP_ROLES.map((value) => (
                 <label
                   className={`${styles.roleOption} ${role === value ? styles.selected : ""}`}
                   key={value}
@@ -445,9 +419,7 @@ export function AuthForm({
             ? lang.creatingAccount
             : lang.loggingIn
           : isSignup
-            ? role === "volunteer"
-              ? "Continue"
-              : lang.createAccount
+            ? lang.createAccount
             : lang.logIn}
         {!isSubmitting && <span aria-hidden="true">➜</span>}
       </button>

@@ -158,9 +158,9 @@ const routes = {
     cn: "/cn/our-volunteer/",
   },
   volunteerSignup: {
-    en: "/signup?role=volunteer",
-    zh: "/zh/signup-hk/?role=volunteer",
-    cn: "/cn/signup-hk/?role=volunteer",
+    en: "/signup?role=contributor",
+    zh: "/zh/signup-hk/?role=contributor",
+    cn: "/cn/signup-hk/?role=contributor",
   },
   stories: { en: "/stories/", zh: "/zh/stories-hk/", cn: "/cn/stories/" },
   ourStory: {

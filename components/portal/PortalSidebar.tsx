@@ -17,40 +17,37 @@ export interface PortalUser {
 
 const roleLabels: Record<UserRole, string> = {
   member: "Member",
-  donor: "Donor",
-  volunteer: "Volunteer",
+  contributor: "Contributor",
   staff: "Staff",
 };
 
 const consoleLabels: Record<UserRole, string> = {
-  member: "Member Console",
-  donor: "Donor Console",
-  volunteer: "Volunteer Console",
+  member: "Member's portal",
+  contributor: "Contributor's portal",
   // TODO: staff admin console — falls through to member's flat nav for now.
-  staff: "Staff Console",
+  staff: "Staff's portal",
 };
 
-type NavItem = { href: string; label: string; icon: string; external?: boolean };
+type NavItem = { href: string; label: string; external?: boolean };
 
 // Flat nav list per role. Only routes we actually have.
 function navItemsFor(role: UserRole): NavItem[] {
   const items: NavItem[] = [
-    { href: "/portal", label: "Home", icon: "🏠" },
+    { href: "/portal", label: "Home" },
   ];
 
-  if (role === "donor") {
+  if (role === "contributor") {
     items.push(
-      { href: "/portal/impact", label: "Impact", icon: "✦" },
-      { href: "/portal/events", label: "Events", icon: "📅" },
-      { href: "/portal/donate", label: "Donate", icon: "♡" },
+      { href: "/portal/impact", label: "Impact" },
+      { href: "/portal/volunteer-application", label: "Volunteer Application" },
+      { href: "/portal/events", label: "My Volunteering" },
+      { href: "/portal/donate", label: "Donate" },
     );
-  } else if (role === "volunteer") {
-    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
   } else {
-    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
+    items.push({ href: "/portal/events", label: "My Volunteering" });
   }
 
-  items.push({ href: "/portal/profile", label: "Profile", icon: "☺" });
+  items.push({ href: "/portal/profile", label: "Profile" });
 
   return items;
 }
@@ -114,9 +111,6 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
               className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
               aria-current={active ? "page" : undefined}
             >
-              <span className={styles.navIcon} aria-hidden="true">
-                {item.icon}
-              </span>
               {item.label}
             </Link>
           );

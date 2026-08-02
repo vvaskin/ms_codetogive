@@ -1,4 +1,4 @@
-// Static mock data for the donor portal. In a real build these would come from
+// Static mock data for the contributor portal. In a real build these would come from
 // the database and a payment provider; for now they power the dashboard, the
 // My Impact page, and the donation history preview.
 

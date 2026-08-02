@@ -1,19 +1,38 @@
-// Roles a user can *pick* at signup — surfaced in the auth form.
-export const USER_ROLES = ["member", "donor", "volunteer"] as const;
-export type SignupRole = (typeof USER_ROLES)[number];
+// Roles the public signup form offers (donor + volunteer merged into
+// contributor). The auth form maps over this list.
+export const PUBLIC_SIGNUP_ROLES = ["member", "contributor"] as const;
+export type PublicSignupRole = (typeof PUBLIC_SIGNUP_ROLES)[number];
 
-// Roles the app can *observe* on a profile. Wider than SignupRole because
-// staff is assigned manually via Supabase Studio, not through the form.
-// Mirrors the `user_role` enum in the database.
-export type UserRole = SignupRole | "staff";
+// Alias kept for admin code that still references a signup role set.
+export type SignupRole = PublicSignupRole;
+
+// Roles the app can *observe* on a profile. Mirrors the `user_role` enum in
+// the database (member | contributor | staff).
+export type UserRole = "member" | "contributor" | "staff";
 
 export function isUserRole(value: unknown): value is UserRole {
   return (
     typeof value === "string" &&
-    (USER_ROLES.includes(value as SignupRole) || value === "staff")
+    (value === "member" || value === "contributor" || value === "staff")
   );
 }
 
 export function isSignupRole(value: unknown): value is SignupRole {
-  return typeof value === "string" && USER_ROLES.includes(value as SignupRole);
+  return (
+    typeof value === "string" &&
+    PUBLIC_SIGNUP_ROLES.includes(value as PublicSignupRole)
+  );
+}
+
+export function isContributorRole(role: UserRole | string | null | undefined): boolean {
+  return role === "contributor";
+}
+
+// Maps arbitrary signup links (including legacy `?role=donor|volunteer`) to a
+// valid signup role; everything that is not explicitly a member becomes a
+// contributor.
+export function normalizeSignupRole(
+  value: string | undefined | null,
+): PublicSignupRole {
+  return value === "member" ? "member" : "contributor";
 }

@@ -1,0 +1,61 @@
+.fieldSelect {
+  padding: 11px 13px;
+  border: 1px solid var(--love-line);
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 400;
+  color: var(--love-dark);
+  background: #fff;
+}
+
+.fieldSelect:focus {
+  outline: 2px solid rgba(154, 169, 206, 0.5);
+  border-color: #9aa9ce;
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: var(--control-height-lg);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-pink);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-lift);
+  transition:
+    background-color var(--motion-fast),
+    transform var(--motion-fast);
+  cursor: pointer;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--color-pink-dark);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: #fff0f0;
+  color: #9e1b1b;
+  font-weight: 600;
+}
+
+.saved {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #e7f3ea;
+  color: #3f7650;
+  font-weight: 600;
+}
