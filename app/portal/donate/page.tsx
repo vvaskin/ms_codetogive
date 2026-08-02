@@ -13,7 +13,7 @@ export default async function DonatePage() {
   const profile = await getSessionProfile();
 
   if (!profile) redirect("/login?next=/portal/donate");
-  if (!isContributorRole(profile.role)) redirect("/portal");
+  if (profile.role !== "contributor") redirect("/portal");
 
   return (
     <div className="portal-subpage">

@@ -15,10 +15,11 @@ export default async function PortalPage() {
 
   if (!profile) redirect("/login?next=/portal");
 
-  if (isContributorRole(profile.role)) {
-    return <ContributorDashboard name={profile.name} />;
+  if (profile.role === "contributor") {
+    return <DonorDashboard name={profile.name} />;
   }
 
-  const portalRole = profile.role === "staff" ? "member" : profile.role;
-  return <PlaceholderDashboard name={profile.name} role={portalRole} />;
+  // Staff is redirected to /admin by app/portal/layout.tsx; fall back to member
+  // copy for any non-contributor session that lands here.
+  return <PlaceholderDashboard name={profile.name} role="member" />;
 }

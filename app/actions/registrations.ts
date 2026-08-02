@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isContributorRole } from "@/lib/roles";
+import {
+  getVolunteerApplication,
+  isApprovedVolunteer,
+} from "@/lib/server/volunteer-application";
 import { VOLUNTEER_INTEREST_VALUES } from "@/lib/volunteer-interests";
 
 export interface RegisterForEventInput {
@@ -45,32 +48,12 @@ export async function registerForEvent(
   } = await supabase.auth.getUser();
 
   if (user) {
-    const [{ data: profile }, { data: application }] = await Promise.all([
-      supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle(),
-      supabase
-        .from("volunteer_applications")
-        .select("status")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-    ]);
-
-    const isContributor = isContributorRole(profile?.role);
-
-    // Contributors must have an approved application before they can sign up
-    // for events — mirroring the UI gate on the event buttons.
-    if (isContributor && application?.status !== "approved") {
-      return {
-        ok: false,
-        error:
-          "Apply to be a volunteer in your portal before signing up for events.",
-      };
-    }
-
-    const interest = isContributor ? normalizeInterest(input.interest) : null;
+    // Only approved volunteers may capture an interest — the row's `interest`
+    // is the DB signature that gates volunteer-specific features later, so
+    // this must be enforced server-side, not just in the UI.
+    const application = await getVolunteerApplication(user.id, supabase);
+    const approvedVolunteer = isApprovedVolunteer(application);
+    const interest = approvedVolunteer ? normalizeInterest(input.interest) : null;
 
     const { error } = await supabase
       .from("event_participations")
@@ -87,7 +70,7 @@ export async function registerForEvent(
     if (error) return { ok: false, error: error.message };
 
     revalidatePath("/portal/events");
-    return { ok: true, mode: isContributor ? "contributor" : "member" };
+    return { ok: true, mode: approvedVolunteer ? "volunteer" : "member" };
   }
 
   // Guest: store name + email directly (no account is created).

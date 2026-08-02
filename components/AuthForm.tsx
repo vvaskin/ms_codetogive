@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { PUBLIC_SIGNUP_ROLES, type PublicSignupRole } from "@/lib/roles";
+import { USER_ROLES, type SignupRole } from "@/lib/roles";
 import styles from "./AuthForm.module.css";
 
 type AuthMode = "login" | "signup";
@@ -34,7 +34,7 @@ const copy = {
       contributor: {
         label: "Contributor",
         description:
-          "Support Love 21 through donations, volunteering, and events.",
+          "Support Love 21 through donations, and optionally apply to volunteer.",
       },
     },
     genericError: "Something went wrong. Please try again.",
@@ -72,7 +72,7 @@ const copy = {
       },
       contributor: {
         label: "貢獻者",
-        description: "透過捐款、義工服務及活動支持 Love 21。",
+        description: "透過捐贈支持 Love 21，並可申請成為義工。",
       },
     },
     genericError: "發生錯誤，請再試一次。",
@@ -108,7 +108,7 @@ const copy = {
       },
       contributor: {
         label: "贡献者",
-        description: "通过捐款、义工服务及活动支持 Love 21。",
+        description: "通过捐赠支持 Love 21，并可申请成为义工。",
       },
     },
     genericError: "发生错误，请再试一次。",
@@ -168,12 +168,12 @@ export function AuthForm({
   redirectTo?: string;
   locale?: Locale;
   showAccountSwitch?: boolean;
-  initialRole?: PublicSignupRole;
+  initialRole?: SignupRole;
 }) {
   const router = useRouter();
   const lang: Copy =
     locale === "zh" ? copy.zh : locale === "cn" ? copy.cn : copy.en;
-  const [role, setRole] = useState<PublicSignupRole>(initialRole);
+  const [role, setRole] = useState<SignupRole>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

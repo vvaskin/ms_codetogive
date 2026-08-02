@@ -5,6 +5,8 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { localePaths } from "@/content/site-data";
+import { SiteToolsTray } from "@/components/SiteTools";
 import type { UserRole } from "@/lib/roles";
 import styles from "./PortalSidebar.module.css";
 
@@ -21,6 +23,7 @@ const roleLabels: Record<UserRole, string> = {
   staff: "Staff",
 };
 
+<<<<<<< HEAD
 const consoleLabels: Record<UserRole, string> = {
   member: "Member's portal",
   contributor: "Contributor's portal",
@@ -29,6 +32,9 @@ const consoleLabels: Record<UserRole, string> = {
 };
 
 type NavItem = { href: string; label: string; external?: boolean };
+=======
+type NavItem = { href: string; label: string; icon: string; external?: boolean };
+>>>>>>> portals
 
 // Flat nav list per role. Only routes we actually have.
 function navItemsFor(role: UserRole): NavItem[] {
@@ -38,10 +44,17 @@ function navItemsFor(role: UserRole): NavItem[] {
 
   if (role === "contributor") {
     items.push(
+<<<<<<< HEAD
       { href: "/portal/impact", label: "Impact" },
       { href: "/portal/volunteer-application", label: "Volunteer Application" },
       { href: "/portal/events", label: "My Volunteering" },
       { href: "/portal/donate", label: "Donate" },
+=======
+      { href: "/portal/impact", label: "My Donations", icon: "♡" },
+      { href: "/portal/volunteering", label: "My Volunteering", icon: "✦" },
+      { href: "/portal/events", label: "Events", icon: "📅" },
+      { href: "/portal/donate", label: "Donate", icon: "＋" },
+>>>>>>> portals
     );
   } else {
     items.push({ href: "/portal/events", label: "My Volunteering" });
@@ -80,75 +93,77 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
   }
 
   return (
-    <aside className={styles.sidebar} aria-label="Portal navigation">
-      <Link
-        href="/"
-        className={styles.brand}
-        aria-label="Love 21 — return to website"
-      >
-        <Image
-          src="/assets/images/love21_logo.png?v=2"
-          alt=""
-          width={330}
-          height={202}
-          priority
-          className={styles.brandLogo}
-        />
-        <span className={styles.brandText}>
-          <span className={styles.brandSubtitle}>
-            {consoleLabels[user.role]}
-          </span>
-        </span>
-      </Link>
-
-      <nav className={styles.nav} aria-label="Portal sections">
-        {items.map((item) => {
-          const active = isItemActive(pathname, item);
-          return (
-            <Link
-              key={`${item.href}-${item.label}`}
-              href={item.href}
-              className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
-              aria-current={active ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className={styles.footer}>
-        <Link href="/" className={styles.backLink}>
-          <span className={styles.backIcon} aria-hidden="true">
-            ←
-          </span>
-          Back to website
+    <>
+      <header className={styles.sidebar} aria-label="Portal navigation">
+        <Link
+          href="/"
+          className={styles.brand}
+          aria-label="Love 21 — return to website"
+        >
+          <Image
+            src="/assets/images/love21_logo.png"
+            alt=""
+            width={330}
+            height={202}
+            priority
+            className={styles.brandLogo}
+          />
         </Link>
-        <div className={styles.userRow}>
-          <div className={styles.avatar}>
-            {user.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.image} alt={user.name} />
-            ) : (
-              <span aria-hidden="true">{initials(user.name)}</span>
-            )}
+
+        <nav className={styles.nav} aria-label="Portal sections">
+          {items.map((item) => {
+            const active = isItemActive(pathname, item);
+            return (
+              <Link
+                key={`${item.href}-${item.label}`}
+                href={item.href}
+                className={`${styles.navLink} ${active ? styles.navLinkActive : ""}`}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className={styles.navIcon} aria-hidden="true">
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className={styles.footer}>
+          <Link href="/" className={styles.backLink}>
+            <span className={styles.backIcon} aria-hidden="true">
+              ←
+            </span>
+            Back to website
+          </Link>
+          <div className={styles.userRow}>
+            <div className={styles.avatar}>
+              {user.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.image} alt={user.name} />
+              ) : (
+                <span aria-hidden="true">{initials(user.name)}</span>
+              )}
+            </div>
+            <div className={styles.footerText}>
+              <span className={styles.footerName}>{user.name}</span>
+              <span className={styles.footerRole}>{roleLabels[user.role]}</span>
+            </div>
+            <button
+              type="button"
+              className={styles.signOut}
+              onClick={signOut}
+              disabled={signingOut}
+              aria-label={signingOut ? "Signing out" : "Sign out"}
+              title="Sign out"
+            >
+              {signingOut ? "…" : "↦"}
+            </button>
           </div>
-          <div className={styles.footerText}>
-            <span className={styles.footerName}>{user.name}</span>
-            <span className={styles.footerRole}>{roleLabels[user.role]}</span>
-          </div>
-          <button
-            type="button"
-            className={styles.signOut}
-            onClick={signOut}
-            disabled={signingOut}
-            aria-label={signingOut ? "Signing out" : "Sign out"}
-            title="Sign out"
-          >
-            {signingOut ? "…" : "↦"}
-          </button>
         </div>
-      </div>
-    </aside>
+      </header>
+
+      <SiteToolsTray locale="en" paths={localePaths("/portal")} />
+    </>
   );
 }

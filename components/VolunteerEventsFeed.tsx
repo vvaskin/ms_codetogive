@@ -38,12 +38,14 @@ const typeColors: Record<NonNullable<FeedEvent["type"]>, string> = {
 export function VolunteerEventsFeed({
   events,
   sessionRole,
+  isApprovedVolunteer = false,
   registeredEventIds,
   locale,
   volunteerApproved = false,
 }: {
   events: FeedEvent[];
   sessionRole: UserRole | null;
+  isApprovedVolunteer?: boolean;
   registeredEventIds: number[];
   locale: Locale;
   volunteerApproved?: boolean;
@@ -71,6 +73,7 @@ export function VolunteerEventsFeed({
               key={event.id}
               event={event}
               sessionRole={sessionRole}
+              isApprovedVolunteer={isApprovedVolunteer}
               registered={registeredEventIds.includes(event.id)}
               locale={locale}
               volunteerApproved={volunteerApproved}
@@ -85,12 +88,14 @@ export function VolunteerEventsFeed({
 function EventCard({
   event,
   sessionRole,
+  isApprovedVolunteer,
   registered,
   locale,
   volunteerApproved,
 }: {
   event: FeedEvent;
   sessionRole: UserRole | null;
+  isApprovedVolunteer: boolean;
   registered: boolean;
   locale: Locale;
   volunteerApproved: boolean;
@@ -137,6 +142,7 @@ function EventCard({
           eventId={event.id}
           locale={locale}
           sessionRole={sessionRole}
+          isApprovedVolunteer={isApprovedVolunteer}
           signedUp={registered}
           volunteerApproved={volunteerApproved}
         />

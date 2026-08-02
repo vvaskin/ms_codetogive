@@ -39,12 +39,14 @@ export function ActivitiesExperience({
   locale,
   events,
   sessionRole = null,
+  isApprovedVolunteer = false,
   registeredEventIds = [],
   volunteerApproved = false,
 }: {
   locale: Locale;
   events: ActivityEvent[];
   sessionRole?: UserRole | null;
+  isApprovedVolunteer?: boolean;
   registeredEventIds?: number[];
   volunteerApproved?: boolean;
 }) {
@@ -171,6 +173,7 @@ export function ActivitiesExperience({
                       eventId={activity.dbId}
                       locale={locale}
                       sessionRole={sessionRole}
+                      isApprovedVolunteer={isApprovedVolunteer}
                       signedUp={registeredEventIds.includes(activity.dbId)}
                       volunteerApproved={volunteerApproved}
                     />
@@ -300,6 +303,7 @@ export function ActivitiesExperience({
                           eventId={event.dbId}
                           locale={locale}
                           sessionRole={sessionRole}
+                          isApprovedVolunteer={isApprovedVolunteer}
                           signedUp={registeredEventIds.includes(event.dbId)}
                           volunteerApproved={volunteerApproved}
                         />

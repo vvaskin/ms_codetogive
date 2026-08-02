@@ -350,14 +350,12 @@ export type Database = {
           rejection_reason_visible: boolean
           reviewed_at: string | null
           reviewed_by: string | null
-          scrc_check_doc: string | null
           status:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
           submitted_at: string | null
           updated_at: string
           user_id: string
-          volunteer_policy_doc: string | null
         }
         Insert: {
           age_group?: string | null
@@ -370,14 +368,12 @@ export type Database = {
           rejection_reason_visible?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
-          scrc_check_doc?: string | null
           status?:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
           submitted_at?: string | null
           updated_at?: string
           user_id: string
-          volunteer_policy_doc?: string | null
         }
         Update: {
           age_group?: string | null
@@ -390,14 +386,12 @@ export type Database = {
           rejection_reason_visible?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
-          scrc_check_doc?: string | null
           status?:
             | Database["public"]["Enums"]["volunteer_application_status"]
             | null
           submitted_at?: string | null
           updated_at?: string
           user_id?: string
-          volunteer_policy_doc?: string | null
         }
         Relationships: [
           {
@@ -449,7 +443,6 @@ export type Database = {
         | "approved"
         | "rejected"
         | "withdrawn"
-        | "registered"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1044,7 +1037,6 @@ export const Constants = {
         "approved",
         "rejected",
         "withdrawn",
-        "registered",
       ],
     },
   },

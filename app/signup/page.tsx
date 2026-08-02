@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
+<<<<<<< HEAD
 import { normalizeSignupRole } from "@/lib/roles";
+=======
+import { isSignupRole } from "@/lib/roles";
+>>>>>>> portals
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -24,14 +28,14 @@ export default async function SignupPage({
 
   const rawRole = (await searchParams).role;
   const roleValue = Array.isArray(rawRole) ? rawRole[0] : rawRole;
-  const initialRole = normalizeSignupRole(roleValue);
+  const initialRole = isSignupRole(roleValue) ? roleValue : "member";
 
   return (
     <AuthPage
       variant="signup"
       eyebrow="Join Love 21"
       title="There is a role for everyone."
-      description="Select member or contributor when you create your account."
+      description="Choose member or contributor when you create your account."
     >
       <AuthForm mode="signup" initialRole={initialRole} />
     </AuthPage>

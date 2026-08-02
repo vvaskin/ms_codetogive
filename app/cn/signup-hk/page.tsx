@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { AuthPage } from "@/components/AuthPage";
-import { normalizeSignupRole } from "@/lib/roles";
+import { isSignupRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default async function SignupCnPage({
 
   const rawRole = (await searchParams).role;
   const roleValue = Array.isArray(rawRole) ? rawRole[0] : rawRole;
-  const initialRole = normalizeSignupRole(roleValue);
+  const initialRole = isSignupRole(roleValue) ? roleValue : "member";
 
   return (
     <AuthPage

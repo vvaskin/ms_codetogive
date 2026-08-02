@@ -2,15 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import {
+  getVolunteerApplication,
+  hasActiveApplication,
+} from "@/lib/server/volunteer-application";
 
 export interface SubmitVolunteerApplicationInput {
-  ageGroup?: string | null;
-  gender?: string | null;
+  ageGroup: string;
+  gender: string;
+  referralSource: string;
   bio?: string | null;
-  referralSource?: string | null;
-  /** Object paths in the `volunteer-applications` bucket, set by the client. */
-  volunteerPolicyDoc?: string | null;
-  scrcCheckDoc?: string | null;
+  chineseName?: string | null;
 }
 
 export interface SubmitVolunteerApplicationResult {
@@ -18,12 +20,9 @@ export interface SubmitVolunteerApplicationResult {
   error?: string;
 }
 
-/**
- * Submits the contributor's Volunteer Application. The write goes through the
- * SECURITY DEFINER `submit_volunteer_application` function, which verifies the
- * caller owns the row and moves the status to 'submitted' — users can never
- * set their own status to 'approved'.
- */
+const ALLOWED_AGE_GROUPS = new Set(["14-15", "16-17", "18+"]);
+const ALLOWED_GENDERS = new Set(["Female", "Male", "Prefer not to say"]);
+
 export async function submitVolunteerApplication(
   input: SubmitVolunteerApplicationInput,
 ): Promise<SubmitVolunteerApplicationResult> {
@@ -32,21 +31,92 @@ export async function submitVolunteerApplication(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { ok: false, error: "You need to be signed in." };
+  if (!user) return { ok: false, error: "You must be logged in to apply." };
 
-  const { error } = await supabase.rpc("submit_volunteer_application", {
-    p_user_id: user.id,
-    p_age_group: input.ageGroup?.trim() || undefined,
-    p_gender: input.gender?.trim() || undefined,
-    p_bio: input.bio?.trim() || undefined,
-    p_referral_source: input.referralSource?.trim() || undefined,
-    p_volunteer_policy_doc: input.volunteerPolicyDoc || undefined,
-    p_scrc_check_doc: input.scrcCheckDoc || undefined,
-  });
+  const ageGroup = input.ageGroup?.trim();
+  const gender = input.gender?.trim();
+  const referral = input.referralSource?.trim();
 
+  if (!ageGroup || !ALLOWED_AGE_GROUPS.has(ageGroup)) {
+    return { ok: false, error: "Please choose your age group." };
+  }
+  if (!gender || !ALLOWED_GENDERS.has(gender)) {
+    return { ok: false, error: "Please choose your gender." };
+  }
+  if (!referral) {
+    return { ok: false, error: "Please tell us how you heard about us." };
+  }
+
+  const existing = await getVolunteerApplication(user.id, supabase);
+  if (hasActiveApplication(existing)) {
+    return {
+      ok: false,
+      error:
+        "You already have an application in progress. You'll be notified when it's reviewed.",
+    };
+  }
+
+  const bio = input.bio?.trim() || null;
+  const chineseName = input.chineseName?.trim();
+  const bioWithChineseName = chineseName
+    ? [`Chinese name: ${chineseName}`, bio].filter(Boolean).join("\n")
+    : bio;
+
+  const payload = {
+    user_id: user.id,
+    status: "submitted" as const,
+    submitted_at: new Date().toISOString(),
+    age_group: ageGroup,
+    gender,
+    referral_source: referral,
+    bio: bioWithChineseName,
+    reviewed_at: null,
+    reviewed_by: null,
+    rejection_reason: null,
+    rejection_reason_visible: false,
+  };
+
+  // If a rejected/withdrawn row exists, update it in place so the partial
+  // unique index doesn't complain about a second active row landing next to it.
+  const query = existing
+    ? supabase
+        .from("volunteer_applications")
+        .update(payload)
+        .eq("id", existing.id)
+    : supabase.from("volunteer_applications").insert(payload);
+
+  const { error } = await query;
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath("/portal/volunteer-application");
   revalidatePath("/portal");
+  revalidatePath("/portal/volunteering");
+  return { ok: true };
+}
+
+export interface WithdrawVolunteerApplicationResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function withdrawVolunteerApplication(): Promise<WithdrawVolunteerApplicationResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "You must be logged in." };
+
+  const existing = await getVolunteerApplication(user.id, supabase);
+  if (!existing || !hasActiveApplication(existing)) {
+    return { ok: false, error: "No active application to withdraw." };
+  }
+
+  const { error } = await supabase
+    .from("volunteer_applications")
+    .update({ status: "withdrawn" })
+    .eq("id", existing.id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/portal");
+  revalidatePath("/portal/volunteering");
   return { ok: true };
 }
