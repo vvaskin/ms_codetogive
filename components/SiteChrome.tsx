@@ -144,34 +144,6 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       locale === "zh" ? "zh-Hant" : locale === "cn" ? "zh-Hans" : "en";
   }, [locale]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    document.body.classList.toggle("admin-view", isAdminRoute);
-    return () => document.body.classList.remove("admin-view");
-  }, [isAdminRoute]);
-
-  if (isAdminRoute) return <>{children}</>;
-
-  const toggleSimpleView = () => {
-    const next = !simpleView;
-    window.localStorage.setItem(SIMPLE_VIEW_KEY, next ? "on" : "off");
-    window.dispatchEvent(new Event(SIMPLE_VIEW_EVENT));
-  };
-
-  const toggleHighContrast = () => {
-    const next = !highContrast;
-    window.localStorage.setItem(HIGH_CONTRAST_KEY, next ? "on" : "off");
-    window.dispatchEvent(new Event(HIGH_CONTRAST_EVENT));
-  };
-
-  const adjustTextSize = (delta: number) => {
-    const next = Math.min(TEXT_SIZE_MAX, Math.max(0, textSize + delta));
-    window.localStorage.setItem(TEXT_SIZE_KEY, String(next));
-    window.dispatchEvent(new Event(TEXT_SIZE_EVENT));
-  };
-
-=======
->>>>>>> portals
   const trio = localePaths(pathname);
   const aboutPath = pick("/about/", "/zh/about-hk/", "/cn/about/");
   const aboutLabel = pick("About", "關於", "关于");
