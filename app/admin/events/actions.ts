@@ -103,10 +103,7 @@ function revalidateEventPages() {
   revalidatePath("/cn/events");
 }
 
-function eventValues(
-  formData: FormData,
-  statusOverride?: EventStatus,
-): EventInsert {
+function eventValues(formData: FormData): EventInsert {
   const startsAt = parseDateTime(textValue(formData, "startsAt"), true);
   const endsAt = parseDateTime(textValue(formData, "endsAt"), false);
 
@@ -124,7 +121,7 @@ function eventValues(
     subtype: limitedText(formData, "subtype", 120),
     starts_at: startsAt.toISOString(),
     ends_at: endsAt?.toISOString() ?? null,
-    status: statusOverride ?? parseStatus(textValue(formData, "status")),
+    status: parseStatus(textValue(formData, "status")),
   };
 }
 
@@ -142,32 +139,10 @@ export async function createEvent(formData: FormData) {
   redirect("/admin/events");
 }
 
-export async function updateEvent(formData: FormData) {
-  const supabase = await requireStaff();
-  const id = parseEventId(formData);
-  const { data, error } = await supabase
-    .from("events")
-    .update(eventValues(formData, "published"))
-    .eq("id", id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) throw mutationError("update", error.message);
-  if (!data) throw new Error("Event not found.");
-
-  revalidateEventPages();
-  redirect("/admin/events");
-}
-
 export async function updateEventStatus(formData: FormData) {
   const supabase = await requireStaff();
   const status = parseStatus(textValue(formData, "status"));
   await setEventStatus(supabase, formData, status);
-}
-
-export async function cancelEvent(formData: FormData) {
-  const supabase = await requireStaff();
-  await setEventStatus(supabase, formData, "cancelled");
 }
 
 async function setEventStatus(

@@ -40,7 +40,7 @@ function eventTime(startsAt: string, endsAt: string | null) {
   return `${start}–${timeFormatter.format(new Date(endsAt))}`;
 }
 
-/** Public calendar records. RLS and this explicit filter both exclude drafts. */
+/** Public calendar records. This explicit filter excludes cancelled events. */
 export async function getPublishedCalendarEvents(): Promise<ActivityEvent[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
