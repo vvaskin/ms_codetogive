@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ContributorPortalExperience } from "@/components/portal/ContributorPortalExperience";
+import { getContributorPortalData } from "@/lib/portal/contributor-data";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -12,5 +13,12 @@ export default async function MyVolunteeringPage() {
   const profile = await getSessionProfile();
   if (!profile) redirect("/login?next=/portal/volunteering");
   if (profile.role !== "contributor") redirect("/portal");
-  return <ContributorPortalExperience initialNav="My Volunteer" name={profile.name} />;
+  const data = await getContributorPortalData(profile.id);
+  return (
+    <ContributorPortalExperience
+      initialNav="My Volunteer"
+      name={profile.name}
+      data={data}
+    />
+  );
 }

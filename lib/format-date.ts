@@ -9,7 +9,16 @@ const MONTHS_SHORT = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+const MONTHS_LONG = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const WEEKDAYS_ZH = ["日", "一", "二", "三", "四", "五", "六"];
+
+export type FormatLocale = "en" | "zh" | "cn";
 
 export function formatDayMonthYear(iso: string, time = "T00:00:00"): string {
   const d = new Date(`${iso}${time}`);
@@ -29,11 +38,26 @@ export function formatMonthDay(iso: string, time = "T12:00:00"): string {
 /**
  * Weekday + day + month from a full timestamp (e.g. events.starts_at).
  * Distinct from formatWeekdayDayMonth which appends a fake time to a
- * bare `YYYY-MM-DD`.
+ * bare `YYYY-MM-DD`. Accepts an optional locale for Chinese variants.
  */
-export function formatWeekdayDayMonthAt(iso: string): string {
+export function formatWeekdayDayMonthAt(iso: string, locale: FormatLocale = "en"): string {
   const d = new Date(iso);
+  if (locale === "zh" || locale === "cn") {
+    const weekPrefix = locale === "zh" ? "週" : "周";
+    return `${d.getDate()}月${d.getMonth() + 1}日（${weekPrefix}${WEEKDAYS_ZH[d.getDay()]}）`;
+  }
   return `${WEEKDAYS_SHORT[d.getDay()]}, ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+}
+
+/**
+ * Full date from a full timestamp, hydration-safe (fixed lookup tables).
+ */
+export function formatDayMonthYearAt(iso: string, locale: FormatLocale = "en"): string {
+  const d = new Date(iso);
+  if (locale === "zh" || locale === "cn") {
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+  return `${d.getDate()} ${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function formatClockTime(iso: string): string {

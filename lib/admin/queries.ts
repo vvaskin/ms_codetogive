@@ -23,7 +23,7 @@ import {
 } from "@/lib/admin/dashboard";
 
 const PARTICIPATION_STATUSES = [
-  "registered",
+  "accepted",
   "attended",
   "no_show",
   "cancelled",
@@ -179,7 +179,7 @@ async function loadRowsForUserIds<T>(
 }
 
 function emptyParticipationStatusCounts(): ParticipationStatusCounts {
-  return { registered: 0, attended: 0, no_show: 0, cancelled: 0 };
+  return { accepted: 0, pending: 0, rejected: 0, attended: 0, no_show: 0, cancelled: 0 };
 }
 
 function countParticipationStatuses(
@@ -543,7 +543,7 @@ export async function getAdminEventList(): Promise<AdminEventListItem[]> {
     return {
       event,
       participationCount: participations.length,
-      registeredCount: statusCounts.registered,
+      registeredCount: statusCounts.accepted,
       participationsByStatus: statusCounts,
     };
   });
@@ -604,7 +604,7 @@ export async function getAdminEventDetail(
   return {
     event,
     participantCount: participationRows.length,
-    registeredCount: statusCounts.registered,
+    registeredCount: statusCounts.accepted,
     participationsByStatus: statusCounts,
     participants: participationRows.map((participation) => ({
       participation,

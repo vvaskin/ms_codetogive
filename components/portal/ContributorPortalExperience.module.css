@@ -68,3 +68,98 @@
     padding-inline: var(--space-3);
   }
 }
+
+/* ── Portal surface palette ─────────────────────────────────────────── */
+
+.portal {
+  --portal-pink: #f40770;
+  --portal-pink-deep: #d40668;
+  --portal-pink-soft: #fff0f3;
+  --portal-pink-chip: #ffe3e9;
+  --portal-pink-border: #ffd3dd;
+  --portal-blue: #1878f2;
+  --portal-blue-deep: #1261c2;
+  --portal-blue-soft: #eaf7ff;
+  --portal-teal: #20b88f;
+  --portal-teal-deep: #17997a;
+  --portal-teal-soft: #e7f7f1;
+  --portal-gold: #ffc62e;
+  --portal-gold-deep: #b98800;
+  --portal-gold-soft: #fff5d6;
+  --portal-purple: #7257f4;
+  --portal-purple-soft: #f0edfe;
+  --portal-orange: #ff4f45;
+  --portal-ink: #292320;
+  --portal-ink-soft: #453f3c;
+  --portal-muted: #6f6a67;
+  --portal-muted-2: #7e7875;
+  --portal-muted-3: #8f8985;
+  --portal-muted-4: #a39c97;
+  --portal-muted-5: #b8b0aa;
+  --portal-muted-6: #cfc7c1;
+  --portal-muted-7: #e5ded8;
+  --portal-muted-strong: #4a4440;
+  --portal-avatar: #f40770;
+  --portal-mint: #e7f7f1;
+  --portal-border: #eadfd6;
+  --portal-border-2: #e1d5ca;
+  --portal-border-3: #d5c7b9;
+  --portal-hairline: #f3ece5;
+  --portal-neutral: #eee7e1;
+  --portal-neutral-soft: #f6f2ee;
+  --portal-soft-bg: #fbf7f2;
+  --portal-soft-bg-2: #f8f3ed;
+  --portal-chip-overlay: #e7f7f1;
+  --portal-shadow-soft: rgba(41, 35, 32, 0.12);
+}
+
+/* Decorative accent bubbles (calm mode / high contrast hide them) */
+
+html.simple-view .portal .deco,
+html.high-contrast .portal .deco {
+  display: none;
+}
+
+/* High contrast: text black, backgrounds white, borders black */
+
+html.high-contrast .portal {
+  --portal-pink: #000;
+  --portal-pink-deep: #000;
+  --portal-pink-soft: #fff;
+  --portal-pink-chip: #fff;
+  --portal-pink-border: #000;
+  --portal-blue: #000;
+  --portal-blue-deep: #000;
+  --portal-blue-soft: #fff;
+  --portal-teal: #000;
+  --portal-teal-deep: #000;
+  --portal-teal-soft: #fff;
+  --portal-gold: #000;
+  --portal-gold-deep: #000;
+  --portal-gold-soft: #fff;
+  --portal-purple: #000;
+  --portal-purple-soft: #fff;
+  --portal-orange: #000;
+  --portal-ink: #000;
+  --portal-ink-soft: #000;
+  --portal-muted: #000;
+  --portal-muted-2: #000;
+  --portal-muted-3: #000;
+  --portal-muted-4: #000;
+  --portal-muted-5: #000;
+  --portal-muted-6: #000;
+  --portal-muted-7: #000;
+  --portal-muted-strong: #000;
+  --portal-avatar: #000;
+  --portal-mint: #fff;
+  --portal-border: #000;
+  --portal-border-2: #000;
+  --portal-border-3: #000;
+  --portal-hairline: #000;
+  --portal-neutral: #fff;
+  --portal-neutral-soft: #fff;
+  --portal-soft-bg: #fff;
+  --portal-soft-bg-2: #fff;
+  --portal-chip-overlay: #fff;
+  --portal-shadow-soft: none;
+}

@@ -28,6 +28,14 @@
   object-fit: contain;
 }
 
+.portalLabel {
+  margin-left: 0.55rem;
+  color: var(--color-ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -212,6 +220,10 @@
   }
 
   .backLink {
+    display: none;
+  }
+
+  .portalLabel {
     display: none;
   }
 }

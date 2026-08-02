@@ -133,7 +133,7 @@ export function buildEventOperations({
 
   for (const participation of participations) {
     if (
-      participation.status === "registered" &&
+      participation.status === "accepted" &&
       roleByUserId.get(participation.user_id) === "contributor"
     ) {
       volunteerRegistrationsByEvent.set(
@@ -146,7 +146,7 @@ export function buildEventOperations({
   // Guest sign-ups originate from the public "Volunteer at an event" flow,
   // so a registered guest is a defensible volunteer registration here.
   for (const signup of guestSignups) {
-    if (signup.status !== "registered") continue;
+    if (signup.status !== "accepted") continue;
     volunteerRegistrationsByEvent.set(
       signup.event_id,
       (volunteerRegistrationsByEvent.get(signup.event_id) ?? 0) + 1,

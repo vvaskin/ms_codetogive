@@ -1,0 +1,195 @@
+.section {
+  padding: 48px 0;
+  background: #fffdf9;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 80px);
+}
+
+.intro {
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ff3669;
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-family: "Nunito", sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 3.5vw, 30px);
+  color: #2a2320;
+  line-height: 1.25;
+  margin: 0 0 10px;
+  white-space: pre-line;
+}
+
+.subtitle {
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  color: #5b6472;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 620px;
+}
+
+/* ─── Stats cards ─── */
+
+.stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  background: #fff;
+  border: 1px solid #ece4da;
+  border-radius: 16px;
+  padding: 20px 18px;
+  text-align: center;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(42, 35, 32, 0.08);
+}
+
+.statCard strong {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 900;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.statCard span {
+  font-family: "Nunito", sans-serif;
+  font-size: 13px;
+  color: #5b6472;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.card_pink strong {
+  color: #ff3669;
+}
+
+.card_teal strong {
+  color: #10b981;
+}
+
+.countUp {
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ─── Facts block ─── */
+
+.factsHeading {
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #2a2320;
+  margin: 0 0 14px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.factCard {
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.factCard strong {
+  display: block;
+  font-family: "Nunito", sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 3.5vw, 32px);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.factCard span {
+  font-family: "Nunito", sans-serif;
+  font-size: 13px;
+  color: #5b6472;
+  line-height: 1.5;
+}
+
+.fact_blue {
+  background: #eef5ff;
+}
+
+.fact_blue strong {
+  color: #1677ff;
+}
+
+.fact_mint {
+  background: #ecfdf5;
+}
+
+.fact_mint strong {
+  color: #10b981;
+}
+
+.source {
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  color: #8a929e;
+  margin: 0 0 24px;
+}
+
+@media (max-width: 640px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── CTA ─── */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  background: #ff3669;
+  border-radius: 100px;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.cta:hover {
+  background: #e62e5c;
+}
