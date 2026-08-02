@@ -27,7 +27,7 @@ function FeedCard({ item, locale }: { item: HomepageFeedCard; locale: Locale }) 
         <span className={styles.feedMeta}>
           <span className={styles.feedMetaLogo} aria-hidden="true">
             <Image
-              src="/assets/images/love21_logo.png"
+              src="/assets/images/love21_logo.png?v=3"
               alt=""
               width={330}
               height={202}
@@ -78,7 +78,7 @@ function InstagramFeedCard({
         <span className={styles.feedMeta}>
           <span className={styles.feedMetaLogo} aria-hidden="true">
             <Image
-              src="/assets/images/love21_logo.png"
+              src="/assets/images/love21_logo.png?v=3"
               alt=""
               width={330}
               height={202}
