@@ -9,6 +9,10 @@
   box-shadow: var(--shadow-card);
 }
 
+.form > * {
+  min-width: 0;
+}
+
 .heading h1 {
   margin: 0;
   font-family: var(--font-display);
@@ -222,9 +226,11 @@
 }
 
 .chipActive {
-  border-color: var(--color-pink);
-  background: var(--color-blush);
-  color: var(--color-pink-dark);
+  border: 2px solid var(--color-pink);
+  background: var(--color-pink);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 0 0 3px rgba(244, 7, 112, 0.2);
 }
 
 .radioList {
@@ -250,6 +256,42 @@
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.45;
+}
+
+.fileField {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+}
+
+.fileInput {
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.fileHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.fileName {
+  color: var(--color-pink-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.fileError {
+  color: #9e1b1b;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .noticeWarn {

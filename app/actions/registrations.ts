@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import {
   getVolunteerApplication,
   isApprovedVolunteer,
@@ -13,27 +12,25 @@ export interface RegisterForEventInput {
   eventId: number;
   /** Volunteers only — the role they want for this event. */
   interest?: string | null;
-  /** Guests only — required when the visitor is logged out. */
-  guestName?: string | null;
-  guestEmail?: string | null;
 }
 
 export interface RegisterForEventResult {
   ok: boolean;
   error?: string;
   /** Which sign-up path was taken. */
-  mode?: "volunteer" | "member" | "guest";
+  mode?: "volunteer" | "member";
 }
 
-const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
 /**
- * Signs a visitor up for an event.
+ * Signs an authenticated visitor up for an event.
  *
- * - Authenticated volunteers pick an interest; their row stores user_id + interest.
+ * - Approved volunteers may pick an interest; their row stores user_id + interest.
  * - Authenticated members/donors sign up under their own account (no interest).
- * - Logged-out guests provide a name + email; their row stores guest_name +
- *   guest_email with user_id NULL (no account is created).
+ *
+ * Logged-out guests take a different path (see
+ * `app/actions/guest-volunteer-signup.ts`) — they must submit a volunteer
+ * application first, which creates a `contributor` account and lands a
+ * `pending` participation row for staff review.
  */
 export async function registerForEvent(
   input: RegisterForEventInput,
@@ -47,60 +44,33 @@ export async function registerForEvent(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) {
-    // Only approved volunteers may capture an interest — the row's `interest`
-    // is the DB signature that gates volunteer-specific features later, so
-    // this must be enforced server-side, not just in the UI.
-    const application = await getVolunteerApplication(user.id, supabase);
-    const approvedVolunteer = isApprovedVolunteer(application);
-    const interest = approvedVolunteer ? normalizeInterest(input.interest) : null;
-
-    const { error } = await supabase
-      .from("event_participations")
-      .upsert(
-        {
-          user_id: user.id,
-          event_id: input.eventId,
-          interest,
-          status: "registered",
-        },
-        { onConflict: "user_id,event_id" },
-      );
-
-    if (error) return { ok: false, error: error.message };
-
-    revalidatePath("/portal/events");
-    return { ok: true, mode: approvedVolunteer ? "volunteer" : "member" };
+  if (!user) {
+    return {
+      ok: false,
+      error: "Please sign in or apply as a volunteer to join this event.",
+    };
   }
 
-  // Guest: store name + email directly (no account is created).
-  const name = input.guestName?.trim();
-  const email = input.guestEmail?.trim();
+  const application = await getVolunteerApplication(user.id, supabase);
+  const approvedVolunteer = isApprovedVolunteer(application);
+  const interest = approvedVolunteer ? normalizeInterest(input.interest) : null;
 
-  if (!name) return { ok: false, error: "Please enter your name." };
-  if (!email) return { ok: false, error: "Please enter your email." };
-  if (!EMAIL_PATTERN.test(email)) {
-    return { ok: false, error: "Please enter a valid email." };
-  }
-
-  const admin = createAdminClient();
-  const { error } = await admin
-    .from("event_guest_signups")
+  const { error } = await supabase
+    .from("event_participations")
     .upsert(
       {
+        user_id: user.id,
         event_id: input.eventId,
-        guest_name: name,
-        guest_email: email,
-        interest: null,
-        status: "registered",
+        interest,
+        status: "accepted",
       },
-      { onConflict: "guest_email,event_id" },
+      { onConflict: "user_id,event_id" },
     );
 
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/portal/events");
-  return { ok: true, mode: "guest" };
+  return { ok: true, mode: approvedVolunteer ? "volunteer" : "member" };
 }
 
 function normalizeInterest(interest: string | null | undefined): string | null {
