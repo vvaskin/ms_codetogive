@@ -45,13 +45,31 @@ export async function registerForEvent(
   } = await supabase.auth.getUser();
 
   if (user) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
+    const [{ data: profile }, { data: application }] = await Promise.all([
+      supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("volunteer_applications")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
 
     const isContributor = isContributorRole(profile?.role);
+
+    // Contributors must have an approved application before they can sign up
+    // for events — mirroring the UI gate on the event buttons.
+    if (isContributor && application?.status !== "approved") {
+      return {
+        ok: false,
+        error:
+          "Apply to be a volunteer in your portal before signing up for events.",
+      };
+    }
+
     const interest = isContributor ? normalizeInterest(input.interest) : null;
 
     const { error } = await supabase

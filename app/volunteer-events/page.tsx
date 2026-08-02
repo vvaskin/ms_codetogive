@@ -36,12 +36,21 @@ export default async function VolunteerEventsPage({
   ]);
 
   let registeredEventIds: number[] = [];
+  let volunteerApproved = false;
   if (profile) {
-    const { data: participations } = await supabase
-      .from("event_participations")
-      .select("event_id")
-      .eq("user_id", profile.id);
-    registeredEventIds = (participations ?? []).map((row) => row.event_id);
+    const [participations, application] = await Promise.all([
+      supabase
+        .from("event_participations")
+        .select("event_id")
+        .eq("user_id", profile.id),
+      supabase
+        .from("volunteer_applications")
+        .select("status")
+        .eq("user_id", profile.id)
+        .maybeSingle(),
+    ]);
+    registeredEventIds = (participations?.data ?? []).map((row) => row.event_id);
+    volunteerApproved = application?.data?.status === "approved";
   }
 
   const { lang } = await searchParams;
@@ -53,6 +62,7 @@ export default async function VolunteerEventsPage({
       sessionRole={profile && profile.role !== "staff" ? profile.role : null}
       registeredEventIds={registeredEventIds}
       locale={locale}
+      volunteerApproved={volunteerApproved}
     />
   );
 }

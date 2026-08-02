@@ -12,13 +12,21 @@ type Props = {
   locale: Locale;
   sessionRole: UserRole | null;
   signedUp: boolean;
+  /** True when the signed-in contributor's application is approved. */
+  volunteerApproved?: boolean;
 };
 
 function pick(locale: Locale, en: string, zh: string, cn: string) {
   return locale === "cn" ? cn : locale === "zh" ? zh : en;
 }
 
-export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Props) {
+export function EventSignupButton({
+  eventId,
+  locale,
+  sessionRole,
+  signedUp,
+  volunteerApproved = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(signedUp);
@@ -66,6 +74,28 @@ export function EventSignupButton({ eventId, locale, sessionRole, signedUp }: Pr
   }
 
   if (isContributorRole(sessionRole)) {
+    if (!volunteerApproved) {
+      return (
+        <div className={styles.wrap}>
+          <p className={styles.error}>
+            {pick(
+              locale,
+              "Apply to be a volunteer in your portal to sign up for events.",
+              "請先在會員專頁申請成為義工，才能報名活動。",
+              "请先在会员专页申请成为义工，才能报名活动。",
+            )}
+          </p>
+          <Link className={styles.link} href="/portal/volunteer-application">
+            {pick(
+              locale,
+              "Apply to be a volunteer",
+              "申請成為義工",
+              "申请成为义工",
+            )}
+          </Link>
+        </div>
+      );
+    }
     if (!open) {
       return (
         <button className={styles.primary} onClick={() => setOpen(true)} type="button">
