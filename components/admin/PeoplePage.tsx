@@ -17,11 +17,6 @@ export async function PeoplePage({
 }) {
   return (
     <>
-      <AdminPageHeader
-        eyebrow="People"
-        title={title}
-        description={description}
-      />
       <PeopleDirectoryContent role={role} />
     </>
   );
@@ -41,10 +36,11 @@ export async function PeopleDirectoryContent({
       createdAt: record.profile.created_at,
     };
 
-    if (role === "donor") {
+    if (role === "contributor") {
       return {
         ...base,
-        role: "donor" as const,
+        role: "contributor" as const,
+        participationCount: record.participationCount,
         donationCount: record.donationCount,
         donationTotals: record.completedDonationTotalsByCurrency.map(
           ({ currency, amountCents }) => ({ currency, amountCents }),

@@ -9,7 +9,6 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from "@/components/admin/AdminUI";
-import { demoVolunteerApplications } from "@/lib/admin/demo-data";
 import {
   daysWaiting,
   normalizeDashboardCurrency,
@@ -20,7 +19,10 @@ import {
   formatAdminDateTime,
   formatMoney,
 } from "@/lib/admin/format";
-import { getAdminOperationalDashboard } from "@/lib/admin/queries";
+import {
+  getAdminOperationalDashboard,
+  getVolunteerApplications,
+} from "@/lib/admin/queries";
 import styles from "./Dashboard.module.css";
 
 export const metadata: Metadata = {
@@ -37,8 +39,7 @@ type AdminDashboardProps = {
 
 const legacyPeopleViews: Record<string, string> = {
   member: "/admin/people/members",
-  volunteer: "/admin/people/volunteers",
-  donor: "/admin/people/donors",
+  contributor: "/admin/people/contributors",
 };
 
 function firstQueryValue(value: string | string[] | undefined) {
@@ -60,11 +61,13 @@ export default async function AdminDashboard({ searchParams }: AdminDashboardPro
     currency,
     referenceDate,
   });
-  const pendingApplications = demoVolunteerApplications
-    .filter(({ status }) => status === "pending")
+  const applications = await getVolunteerApplications();
+  const pendingApplications = applications
+    .filter(({ status }) => status === "submitted" || status === "under_review")
     .sort(
       (left, right) =>
-        new Date(left.appliedAt).getTime() - new Date(right.appliedAt).getTime(),
+        new Date(left.submittedAt ?? 0).getTime() -
+        new Date(right.submittedAt ?? 0).getTime(),
     );
   return (
     <>
@@ -86,7 +89,7 @@ export default async function AdminDashboard({ searchParams }: AdminDashboardPro
           <AdminMetricCard
             label="Pending applications"
             value={pendingApplications.length}
-            href="/admin/people/volunteers?view=applications"
+            href="/admin/people/applications"
             linkLabel="Review applications"
             tone="purple"
             icon="◎"
@@ -126,30 +129,30 @@ export default async function AdminDashboard({ searchParams }: AdminDashboardPro
             eyebrow="Applications"
             title="Awaiting review"
             description="Oldest pending applications first."
-            actions={<Link className={styles.panelLink} href="/admin/people/volunteers?view=applications">View all</Link>}
+            actions={<Link className={styles.panelLink} href="/admin/people/applications">View all</Link>}
           >
             {pendingApplications.length === 0 ? (
               <AdminEmptyState
                 title="No applications waiting"
-                description="There are no demonstration applications awaiting review."
+                description="There are no volunteer applications awaiting review."
                 icon="✓"
               />
             ) : (
               <ul className={styles.recordList}>
                 {pendingApplications.slice(0, 5).map((application) => {
-                  const waitDays = daysWaiting(application.appliedAt, referenceDate);
+                  const waitDays = daysWaiting(application.submittedAt ?? "", referenceDate);
                   return (
                     <li key={application.id}>
                       <div>
                         <strong>{application.name}</strong>
-                        <span>Applied {formatAdminDate(application.appliedAt)}</span>
+                        <span>Applied {formatAdminDate(application.submittedAt ?? "")}</span>
                       </div>
                       <div className={styles.recordAction}>
                         <AdminStatusBadge
                           status="demo"
                           label={waitDays === null ? "Date unavailable" : `${waitDays}d waiting`}
                         />
-                        <Link href="/admin/people/volunteers?view=applications">Review</Link>
+                        <Link href="/admin/people/applications">Review</Link>
                       </div>
                     </li>
                   );
@@ -198,7 +201,7 @@ export default async function AdminDashboard({ searchParams }: AdminDashboardPro
             <AdminPanel
               eyebrow="Donations"
               title="Recent completed gifts"
-              actions={<Link className={styles.panelLink} href="/admin/people/donors">View donors</Link>}
+              actions={<Link className={styles.panelLink} href="/admin/people/contributors">View contributors</Link>}
               tone="blush"
             >
               {dashboard.recentDonations.length === 0 ? (

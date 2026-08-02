@@ -1,5 +1,16 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { ApplicationDirectory } from "@/components/admin/ApplicationDirectory";
+import { AdminPageHeader } from "@/components/admin/AdminUI";
+import { getVolunteerApplications } from "@/lib/admin/queries";
 
-export default function VolunteerApplicationsRedirect() {
-  redirect("/admin/people/volunteers?view=applications");
+export const metadata: Metadata = { title: "Volunteer applications" };
+
+export default async function VolunteerApplicationsPage() {
+  const applications = await getVolunteerApplications();
+
+  return (
+    <>
+      <ApplicationDirectory applications={applications} />
+    </>
+  );
 }

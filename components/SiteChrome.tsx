@@ -135,6 +135,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   // Portal pages use a slim header: logo + accessibility + language only,
   // with the marketing navigation removed.
   const isPortal = pathname.startsWith("/portal");
+  const isAdmin = pathname.startsWith("/admin");
   const { user: session } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -178,9 +179,9 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   };
 
-  // Portal routes render their own chrome (PortalShell); the site header and
-  // footer are hidden entirely to match the Figma "console" design.
-  if (isPortal) {
+  // Portal and admin routes render their own chrome (PortalShell / AdminLayout);
+  // the site header and footer are hidden entirely.
+  if (isPortal || isAdmin) {
     return <>{children}</>;
   }
 

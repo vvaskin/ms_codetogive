@@ -26,9 +26,7 @@ async function requireAdmin() {
 
 const directoryPaths: Record<string, string> = {
   member: "/admin/people/members",
-  contributor: "/admin/people/members",
-  volunteer: "/admin/people/volunteers",
-  donor: "/admin/people/donors",
+  contributor: "/admin/people/contributors",
 };
 
 async function removeUserStorage(

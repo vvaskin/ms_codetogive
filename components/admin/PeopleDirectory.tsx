@@ -5,7 +5,7 @@ import { deleteUser } from "@/app/admin/actions";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import styles from "./PeopleDirectory.module.css";
 
-export type PeopleDirectoryRole = "member" | "volunteer" | "donor";
+export type PeopleDirectoryRole = "member" | "contributor";
 
 export type DirectoryCurrencyTotal = {
   currency: string;
@@ -20,18 +20,19 @@ type DirectoryRowBase = {
   status?: string | null;
 };
 
-export type ParticipantDirectoryRow = DirectoryRowBase & {
-  role: "member" | "volunteer";
+export type MemberDirectoryRow = DirectoryRowBase & {
+  role: "member";
   participationCount: number;
 };
 
-export type DonorDirectoryRow = DirectoryRowBase & {
-  role: "donor";
+export type ContributorDirectoryRow = DirectoryRowBase & {
+  role: "contributor";
+  participationCount: number;
   donationCount: number;
   donationTotals: DirectoryCurrencyTotal[];
 };
 
-export type PeopleDirectoryRow = ParticipantDirectoryRow | DonorDirectoryRow;
+export type PeopleDirectoryRow = MemberDirectoryRow | ContributorDirectoryRow;
 
 type DateFilter = "all" | "30-days" | "year";
 
@@ -43,8 +44,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-HK", {
 
 const roleLabels: Record<PeopleDirectoryRole, string> = {
   member: "members and families",
-  volunteer: "volunteers",
-  donor: "donors",
+  contributor: "contributors",
 };
 
 function normalize(value: string) {
@@ -122,9 +122,10 @@ function DonationTotals({ totals }: { totals: DirectoryCurrencyTotal[] }) {
 }
 
 function ActivitySummary({ row }: { row: PeopleDirectoryRow }) {
-  if (row.role === "donor") {
+  if (row.role === "contributor") {
     return (
       <>
+        <span>{plural(row.participationCount, "event registration")}</span>
         <span>{plural(row.donationCount, "donation")}</span>
         <DonationTotals totals={row.donationTotals} />
       </>
@@ -278,8 +279,9 @@ export function PeopleDirectory({
                 <th scope="col">Email</th>
                 <th scope="col">Joined</th>
                 {statusOptions.length > 0 ? <th scope="col">Status</th> : null}
-                {role === "donor" ? (
+                {role === "contributor" ? (
                   <>
+                    <th scope="col">Participation</th>
                     <th scope="col">Donations</th>
                     <th scope="col">Total</th>
                   </>
@@ -313,8 +315,9 @@ export function PeopleDirectory({
                       )}
                     </td>
                   ) : null}
-                  {row.role === "donor" ? (
+                  {row.role === "contributor" ? (
                     <>
+                      <td>{row.participationCount.toLocaleString("en-HK")}</td>
                       <td>{row.donationCount.toLocaleString("en-HK")}</td>
                       <td><DonationTotals totals={row.donationTotals} /></td>
                     </>

@@ -12,6 +12,7 @@ import type {
   EventRow,
   ParticipationStatus,
   UserRow,
+  VolunteerApplicationRow,
 } from "@/lib/supabase/types";
 import {
   buildDonationTrend,
@@ -29,17 +30,15 @@ const PARTICIPATION_STATUSES = [
 ] as const satisfies readonly ParticipationStatus[];
 export const PEOPLE_DIRECTORY_ROLES = [
   "member",
-  "volunteer",
-  "donor",
+  "contributor",
 ] as const;
 
 const directoryRoleToUserRole: Record<
   PeopleDirectoryRole,
-  UserRow["role"] | null
+  UserRow["role"]
 > = {
   member: "member",
-  volunteer: "contributor",
-  donor: null,
+  contributor: "contributor",
 };
 
 export type PeopleDirectoryRole = (typeof PEOPLE_DIRECTORY_ROLES)[number];
@@ -352,26 +351,22 @@ export async function getPeopleDirectory(
   const userRole = directoryRoleToUserRole[role];
   const people = await loadAllRows<AdminPersonProfile>(
     `Unable to load the ${role} directory.`,
-    (from, to) => {
-      let query = admin
+    (from, to) =>
+      admin
         .from("users")
         .select(
           "id, email, name, phone_number, address, role, profile_image, created_at, updated_at",
-        );
-      if (userRole !== null) {
-        query = query.eq("role", userRole);
-      }
-      return query
+        )
+        .eq("role", userRole)
         .order("created_at", { ascending: false })
         .order("id", { ascending: true })
-        .range(from, to);
-    },
+        .range(from, to),
   );
   const userIds = people.map((person) => person.id);
   let participations: ParticipationAggregateRow[] = [];
   let donations: DonationAggregateRow[] = [];
 
-  if (userIds.length > 0 && role !== "donor") {
+  if (userIds.length > 0) {
     participations = await loadRowsForUserIds<ParticipationAggregateRow>(
       userIds,
       `Unable to load participation totals for ${role} accounts.`,
@@ -385,10 +380,11 @@ export async function getPeopleDirectory(
     );
   }
 
-  if (userIds.length > 0 && role === "donor") {
+  // Contributors aggregate both volunteer activity and donation history.
+  if (userIds.length > 0 && role === "contributor") {
     donations = await loadRowsForUserIds<DonationAggregateRow>(
       userIds,
-      "Unable to load donation totals for donor accounts.",
+      "Unable to load donation totals for contributor accounts.",
       (userIdChunk, from, to) =>
         admin
           .from("donations")
@@ -413,12 +409,7 @@ export async function getPeopleDirectory(
     donationsByUser.set(donation.donor_id, rows);
   }
 
-  const records = people
-    .filter((profile) => {
-      if (role !== "donor") return true;
-      return (donationsByUser.get(profile.id) ?? []).length > 0;
-    })
-    .map((profile) => {
+  const records = people.map((profile) => {
     const personParticipations = participationsByUser.get(profile.id) ?? [];
     const personDonations = donationsByUser.get(profile.id) ?? [];
 
@@ -432,6 +423,89 @@ export async function getPeopleDirectory(
   });
 
   return { role, recordCount: records.length, records };
+}
+
+export interface AdminVolunteerApplication {
+  id: number;
+  userId: string;
+  name: string;
+  email: string | null;
+  status: VolunteerApplicationRow["status"];
+  submittedAt: string | null;
+  reviewedAt: string | null;
+  rejectionReason: string | null;
+  rejectionReasonVisible: boolean;
+  ageGroup: string | null;
+  gender: string | null;
+  referralSource: string | null;
+  bio: string | null;
+}
+
+export async function getVolunteerApplications(): Promise<
+  AdminVolunteerApplication[]
+> {
+  const admin = await staffAdminClient();
+  const rows = await loadAllRows<
+    Pick<
+      VolunteerApplicationRow,
+      | "id"
+      | "user_id"
+      | "status"
+      | "submitted_at"
+      | "reviewed_at"
+      | "rejection_reason"
+      | "rejection_reason_visible"
+      | "age_group"
+      | "gender"
+      | "referral_source"
+      | "bio"
+    >
+  >("Unable to load volunteer applications.", (from, to) =>
+    admin
+      .from("volunteer_applications")
+      .select(
+        "id, user_id, status, submitted_at, reviewed_at, rejection_reason, rejection_reason_visible, age_group, gender, referral_source, bio",
+      )
+      .order("submitted_at", { ascending: false })
+      .order("id", { ascending: true })
+      .range(from, to),
+  );
+
+  const userIds = [...new Set(rows.map((row) => row.user_id))];
+  const usersById = new Map<
+    string,
+    Pick<UserRow, "id" | "name" | "email">
+  >();
+  for (
+    let index = 0;
+    index < userIds.length;
+    index += ADMIN_ID_CHUNK_SIZE
+  ) {
+    const chunk = userIds.slice(index, index + ADMIN_ID_CHUNK_SIZE);
+    const { data, error } = await admin
+      .from("users")
+      .select("id, name, email")
+      .in("id", chunk)
+      .range(0, ADMIN_QUERY_PAGE_SIZE - 1);
+    if (error) throw actionableError("Unable to load application profiles.", error.message);
+    for (const user of data ?? []) usersById.set(user.id, user);
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    name: usersById.get(row.user_id)?.name ?? "Profile unavailable",
+    email: usersById.get(row.user_id)?.email ?? null,
+    status: row.status,
+    submittedAt: row.submitted_at,
+    reviewedAt: row.reviewed_at,
+    rejectionReason: row.rejection_reason,
+    rejectionReasonVisible: row.rejection_reason_visible,
+    ageGroup: row.age_group,
+    gender: row.gender,
+    referralSource: row.referral_source,
+    bio: row.bio,
+  }));
 }
 
 export async function getAdminEventList(): Promise<AdminEventListItem[]> {
