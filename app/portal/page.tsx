@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ContributorPortalExperience } from "@/components/portal/ContributorPortalExperience";
-import { PlaceholderDashboard } from "@/components/portal/PlaceholderDashboard";
+import { MemberPortalExperience } from "@/components/portal/MemberPortalExperience";
 import { getContributorPortalData } from "@/lib/portal/contributor-data";
+import { getMemberPortalData } from "@/lib/server/member-portal";
 import { getSessionProfile } from "@/lib/supabase/profile";
 
 export const metadata: Metadata = {
@@ -26,7 +27,8 @@ export default async function PortalPage() {
     );
   }
 
-  // Staff is redirected to /admin by app/portal/layout.tsx; fall back to member
-  // copy for any non-contributor session that lands here.
-  return <PlaceholderDashboard name={profile.name} role="member" />;
+  const data = await getMemberPortalData(profile.id);
+  return (
+    <MemberPortalExperience name={profile.name} view="dashboard" data={data} />
+  );
 }

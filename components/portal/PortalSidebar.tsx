@@ -39,7 +39,11 @@ function navItemsFor(role: UserRole): NavItem[] {
       { href: "/portal/donate", label: "Donate", icon: "＋" },
     );
   } else {
-    items.push({ href: "/portal/events", label: "Events", icon: "📅" });
+    items.push(
+      { href: "/portal/my-events", label: "My Events", icon: "◷" },
+      { href: "/portal/events", label: "Events", icon: "□" },
+      { href: "/portal/milestones", label: "Milestones", icon: "✦" },
+    );
   }
 
   return items;
@@ -88,6 +92,7 @@ export function PortalSidebar({ user }: { user: PortalUser }) {
             priority
             className={styles.brandLogo}
           />
+          <span className={styles.portalLabel}>Member Portal</span>
         </Link>
 
         <nav className={styles.nav} aria-label="Portal sections">
