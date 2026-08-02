@@ -24,8 +24,9 @@ export interface RegisterForEventResult {
 /**
  * Signs an authenticated visitor up for an event.
  *
- * - Approved volunteers may pick an interest; their row stores user_id + interest.
- * - Authenticated members/donors sign up under their own account (no interest).
+ * - Members store `member` as their participation interest.
+ * - Approved contributors may pick a volunteer interest.
+ * - Other authenticated contributors sign up without an interest.
  *
  * Logged-out guests take a different path (see
  * `app/actions/guest-volunteer-signup.ts`) — they must submit a volunteer
@@ -51,9 +52,26 @@ export async function registerForEvent(
     };
   }
 
-  const application = await getVolunteerApplication(user.id, supabase);
+  const [application, profileResult] = await Promise.all([
+    getVolunteerApplication(user.id, supabase),
+    supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
+
+  if (profileResult.error || !profileResult.data) {
+    return { ok: false, error: "Unable to verify your account role." };
+  }
+
   const approvedVolunteer = isApprovedVolunteer(application);
-  const interest = approvedVolunteer ? normalizeInterest(input.interest) : null;
+  const isMember = profileResult.data.role === "member";
+  const interest = isMember
+    ? "member"
+    : approvedVolunteer
+      ? normalizeInterest(input.interest)
+      : null;
 
   const { error } = await supabase
     .from("event_participations")
@@ -70,7 +88,13 @@ export async function registerForEvent(
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/portal/events");
-  return { ok: true, mode: approvedVolunteer ? "volunteer" : "member" };
+  revalidatePath("/portal/my-events");
+  revalidatePath("/portal/milestones");
+  revalidatePath("/portal");
+  return {
+    ok: true,
+    mode: approvedVolunteer && !isMember ? "volunteer" : "member",
+  };
 }
 
 function normalizeInterest(interest: string | null | undefined): string | null {
