@@ -9,6 +9,7 @@ import {
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
 import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
+import { readHomepageEvents } from "../lib/supabase/calendar-events";
 import { readHomepageTestimonials } from "../lib/testimonials";
 import { CountUp } from "./CountUp";
 import type { UpcomingEvent } from "./EventsCarousel";
@@ -119,7 +120,7 @@ function InstagramFeedCard({
   );
 }
 
-const upcomingEvents: UpcomingEvent[] = [
+const upcomingEventsFallback: UpcomingEvent[] = [
   {
     id: "sports-day",
     title: {
@@ -134,6 +135,7 @@ const upcomingEvents: UpcomingEvent[] = [
       zh: "維多利亞公園游泳池",
       cn: "维多利亚公园游泳池",
     },
+    image: "/assets/images/home-sports.jpg",
     href: "/events",
     tone: "pink",
     category: { en: "Sport", zh: "運動", cn: "运动" },
@@ -153,6 +155,7 @@ const upcomingEvents: UpcomingEvent[] = [
       zh: "Love 21 Space",
       cn: "Love 21 Space",
     },
+    image: "/assets/images/home-nutrition.jpg",
     href: "/events",
     tone: "mint",
     category: { en: "Nutrition", zh: "營養", cn: "营养" },
@@ -172,6 +175,7 @@ const upcomingEvents: UpcomingEvent[] = [
       zh: "Love 21 Space",
       cn: "Love 21 Space",
     },
+    image: "/assets/images/home-family.jpeg",
     href: "/events",
     tone: "sky",
     category: { en: "Family", zh: "家庭", cn: "家庭" },
@@ -189,6 +193,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
     readInstagramPosts(),
     readHomepageTestimonials(locale),
   ]);
+  const upcomingEvents = await readHomepageEvents(locale, upcomingEventsFallback);
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>

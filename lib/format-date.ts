@@ -80,3 +80,28 @@ export function formatEventTime(
   if (!endsAtIso) return start;
   return `${start} – ${formatClockTime(endsAtIso)}`;
 }
+
+/**
+ * Localized event time: "9:30 AM – 11:30 AM" in English, "上午9:30 – 上午11:30"
+ * in the Chinese variants (hydration-safe, fixed lookup tables).
+ */
+export function formatEventTimeLocale(
+  startsAtIso: string,
+  endsAtIso?: string | null,
+  locale: FormatLocale = "en",
+): string {
+  if (locale === "en") return formatEventTime(startsAtIso, endsAtIso);
+
+  const start = formatClockChinese(startsAtIso);
+  if (!endsAtIso) return start;
+  return `${start} – ${formatClockChinese(endsAtIso)}`;
+}
+
+function formatClockChinese(iso: string): string {
+  const d = new Date(iso);
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const period = h < 12 ? "上午" : "下午";
+  h = h % 12 || 12;
+  return `${period}${h}:${m.toString().padStart(2, "0")}`;
+}
