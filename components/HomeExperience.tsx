@@ -9,7 +9,9 @@ import {
 } from "../content/homepage";
 import type { Locale } from "../content/site-data";
 import { readInstagramPosts, type InstagramPost } from "../lib/instagram-storage";
+import { readHomepageTestimonials } from "../lib/testimonials";
 import { CountUp } from "./CountUp";
+import { TestimonialCarousel } from "./TestimonialCarousel";
 import { HeartIcon } from "./ui/HeartIcon";
 import styles from "./HomeExperience.module.css";
 
@@ -119,7 +121,10 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
   const heroPhotos = content.hero.photos;
   const impactFeatured = content.impactShowcase.featured;
   const [impactLeft, impactRight] = content.impactShowcase.sides;
-  const instagramPosts = await readInstagramPosts();
+  const [instagramPosts, testimonials] = await Promise.all([
+    readInstagramPosts(),
+    readHomepageTestimonials(locale),
+  ]);
 
   return (
     <main className={`${styles.page} ${isChinese ? styles.chinese : ""}`}>
@@ -262,32 +267,7 @@ export async function HomeExperience({ locale = "en" }: { locale?: Locale }) {
               <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFour}`} />
               <HeartIcon className={`${styles.storyGlowHeart} ${styles.storyGlowHeartFive}`} />
             </span>
-            <article className={styles.featuredStoryCard}>
-              <div className={styles.featuredStoryImage}>
-                <Image
-                  src={content.featuredStory.image}
-                  alt={t(content.featuredStory.imageAlt, locale)}
-                  fill
-                  sizes="(max-width: 820px) 100vw, 62vw"
-                />
-              </div>
-              <div className={styles.featuredStoryPanel}>
-                <p>{t(content.featuredStory.panelLabel, locale)}</p>
-                <h3>{t(content.featuredStory.panelTitle, locale)}</h3>
-                <p className={styles.featuredStoryContext}>
-                  {t(content.featuredStory.context, locale)}
-                </p>
-                <blockquote className={styles.featuredStoryQuote}>
-                  <p>“{t(content.featuredStory.quote, locale)}”</p>
-                </blockquote>
-                <div className={styles.featuredStoryFooter}>
-                  <cite>{t(content.featuredStory.attribution, locale)}</cite>
-                  <Link href={hrefFor(content.featuredStory.action, locale)}>
-                    {t(content.featuredStory.action.label, locale)} ↗
-                  </Link>
-                </div>
-              </div>
-            </article>
+            <TestimonialCarousel testimonials={testimonials} locale={locale} />
           </div>
         </div>
       </section>

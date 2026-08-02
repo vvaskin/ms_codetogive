@@ -1,0 +1,122 @@
+.primaryAction,
+.editor > summary,
+.deleteAction {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border: 1px solid #eaded6;
+  border-radius: 999px;
+  background: #fff;
+  color: #2a2321;
+  font: inherit;
+  font-weight: 950;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primaryAction {
+  border-color: #f40770;
+  background: #f40770;
+  color: #fff;
+}
+
+.primaryAction:hover {
+  background: #cf075f;
+}
+
+.composer {
+  display: none;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border: 1px solid #eaded6;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.composer:target,
+.composerVisible {
+  display: block;
+}
+
+.composerBody,
+.editorBody {
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.composerTitle {
+  margin: 0 0 1.1rem;
+  color: #241d1b;
+  font-size: 1.25rem;
+}
+
+.editorBody {
+  border-top: 1px solid #eaded6;
+}
+
+.list {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid #eaded6;
+  border-radius: 22px;
+  background: #fffdfa;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.cardHeader h3 {
+  margin: 0 0 0.3rem;
+  color: #241d1b;
+  font-size: 1.35rem;
+}
+
+.cardHeader p {
+  margin: 0;
+  color: #756f6c;
+  line-height: 1.5;
+}
+
+.deleteAction {
+  border-color: #ff7770;
+  color: #e24842;
+}
+
+.deleteAction:hover {
+  background: #fff0ef;
+}
+
+.editor {
+  border-top: 1px solid #eaded6;
+}
+
+.editor > summary {
+  margin: 1rem 1.25rem;
+  list-style: none;
+}
+
+.editor > summary::-webkit-details-marker {
+  display: none;
+}
+
+.editor[open] > summary {
+  border-color: #f40770;
+  color: #d00660;
+}
+
+@media (max-width: 680px) {
+  .cardHeader {
+    flex-direction: column;
+  }
+}

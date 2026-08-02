@@ -15,6 +15,10 @@ export type DonationFrequency =
 export type DonationStatus = Database["public"]["Enums"]["donation_status"];
 export type VolunteerApplicationStatus =
   Database["public"]["Enums"]["volunteer_application_status"];
+export type TestimonialStatus =
+  Database["public"]["Enums"]["testimonial_status"];
+export type TestimonialLocale =
+  Database["public"]["Enums"]["testimonial_locale"];
 
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
 export type VolunteerApplicationRow =
@@ -27,3 +31,6 @@ export type EventGuestSignupRow =
 export type DonationRow = Database["public"]["Tables"]["donations"]["Row"];
 export type InstagramPostRow =
   Database["public"]["Tables"]["instagram_posts"]["Row"];
+export type TestimonialRow = Database["public"]["Tables"]["testimonials"]["Row"];
+export type TestimonialTranslationRow =
+  Database["public"]["Tables"]["testimonial_translations"]["Row"];

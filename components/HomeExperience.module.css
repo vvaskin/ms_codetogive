@@ -830,12 +830,6 @@
   text-transform: uppercase;
 }
 
-.featuredStoryPanel h3 {
-  margin: 0;
-  font-size: clamp(1.75rem, 2.6vw, 2.4rem);
-  line-height: 1.08;
-}
-
 .featuredStoryPanel .featuredStoryContext {
   margin: 0;
   max-width: 36ch;
@@ -882,6 +876,172 @@
   font-style: normal;
   line-height: 1.35;
   opacity: 0.78;
+}
+
+/* Testimonial carousel — every story shares one grid cell so the stage keeps
+   the height of the tallest card. The incoming story slides in from the entry
+   side while the outgoing one leaves the opposite way; the component sets both
+   sides so the arrows reverse the travel. */
+.testimonialCarousel {
+  position: relative;
+  z-index: 1;
+  /* Signs for the first paint, before the component sets the travel direction:
+     -1 enters from the left, 1 leaves to the right. */
+  --testimonial-enter-sign: -1;
+  --testimonial-leave-sign: 1;
+}
+
+/* The stack bleeds into the page gutter and clips there, so travelling cards
+   never reach the rest of the page while the resting card keeps room for its
+   shadow. Bleeding by exactly the gutter means it can never overflow the
+   viewport. */
+.testimonialStack {
+  display: grid;
+  overflow: hidden;
+  margin: calc(var(--layout-gutter) * -1);
+  padding: var(--layout-gutter);
+}
+
+/* Waiting stories are parked in place and invisible. The travel comes from the
+   keyframes below rather than a transition, because a keyframe always starts
+   from its declared side — a transition would instead start wherever the card
+   happens to sit, and the arrows would stop reversing the motion. */
+.testimonialStack > .featuredStoryCard {
+  --testimonial-travel: calc(100% + var(--layout-gutter));
+  grid-area: 1 / 1;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.testimonialStack > .featuredStoryCard[data-state="current"],
+.testimonialStack > .featuredStoryCard[data-state="active"] {
+  z-index: 2;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.testimonialStack > .featuredStoryCard[data-state="active"] {
+  animation: testimonialEnter 620ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.testimonialStack > .featuredStoryCard[data-state="leaving"] {
+  z-index: 1;
+  animation: testimonialLeave 620ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes testimonialEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(
+      calc(var(--testimonial-travel) * var(--testimonial-enter-sign)),
+      0,
+      0
+    );
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes testimonialLeave {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(
+      calc(var(--testimonial-travel) * var(--testimonial-leave-sign)),
+      0,
+      0
+    );
+  }
+}
+
+.testimonialControls {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.testimonialArrow {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f2d5cb;
+  border-radius: 999px;
+  background: var(--color-white);
+  color: #d00660;
+  font-size: 1.1rem;
+  font-weight: 1000;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+.testimonialArrow:hover {
+  border-color: var(--color-pink);
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.testimonialDots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.testimonialDot {
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #e6c8bd;
+  cursor: pointer;
+  transition:
+    width 200ms ease,
+    background 200ms ease;
+}
+
+.testimonialDot[data-active="true"] {
+  width: 30px;
+  background: var(--color-pink);
+}
+
+/* Wide screens have room to float the arrows beside the card. */
+@media (min-width: 900px) {
+  .testimonialArrow {
+    position: absolute;
+    top: calc(50% - 24px);
+  }
+
+  .testimonialArrowPrevious {
+    left: -24px;
+  }
+
+  .testimonialArrowNext {
+    right: -24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonialDot {
+    transition: none;
+  }
+
+  /* No travel: stories simply swap in place. */
+  .testimonialStack > .featuredStoryCard {
+    animation: none;
+  }
 }
 
 .stories,
