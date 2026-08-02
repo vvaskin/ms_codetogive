@@ -1,7 +1,19 @@
-# Love 21 Project
+# Love 21 Project by Team Cupid
 
 ### About This Project
 This is a modern Next.js App Router implementation of the LOVE 21 Foundation website, supporting both English and Traditional Chinese (zh-HK). It integrates Supabase for secure authentication, database storage, and asset management, creating a highly interactive experience for members, volunteers, and donors.
+
+### Homepage
+Our team designed the homepage to radiate the warmth, love, and vibrantly supportive energy that defines the Love 21 community. Every visual choice is intentional—from the soft, welcoming blush surfaces and playful handwritten fonts to the custom polaroids highlighting genuine milestones. We integrated animated, audited impact statistics that slide smoothly into view, capturing the scale of our community’s greatness and our collective contribution to neurodiverse families. It is a digital invitation that translates the foundation's core values of care and holistic support into a beautiful, engaging user experience.
+![Homepage](./assets/homepage.png)
+
+### Admin Portal
+The admin portal provides staff members with a unified panel to manage all backend operations. It functions as the command center for the project, allowing administrators to seamlessly oversee volunteer applications, edit multilingual member stories for the homepage carousel, log participation hours for active volunteers, and keep calendar event entries accurate.
+![Admin Portal](./assets/adminportal.png)
+
+### Contributor Portal
+Designed specifically for volunteers and donors, the contributor portal offers a personalized space to manage contributions. Users can register for upcoming events, view their logged hours, track their donation history (including recurring pledges), and update their profile details. The entire layout adapts cleanly to local preference and accessibility controls (including high-contrast and simple view modes), making community involvement simple and accessible.
+![Contributor Portal](./assets/contributorportal.png)
 
 ### Unique Features
 * **Instagram Feed Sync**: Automatically retrieves and syncs posts from Instagram via webhooks, storing them in Supabase to display cached social feeds on the stories page.
